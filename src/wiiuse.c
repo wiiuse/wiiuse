@@ -346,7 +346,7 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
  *	to a pending list and be sent out when the previous
  *	finishes.
  */
-int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int addr, unsigned short len) {
+int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int addr, uint16_t len) {
 	struct read_req_t* req;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
@@ -401,7 +401,7 @@ int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buff
  *	to a pending list and be sent out when the previous
  *	finishes.
  */
-int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int addr, unsigned short len) {
+int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int addr, uint16_t len) {
 	struct read_req_t* req;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
@@ -465,10 +465,10 @@ void wiiuse_send_next_pending_read_request(struct wiimote_t* wm) {
 		return;
 
 	/* the offset is in big endian */
-	*(int*)(buf) = BIG_ENDIAN_LONG(req->addr);
+	*(int32_t*)(buf) = BIG_ENDIAN_LONG(req->addr);
 
 	/* the length is in big endian */
-	*(short*)(buf + 4) = BIG_ENDIAN_SHORT(req->size);
+	*(int16_t*)(buf + 4) = BIG_ENDIAN_SHORT(req->size);
 
 	WIIUSE_DEBUG("Request read at address: 0x%x  length: %i", req->addr, req->size);
 	wiiuse_send(wm, WM_CMD_READ_DATA, buf, 6);

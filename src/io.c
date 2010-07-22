@@ -52,7 +52,7 @@
  *	The handshake will be concluded when the wiimote responds
  *	with this data.
  */
-void wiiuse_handshake(struct wiimote_t* wm, byte* data, unsigned short len) {
+void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 	if (!wm)	return;
 
 	switch (wm->handshake_state) {

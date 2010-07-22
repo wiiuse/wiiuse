@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 
 #ifdef WIN32
@@ -45,34 +46,34 @@
 #include "events.h"
 #include "wiiboard.h"
 
-static short big_to_lil(unsigned short num)
+static uint16_t big_to_lil(uint16_t num)
 {
-	short ret = num;
-	char *bret = (char*)&ret;
-	char tmp = bret[1];
+	uint16_t ret = num;
+	uint8_t *bret = (uint8_t*)&ret;
+	uint8_t tmp = bret[1];
 	bret[1] = bret[0];
 	bret[0] = tmp;
 	return ret;
 }
 
 /**
- *	@brief Handle the handshake data from the guitar.
+ *	@brief Handle the handshake data from the wiiboard.
  *
- *	@param cc		A pointer to a classic_ctrl_t structure.
+ *	@param wb		A pointer to a wii_board_t structure.
  *	@param data		The data read in from the device.
  *	@param len		The length of the data block, in bytes.
  *
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
 
-int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, unsigned short len) {
+int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
 	int i;
 	/* decrypt data */
 	printf("DECRYPTED DATA WIIBOARD\n");
 	for (i = 0; i < len; ++i)
 	{
 		if(i%16==0)
-		{			
+		{
 			if(i!=0)
 				printf("\n");
 
@@ -81,9 +82,9 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 		printf("%02X ", data[i]);
 	}
 	printf("\n");
-	
-	short *handshake_short = (short*)data;
-	
+
+	uint16_t *handshake_short = (uint16_t*)data;
+
 	wb->ctr[0] = big_to_lil(handshake_short[2]);
 	wb->cbr[0] = big_to_lil(handshake_short[3]);
 	wb->ctl[0] = big_to_lil(handshake_short[4]);
@@ -100,6 +101,7 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	wb->cbl[2] = big_to_lil(handshake_short[13]);
 
 	/* handshake done */
+	wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
 	wm->exp.type = EXP_WII_BOARD;
 
 	#ifdef WIN32
@@ -119,63 +121,35 @@ void wii_board_disconnected(struct wii_board_t* wb) {
 	memset(wb, 0, sizeof(struct wii_board_t));
 }
 
+static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
+	if (raw < cal[1]) {
+		return ((raw-cal[0]) * 14.0f)/(float)(cal[1] - cal[0]);
+	} else if (raw > cal[1]) {
+		return ((raw-cal[1]) * 14.0f)/(float)(cal[2] - cal[1]) + 14.0f;
+	}
+}
+
 /**
- *	@brief Handle guitar event.
+ *	@brief Handle wii board event.
  *
- *	@param cc		A pointer to a classic_ctrl_t structure.
+ *	@param wb		A pointer to a wii_board_t structure.
  *	@param msg		The message specified in the event packet.
  */
 void wii_board_event(struct wii_board_t* wb, byte* msg) {
-	short *shmsg = (short*)(msg);
-	wb->rtr = big_to_lil(shmsg[0]);
-	if(wb->rtr<0) wb->rtr = 0;
-	wb->rbr = big_to_lil(shmsg[1]);
-	if(wb->rbr<0) wb->rbr = 0;
-	wb->rtl = big_to_lil(shmsg[2]);
-	if(wb->rtl<0) wb->rtl = 0;
-	wb->rbl = big_to_lil(shmsg[3]);		
-	if(wb->rbl<0) wb->rbl = 0;
+	uint16_t *shmsg = (uint16_t*)(msg);
+	wb->rtr = (msg[0] << 8) + msg[1];// big_to_lil(shmsg[0]);
+	wb->rbr = (msg[2] << 8) + msg[3];// big_to_lil(shmsg[1]);
+	wb->rtl = (msg[4] << 8) + msg[5];// big_to_lil(shmsg[2]);
+	wb->rbl = (msg[6] << 8) + msg[7];// big_to_lil(shmsg[3]);
 
-	/* 
-		Interpolate values 
+	/*
+		Interpolate values
 		Calculations borrowed from wiili.org - No names to mention sadly :( http://www.wiili.org/index.php/Wii_Balance_Board_PC_Drivers page however!
 	*/
-
-	if(wb->rtr<wb->ctr[1])
-	{
-		wb->tr = 68*(wb->rtr-wb->ctr[0])/(wb->ctr[1]-wb->ctr[0]);
-	}
-	else if(wb->rtr >= wb->ctr[1])
-	{
-		wb->tr = 68*(wb->rtr-wb->ctr[1])/(wb->ctr[2]-wb->ctr[1]) + 68;
-	}
-
-	if(wb->rtl<wb->ctl[1])
-	{
-		wb->tl = 68*(wb->rtl-wb->ctl[0])/(wb->ctl[1]-wb->ctl[0]);
-	}
-	else if(wb->rtl >= wb->ctl[1])
-	{
-		wb->tl = 68*(wb->rtl-wb->ctl[1])/(wb->ctl[2]-wb->ctl[1]) + 68;
-	}
-
-	if(wb->rbr<wb->cbr[1])
-	{
-		wb->br = 68*(wb->rbr-wb->cbr[0])/(wb->cbr[1]-wb->cbr[0]);
-	}
-	else if(wb->rbr >= wb->cbr[1])
-	{
-		wb->br = 68*(wb->rbr-wb->cbr[1])/(wb->cbr[2]-wb->cbr[1]) + 68;
-	}
-
-	if(wb->rbl<wb->cbl[1])
-	{
-		wb->bl = 68*(wb->rbl-wb->cbl[0])/(wb->cbl[1]-wb->cbl[0]);
-	}
-	else if(wb->rbl >= wb->cbl[1])
-	{
-		wb->bl = 68*(wb->rbl-wb->cbl[1])/(wb->cbl[2]-wb->cbl[1]) + 68;
-	}	
+	wb->tr = do_interpolate(wb->rtr, wb->ctr);
+	wb->tl = do_interpolate(wb->rtl, wb->ctl);
+	wb->br = do_interpolate(wb->rbr, wb->cbr);
+	wb->bl = do_interpolate(wb->rbl, wb->cbl);
 }
 
 void wiiuse_set_wii_board_calib(struct wiimote_t *wm)

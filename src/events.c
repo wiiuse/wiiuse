@@ -389,10 +389,10 @@ static void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
  *	@param msg		The message specified in the event packet.
  */
 void wiiuse_pressed_buttons(struct wiimote_t* wm, byte* msg) {
-	short now;
+	int16_t now;
 
 	/* convert to big endian */
-	now = BIG_ENDIAN_SHORT(*(short*)msg) & WIIMOTE_BUTTON_ALL;
+	now = BIG_ENDIAN_SHORT(*(int16_t*)msg) & WIIMOTE_BUTTON_ALL;
 
 	/* pressed now & were pressed, then held */
 	wm->btns_held = (now & wm->btns);
@@ -421,7 +421,7 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 	/* we must always assume the packet received is from the most recent request */
 	byte err;
 	byte len;
-	unsigned short offset;
+	uint16_t offset;
 	struct read_req_t* req = wm->read_req;
 
 	wiiuse_pressed_buttons(wm, msg);
@@ -460,7 +460,7 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 	}
 
 	len = ((msg[2] & 0xF0) >> 4) + 1;
-	offset = BIG_ENDIAN_SHORT(*(unsigned short*)(msg + 3));
+	offset = BIG_ENDIAN_SHORT(*(uint16_t*)(msg + 3));
 	req->addr = (req->addr & 0xFFFF);
 
 	req->wait -= len;
@@ -634,7 +634,7 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
  *	If the data is NULL then this function will try to start
  *	a handshake with the expansion.
  */
-void handshake_expansion(struct wiimote_t* wm, byte* data, unsigned short len) {
+void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 	int id;
 
 	if (!data) {
@@ -731,7 +731,7 @@ void disable_expansion(struct wiimote_t* wm) {
 			wm->event = WIIUSE_GUITAR_HERO_3_CTRL_REMOVED;
 			break;
 		case EXP_WII_BOARD:
-			guitar_hero_3_disconnected(&wm->exp.gh3);
+			wii_board_disconnected(&wm->exp.wb);
 			wm->event = WIIUSE_WII_BOARD_CTRL_REMOVED;
 			break;
 		default:
@@ -783,6 +783,13 @@ static void save_state(struct wiimote_t* wm) {
 			wm->lstate.exp_ljs_mag = wm->exp.gh3.js.mag;
 			wm->lstate.exp_r_shoulder = wm->exp.gh3.whammy_bar;
 			wm->lstate.exp_btns = wm->exp.gh3.btns;
+			break;
+
+		case EXP_WII_BOARD:
+			wm->lstate.exp_wb_rtr = wm->exp.wb.rtr;
+			wm->lstate.exp_wb_rtl = wm->exp.wb.rtl;
+			wm->lstate.exp_wb_rbr = wm->exp.wb.rbr;
+			wm->lstate.exp_wb_rbl = wm->exp.wb.rbl;
 			break;
 
 		case EXP_NONE:
@@ -882,10 +889,10 @@ static int state_changed(struct wiimote_t* wm) {
 		}
 		case EXP_WII_BOARD:
 		{
-			STATE_CHANGED(wm->exp.wb.ltr,wm->exp.wb.tr);
-			STATE_CHANGED(wm->exp.wb.ltl,wm->exp.wb.tl);
-			STATE_CHANGED(wm->exp.wb.lbr,wm->exp.wb.br);
-			STATE_CHANGED(wm->exp.wb.lbl,wm->exp.wb.bl);
+			STATE_CHANGED(wm->lstate.exp_wb_rtr,wm->exp.wb.tr);
+			STATE_CHANGED(wm->lstate.exp_wb_rtl,wm->exp.wb.tl);
+			STATE_CHANGED(wm->lstate.exp_wb_rbr,wm->exp.wb.br);
+			STATE_CHANGED(wm->lstate.exp_wb_rbl,wm->exp.wb.bl);
 			break;
 		}
 		case EXP_NONE:

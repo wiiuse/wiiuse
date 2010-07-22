@@ -28,7 +28,7 @@
 
 /**
  *	@file
- *	@brief Guitar Hero 3 expansion device.
+ *	@brief Wii board expansion device.
  */
 
 #ifndef WII_BOARD_H_INCLUDED
@@ -40,7 +40,7 @@
 extern "C" {
 #endif
 
-int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, unsigned short len);
+int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len);
 
 void wii_board_disconnected(struct wii_board_t* wb);
 
