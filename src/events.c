@@ -56,6 +56,7 @@
 #include "nunchuk.h"
 #include "classic.h"
 #include "guitar_hero_3.h"
+#include "wiiboard.h"
 #include "events.h"
 
 static void idle_cycle(struct wiimote_t* wm);
@@ -611,6 +612,9 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
 		case EXP_GUITAR_HERO_3:
 			guitar_hero_3_event(&wm->exp.gh3, msg);
 			break;
+		case EXP_WII_BOARD:
+			wii_board_event(&wm->exp.wb, msg);
+			break;
 		default:
 			break;
 	}
@@ -680,6 +684,12 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, unsigned short len) {
 				wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;
 			break;
 		}
+		case EXP_ID_CODE_WII_BOARD:
+		{
+			if (wii_board_handshake(wm, &wm->exp.wb, data, len))
+				wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
+			break;
+		}
 		default:
 		{
 			WIIUSE_WARNING("Unknown expansion type. Code: 0x%x", id);
@@ -719,6 +729,10 @@ void disable_expansion(struct wiimote_t* wm) {
 		case EXP_GUITAR_HERO_3:
 			guitar_hero_3_disconnected(&wm->exp.gh3);
 			wm->event = WIIUSE_GUITAR_HERO_3_CTRL_REMOVED;
+			break;
+		case EXP_WII_BOARD:
+			guitar_hero_3_disconnected(&wm->exp.gh3);
+			wm->event = WIIUSE_WII_BOARD_CTRL_REMOVED;
 			break;
 		default:
 			break;
@@ -864,6 +878,14 @@ static int state_changed(struct wiimote_t* wm) {
 			STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.gh3.js.mag);
 			STATE_CHANGED(wm->lstate.exp_r_shoulder, wm->exp.gh3.whammy_bar);
 			STATE_CHANGED(wm->lstate.exp_btns, wm->exp.gh3.btns);
+			break;
+		}
+		case EXP_WII_BOARD:
+		{
+			STATE_CHANGED(wm->exp.wb.ltr,wm->exp.wb.tr);
+			STATE_CHANGED(wm->exp.wb.ltl,wm->exp.wb.tl);
+			STATE_CHANGED(wm->exp.wb.lbr,wm->exp.wb.br);
+			STATE_CHANGED(wm->exp.wb.lbl,wm->exp.wb.bl);
 			break;
 		}
 		case EXP_NONE:
