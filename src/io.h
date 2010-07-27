@@ -34,11 +34,11 @@
 #ifndef CONNECT_H_INCLUDED
 #define CONNECT_H_INCLUDED
 
-#ifndef WIN32
-	#include <bluetooth/bluetooth.h>
-#endif
-
 #include "wiiuse_internal.h"
+
+#ifdef WIIUSE_NIX
+#include <bluetooth/bluetooth.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
