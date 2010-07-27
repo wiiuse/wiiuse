@@ -42,9 +42,19 @@
 #ifdef _WIN32
 	/* windows */
 	#include <windows.h>
+	#define WIIUSE_WIN
 #else
-	/* nix */
-	#include <bluetooth/bluetooth.h>
+	#ifdef __APPLE__
+		/* mac */
+		#include <CoreFoundation/CoreFoundation.h>
+		#include <IOBluetooth/Bluetooth.h>
+		#include <IOBluetooth/IOBluetoothUserLib.h>
+		#define WIIUSE_MAC
+	#else
+		/* nix */
+		#include <bluetooth/bluetooth.h>
+		#define WIIUSE_NIX
+	#endif
 #endif
 
 #ifdef WIIUSE_INTERNAL_H_INCLUDED
@@ -563,18 +573,22 @@ typedef enum WIIUSE_EVENT_TYPE {
 typedef struct wiimote_t {
 	WCONST int unid;						/**< user specified id						*/
 
-	#ifndef WIN32
+	#if defined(WIIUSE_NIX)
 		WCONST bdaddr_t bdaddr;				/**< bt address								*/
 		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST int out_sock;				/**< output socket							*/
 		WCONST int in_sock;					/**< input socket 							*/
-	#else
+	#elseif defined(WIIUSE_WIN)
 		WCONST HANDLE dev_handle;			/**< HID handle								*/
 		WCONST OVERLAPPED hid_overlap;		/**< overlap handle							*/
 		WCONST enum win_bt_stack_t stack;	/**< type of bluetooth stack to use			*/
 		WCONST int timeout;					/**< read timeout							*/
 		WCONST byte normal_timeout;			/**< normal timeout							*/
 		WCONST byte exp_timeout;			/**< timeout for expansion handshake		*/
+	#elseif defined(WIIUSE_MAC)
+		WCONST IOBluetoothDeviceRef wiiDevice;
+		WCONST IOBluetoothL2CAPChannelRef ichan;
+		WCONST IOBluetoothL2CAPChannelRef cchan;
 	#endif
 
 	WCONST int state;						/**< various state flags					*/

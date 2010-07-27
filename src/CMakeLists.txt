@@ -22,6 +22,8 @@ set(SOURCES
 
 if(WIN32)
 	list(APPEND SOURCES io_win.c)
+elseif(APPLE)
+	list(APPEND SOURCES io_mac.c)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
@@ -30,7 +32,16 @@ set(API
 	wiiuse.h)
 
 add_library(wiiuse SHARED ${SOURCES} ${API})
-target_link_libraries(wiiuse m bluetooth)
+if(WIN32)
+	# TODO
+elseif(APPLE)
+	find_library(IOBLUETOOTH_FRAMEWORK
+		NAMES
+		IOBluetooth)
+	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK})
+else()
+	target_link_libraries(wiiuse m bluetooth)
+endif()
 
 set_property(TARGET
 	wiiuse

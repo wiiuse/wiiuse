@@ -44,7 +44,11 @@
 #ifndef WIIUSE_INTERNAL_H_INCLUDED
 #define WIIUSE_INTERNAL_H_INCLUDED
 
-#ifndef WIN32
+#if defined(_WIN32)
+
+#elif defined(__APPLE__)
+
+#else
 	#include <arpa/inet.h>				/* htons() */
 	#include <bluetooth/bluetooth.h>
 #endif
