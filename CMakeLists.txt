@@ -24,9 +24,15 @@ project(wiiuse)
 #list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 #include(UseBackportedModules)
 
+add_definitions(-DWIIUSE_COMPILE_LIB)
+
 ###
 # Build the project
 ###
+
+if(MSVC)
+	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/msvc-stdint")
+endif()
 
 # The app is in the "src" subdirectory
 add_subdirectory(src)

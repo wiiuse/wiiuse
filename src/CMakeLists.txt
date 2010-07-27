@@ -19,18 +19,24 @@ set(SOURCES
 	os.h
 	wiiuse_internal.h
 	wiiboard.h)
-
+set(API
+	wiiuse.h)
+	
 if(WIN32)
 	list(APPEND SOURCES io_win.c)
+	list(APPEND API ../msvc-stdint/stdint.h)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
 
-set(API
-	wiiuse.h)
+
 
 add_library(wiiuse SHARED ${SOURCES} ${API})
-target_link_libraries(wiiuse m bluetooth)
+if(WIN32)
+	target_link_libraries(Ws2_32.lib hid.lib
+else()
+	target_link_libraries(wiiuse m bluetooth)
+endif()
 
 set_property(TARGET
 	wiiuse
