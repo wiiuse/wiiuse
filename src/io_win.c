@@ -65,7 +65,8 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	HidD_GetHidGuid(&device_id);
 
 	/* get all hid devices connected */
-	device_info = SetupDiGetClassDevs(&device_id, NULL, NULL, (DIGCF_DEVICEINTERFACE | DIGCF_PRESENT));
+	/* no longer setting DIGCF_PRESENT due to comments in other wiimote libs */
+	device_info = SetupDiGetClassDevs(&device_id, NULL, NULL, DIGCF_DEVICEINTERFACE);
 
 	for (;; ++index) {
 
