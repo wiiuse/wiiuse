@@ -34,9 +34,14 @@ if(MSVC)
 	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/msvc-stdint")
 endif()
 
-# The app is in the "src" subdirectory
+# The lib is in the "src" subdirectory
 add_subdirectory(src)
-# Add any more subdirectories to recurse into here.
+
+# Example apps
+add_subdirectory(example)
+add_subdirectory(example-sdl)
+
+
 	
 ###
 # Other things you might like to do
