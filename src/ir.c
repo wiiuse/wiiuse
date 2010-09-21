@@ -74,8 +74,10 @@ void wiiuse_set_ir(struct wiimote_t* wm, int status) {
 	 *	again to actually enable IR.
 	 */
 	if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE)) {
-		WIIUSE_DEBUG("Tried to enable IR, will wait until handshake finishes.");
-		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_IR);
+		if(status) {
+			WIIUSE_DEBUG("Tried to enable IR, will wait until handshake finishes.");
+			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_IR);
+		} // else ignoring request to turn off, since it's turned off by default
 		return;
 	}
 
