@@ -26,6 +26,12 @@ project(wiiuse)
 
 add_definitions(-DWIIUSE_COMPILE_LIB)
 
+if(NOT WIN32 AND NOT APPLE)
+	find_path(BLUEZ_INCLUDE_DIR
+		bluetooth/bluetooth.h)
+	include_directories("${BLUEZ_INCLUDE_DIR}")
+endif()
+
 ###
 # Build the project
 ###
