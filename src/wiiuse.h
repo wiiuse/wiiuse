@@ -43,8 +43,6 @@
 #define WIIUSE_MINOR 13
 #define WIIUSE_MICRO 0
 
-#define WIIUSE_VER 001300
-
 #ifdef _WIN32
 	/* windows */
 	#include <windows.h>
