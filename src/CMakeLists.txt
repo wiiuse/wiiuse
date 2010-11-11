@@ -35,7 +35,7 @@ add_library(wiiuse SHARED ${SOURCES} ${API})
 if(WIN32)
 	target_link_libraries(wiiuse Ws2_32.lib hid.lib setupapi.lib)
 else()
-	target_link_libraries(wiiuse m bluetooth)
+	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 endif()
 
 set_property(TARGET
