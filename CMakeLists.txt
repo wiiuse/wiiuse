@@ -27,8 +27,16 @@ include(UseBackportedModules)
 add_definitions(-DWIIUSE_COMPILE_LIB)
 
 if(NOT WIN32 AND NOT APPLE)
+	set(LINUX YES)
 	find_package(Bluez REQUIRED)
-	include_directories("${BLUEZ_INCLUDE_DIRS}")
+	include_directories(${BLUEZ_INCLUDE_DIRS})
+else()
+	set(LINUX NO)
+endif()
+
+if(WIN32)
+	find_package(WinHID REQUIRED)
+	include_directories(${WINHID_INCLUDE_DIRS})
 endif()
 
 ###

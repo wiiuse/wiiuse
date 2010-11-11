@@ -24,17 +24,18 @@ set(API
 	
 if(WIN32)
 	list(APPEND SOURCES io_win.c)
-	list(APPEND API ../msvc-stdint/stdint.h)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
 
-
+if(MSVC)
+	list(APPEND API ../msvc-stdint/stdint.h)
+endif()
 
 add_library(wiiuse SHARED ${SOURCES} ${API})
 if(WIN32)
-	target_link_libraries(wiiuse Ws2_32.lib hid.lib setupapi.lib)
-else()
+	target_link_libraries(wiiuse Ws2_32.lib ${WINHID_LIBRARIES} setupapi.lib)
+elseif(LINUX)
 	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 endif()
 
