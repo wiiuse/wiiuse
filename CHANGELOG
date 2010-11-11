@@ -4,9 +4,35 @@
 -
 ---------------------------
 
+Fork, located at: http://github.com/rpavlik/wiiuse
+
+Original project:
 http://wiiuse.net/
 http://wiiuse.sourceforge.net/
 http://sourceforge.net/projects/wiiuse/
+
+---------------------------
+v0.13 -- ?
+---------------------------
+	Added:
+		- Support for Wii Balance Board ("wiiboard"): your code can
+			#ifdef WIIUSE_SUPPORTS_WIIBOARD (support based in part on
+			code from TU-Delft)
+		- CMake-based cross-platform build system
+		- Version defines in wiiuse.h
+
+	Fixed:
+		- [Linux] Bluez issue with not initializing structure on newer kernels
+		- Use stdint.h types for guaranteed type size independent of platform
+		- Bundle a suitable stdint.h for MSVC builds
+		- Setting IR to off before handshake complete actually respected now.
+		   (fix via Harald <Gotterdammerung@web.de>)
+
+	Changed:
+		- Old makefiles and Visual Studio projects removed.
+		- CMake allows easy building of binary packages with a uniform
+			directory structure: .dll/.exe in bin, .lib/.so in lib, .h in
+			include.
 
 ---------------------------
 v0.12 -- 2 Apr 2008
