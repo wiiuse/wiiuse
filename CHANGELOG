@@ -16,7 +16,7 @@ v0.13 -- ?
 ---------------------------
 	Added:
 		- Support for Wii Balance Board ("wiiboard"): your code can
-			#ifdef WIIUSE_SUPPORTS_WIIBOARD (support based in part on
+			#ifdef EXP_WII_BOARD (support based in part on
 			code from TU-Delft)
 		- CMake-based cross-platform build system
 		- Version defines in wiiuse.h

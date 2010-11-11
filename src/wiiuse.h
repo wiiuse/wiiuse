@@ -44,7 +44,6 @@
 #define WIIUSE_MICRO 0
 
 #define WIIUSE_VER 001300
-#define WIIUSE_SUPPORTS_WIIBOARD
 
 #ifdef _WIN32
 	/* windows */
