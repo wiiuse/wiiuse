@@ -60,16 +60,6 @@ if(BUILD_EXAMPLE_SDL)
     add_subdirectory(example-sdl)
 endif()
 
-
-	
-###
-# Other things you might like to do
-###
-
-# Add nightly builds/dashboard support
-#include(CreateDashboardScripts)
-#create_dashboard_scripts(DashboardBuildInitialCache.cmake.in)
-
 ###
 # Set packaging options (for CPack)
 ###
