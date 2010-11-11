@@ -18,6 +18,8 @@ option(BUILD_EXAMPLE "Should we build the example app?" YES)
 option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
 option(INSTALL_EXAMPLES "Should we install the example apps?" YES)
 
+option(CPACK_MONOLITHIC_INSTALL "Only produce a single component installer, rather than multi-component." NO)
+
 ###
 # Perform build configuration of dependencies
 ###
@@ -76,7 +78,17 @@ install(FILES
 	LICENSE
 	LICENSE_noncommercial
 	README
-	DESTINATION ${DOC_DIR})
+	DESTINATION ${DOC_DIR} COMPONENT docs)
+
+if(INSTALL_EXAMPLES)
+	install(FILES example/example.c
+		DESTINATION ${DOC_DIR}/example COMPONENT examples)
+	install(FILES example-sdl/sdl.c
+		DESTINATION ${DOC_DIR}/example-sdl COMPONENT examples)
+endif()
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README")
 
 include(GetCompilerInfoString)
 get_compiler_info_string(_compiler)
@@ -86,3 +98,14 @@ set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${_compile
 # Include the packaging system now that we have it all set up
 include(CPack)
 
+cpack_add_component(docs HIDDEN)
+
+cpack_add_component(development
+	DISPLAY_NAME "Development Files")
+
+cpack_add_component(examples
+	DISPLAY_NAME "Examples")
+
+cpack_add_component(runtime
+	DISPLAY_NAME "Runtime Library"
+	REQUIRED)
