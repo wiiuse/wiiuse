@@ -13,8 +13,8 @@ project(wiiuse)
 # Set up options
 ###
 
-# See the cmake docs about the "option" command if you have build-time configuration,
-# such as ifdefs, etc.
+option(BUILD_EXAMPLE "Should we build the example app?" YES)
+option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
 
 ###
 # Perform build configuration of dependencies
@@ -44,8 +44,13 @@ endif()
 add_subdirectory(src)
 
 # Example apps
-add_subdirectory(example)
-add_subdirectory(example-sdl)
+if(BUILD_EXAMPLE)
+    add_subdirectory(example)
+endif()
+
+if(BUILD_EXAMPLE_SDL)
+    add_subdirectory(example-sdl)
+endif()
 
 
 	
