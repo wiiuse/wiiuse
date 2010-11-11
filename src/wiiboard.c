@@ -124,10 +124,13 @@ void wii_board_disconnected(struct wii_board_t* wb) {
 }
 
 static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
+#define WIIBOARD_MIDDLE_CALIB 17.0f
 	if (raw < cal[1]) {
-		return ((raw-cal[0]) * 14.0f)/(float)(cal[1] - cal[0]);
+		return ((raw-cal[0]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[1] - cal[0]);
 	} else if (raw > cal[1]) {
-		return ((raw-cal[1]) * 14.0f)/(float)(cal[2] - cal[1]) + 14.0f;
+		return ((raw-cal[1]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[2] - cal[1]) + WIIBOARD_MIDDLE_CALIB;
+	} else {
+		return WIIBOARD_MIDDLE_CALIB;
 	}
 }
 
