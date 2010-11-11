@@ -12,6 +12,13 @@ http://wiiuse.sourceforge.net/
 http://sourceforge.net/projects/wiiuse/
 
 ---------------------------
+v0.13.1 -- 11 November 2010
+---------------------------
+	Fixed:
+		- Fix crashers due to unchecked pointer use.
+		- [Windows] Fix crashers due to unchecked pointer use.
+
+---------------------------
 v0.13 -- 11 November 2010
 ---------------------------
 	Added:

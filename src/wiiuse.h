@@ -41,7 +41,7 @@
 
 #define WIIUSE_MAJOR 0
 #define WIIUSE_MINOR 13
-#define WIIUSE_MICRO 0
+#define WIIUSE_MICRO 1
 
 #ifdef _WIN32
 	/* windows */
