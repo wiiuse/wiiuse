@@ -294,7 +294,7 @@ int main(int argc, char** argv) {
 	 */
 	found = wiiuse_find(wiimotes, MAX_WIIMOTES, 5);
 	if (!found) {
-		printf ("No wiimotes found.");
+		printf ("No wiimotes found.\n");
 		return 0;
 	}
 
