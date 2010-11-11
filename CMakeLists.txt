@@ -21,8 +21,8 @@ option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
 ###
 
 # Locally-developed modules dist'ed with this app - always have this first.
-#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-#include(UseBackportedModules)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(UseBackportedModules)
 
 add_definitions(-DWIIUSE_COMPILE_LIB)
 
