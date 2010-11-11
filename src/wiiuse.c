@@ -505,8 +505,12 @@ void wiiuse_status(struct wiimote_t* wm) {
  */
 struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid) {
 	int i = 0;
+	if (!wm)
+		return NULL;
 
 	for (; i < wiimotes; ++i) {
+		if (!wm[i])
+			continue;
 		if (wm[i]->unid == unid)
 			return wm[i];
 	}

@@ -144,6 +144,8 @@ int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
 	int i = 0;
 
 	for (; i < wiimotes; ++i) {
+		if (!wm[i])
+			continue;
 		if (WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_CONNECTED))
 			++connected;
 	}
