@@ -1,10 +1,8 @@
-# Full-featured Build System Sample
-# CMake cross-platform build system recipe
-# 2009 Ryan Pavlik <rpavlik@iastate.edu>
+# 2009-2010 Ryan Pavlik <rpavlik@iastate.edu>
 # http://academic.cleardefinition.com/
 # Iowa State University HCI Graduate Program/VRAC
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6.2)
 
 # Set package properties
 project(WiiUse)
@@ -12,6 +10,9 @@ project(WiiUse)
 ###
 # Set up options
 ###
+
+include("./ParseVersion.cmake")
+message(STATUS "Configuring WiiUse version ${CPACK_PACKAGE_VERSION}")
 
 option(BUILD_EXAMPLE "Should we build the example app?" YES)
 option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
@@ -63,6 +64,24 @@ endif()
 ###
 # Set packaging options (for CPack)
 ###
+
+if(WIN32)
+	set(DOC_DIR .)
+else()
+	set(DOC_DIR share/doc/wiiuse)
+endif()
+
+install(FILES
+	CHANGELOG
+	LICENSE
+	LICENSE_noncommercial
+	README
+	DESTINATION ${DOC_DIR})
+
+include(GetCompilerInfoString)
+get_compiler_info_string(_compiler)
+
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${_compiler}")
 
 # Include the packaging system now that we have it all set up
 include(CPack)
