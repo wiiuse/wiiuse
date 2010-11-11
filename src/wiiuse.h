@@ -39,6 +39,13 @@
 #ifndef WIIUSE_H_INCLUDED
 #define WIIUSE_H_INCLUDED
 
+#define WIIUSE_MAJOR 0
+#define WIIUSE_MINOR 13
+#define WIIUSE_MICRO 0
+
+#define WIIUSE_VER 001300
+#define WIIUSE_SUPPORTS_WIIBOARD
+
 #ifdef _WIN32
 	/* windows */
 	#include <windows.h>
