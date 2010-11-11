@@ -71,6 +71,7 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	uint16_t *handshake_short;
 
 	/* decrypt data */
+#ifdef WITH_WIIUSE_DEBUG
 	printf("DECRYPTED DATA WIIBOARD\n");
 	for (i = 0; i < len; ++i)
 	{
@@ -84,6 +85,7 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 		printf("%02X ", data[i]);
 	}
 	printf("\n");
+#endif
 
 	handshake_short = (uint16_t*)data;
 
