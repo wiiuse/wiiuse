@@ -24,6 +24,7 @@ set(API
 	
 if(WIN32)
 	list(APPEND SOURCES io_win.c)
+	set(CMAKE_DEBUG_POSTFIX _debug)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
@@ -33,6 +34,7 @@ if(MSVC)
 endif()
 
 add_library(wiiuse SHARED ${SOURCES} ${API})
+
 if(WIN32)
 	target_link_libraries(wiiuse Ws2_32.lib ${WINHID_LIBRARIES} setupapi.lib)
 elseif(LINUX)
