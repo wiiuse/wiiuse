@@ -50,12 +50,20 @@ install(TARGETS
 	RUNTIME
 	DESTINATION
 	bin
+	COMPONENT
+	runtime
 	ARCHIVE
 	DESTINATION
 	lib
+	COMPONENT
+	development
 	LIBRARY
 	DESTINATION
 	lib
+	COMPONENT
+	runtime
 	PUBLIC_HEADER
 	DESTINATION
-	include)
+	include
+	COMPONENT
+	development)

@@ -7,7 +7,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Set package properties
-project(wiiuse)
+project(WiiUse)
 
 ###
 # Set up options
@@ -15,6 +15,7 @@ project(wiiuse)
 
 option(BUILD_EXAMPLE "Should we build the example app?" YES)
 option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
+option(INSTALL_EXAMPLES "Should we install the example apps?" YES)
 
 ###
 # Perform build configuration of dependencies
