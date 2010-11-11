@@ -107,8 +107,8 @@ struct wiimote_t** wiiuse_init(int wiimotes) {
 	 */
 	if (!g_banner) {
 		printf(	"wiiuse v" WIIUSE_VERSION " loaded.\n"
-				"  By: Michael Laforest <thepara[at]gmail{dot}com>\n"
-				"  http://wiiuse.net  http://wiiuse.sf.net\n");
+				"  Fork at http://github.com/rpavlik/wiiuse\n"
+				"  Original By: Michael Laforest <thepara[at]gmail{dot}com> http://wiiuse.net\n");
 		g_banner = 1;
 	}
 
