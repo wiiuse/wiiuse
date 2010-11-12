@@ -520,7 +520,7 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
  *	Read the controller status and execute the registered status callback.
  */
 static void event_status(struct wiimote_t* wm, byte* msg) {
-	int led[4] = {0};
+	int led[4] = {0, 0, 0, 0};
 	int attachment = 0;
 	int ir = 0;
 	int exp_changed = 0;
