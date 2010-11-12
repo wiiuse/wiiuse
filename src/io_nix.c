@@ -68,8 +68,11 @@ static int wiiuse_connect_single(struct wiimote_t* wm, char* address);
 int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	int device_id;
 	int device_sock;
+	inquiry_info scan_info_arr[128];
+	inquiry_info* scan_info = scan_info_arr;
 	int found_devices;
 	int found_wiimotes;
+	int i = 0;
 
 	/* reset all wiimote bluetooth device addresses */
 	for (found_wiimotes = 0; found_wiimotes < max_wiimotes; ++found_wiimotes) {
@@ -96,8 +99,6 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 		return 0;
 	}
 
-	inquiry_info scan_info_arr[128];
-	inquiry_info* scan_info = scan_info_arr;
 	memset(&scan_info_arr, 0, sizeof(scan_info_arr));
 
 	/* scan for bluetooth devices for 'timeout' seconds */
@@ -109,10 +110,8 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 
 	WIIUSE_INFO("Found %i bluetooth device(s).", found_devices);
 
-	int i = 0;
-
 	/* display discovered devices */
-	for (; (i < found_devices) && (found_wiimotes < max_wiimotes); ++i) {
+	for (i = 0; (i < found_devices) && (found_wiimotes < max_wiimotes); ++i) {
 		if ((scan_info[i].dev_class[0] == WM_DEV_CLASS_0) &&
 			(scan_info[i].dev_class[1] == WM_DEV_CLASS_1) &&
 			(scan_info[i].dev_class[2] == WM_DEV_CLASS_2))
