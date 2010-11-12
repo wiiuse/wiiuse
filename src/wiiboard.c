@@ -109,9 +109,9 @@ static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
 	if (raw < cal[0]) {
 		return 0.0f;
 	} else if (raw < cal[1]) {
-		return ((raw-cal[0]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[1] - cal[0]);
+		return ((float)(raw-cal[0]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[1] - cal[0]);
 	} else if (raw < cal[2]) {
-		return ((raw-cal[1]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[2] - cal[1]) + WIIBOARD_MIDDLE_CALIB;
+		return ((float)(raw-cal[1]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[2] - cal[1]) + WIIBOARD_MIDDLE_CALIB;
 	} else {
 		return WIIBOARD_MIDDLE_CALIB * 2.0f;
 	}
