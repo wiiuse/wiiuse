@@ -377,6 +377,8 @@ int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buff
 
 	/* make this request structure */
 	req = (struct read_req_t*)malloc(sizeof(struct read_req_t));
+	if (req == NULL)
+		return 0;
 	req->cb = read_cb;
 	req->buf = buffer;
 	req->addr = addr;
@@ -432,6 +434,8 @@ int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int addr, uint
 
 	/* make this request structure */
 	req = (struct read_req_t*)malloc(sizeof(struct read_req_t));
+	if (req == NULL)
+		return 0;
 	req->cb = NULL;
 	req->buf = buffer;
 	req->addr = addr;
