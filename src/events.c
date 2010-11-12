@@ -87,7 +87,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 		 */
 		struct timeval tv;
 		fd_set fds;
-		int r;
+		ssize_t r;
 		int i;
 		int highest_fd = -1;
 
