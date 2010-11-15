@@ -4,6 +4,9 @@
 -
 ---------------------------
 
+Fork, located at: http://github.com/rpavlik/wiiuse
+
+Original project:
 http://wiiuse.net/
 http://wiiuse.sourceforge.net/
 http://sourceforge.net/projects/wiiuse/
@@ -18,8 +21,15 @@ ABOUT
 
 	Distributed under the GPL and LGPL.
 
+	This is a friendly fork, prompted by apparent non-maintained status of
+	upstream project but proliferation of ad-hoc forks without project
+	infrastructure.  Hopefully GitHub will help the community maintain this
+	more seamlessly now.
+
 
 AUTHORS
+
+	Fork Maintainer: Ryan Pavlik <rpavlik@iastate.edu> or <abiryan@ryand.net>
 
 	Michael Laforest        < para >
 	Email: < thepara (--AT--) g m a i l [--DOT--] com >
@@ -93,13 +103,21 @@ PLATFORMS AND DEPENDENCIES
 		- Bluetooth driver (tested with Microsoft's stack with Windows XP SP2)
 		- If compiling, Microsoft Windows Driver Development Kit (DDK)
 
+	For either platform:
+		- If compiling, CMake is needed to generate a makefile
 
 COMPILING
 
 	Linux:
 		You need SDL and OpenGL installed to compile the SDL example.
 
-		# make [target]
+		$ cd build
+
+		$ ccmake .. [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DCMAKE_BUILD_TYPE=Release]
+			OR
+		$ cmake-gui ..
+
+		$ make [target]
 
 		If 'target' is omitted then everything is compiled.
 
@@ -108,36 +126,28 @@ COMPILING
 			- wiiuse
 				Compiles libwiiuse.so
 
-			- ex
+			- wiiuseexample
 				Compiles wiiuse-example
 
-			- sdl-ex
+			- wiiuseexample-sdl
 				Compiles wiiuse-sdl
 
 		Become root.
 
 		# make install
 
-		The above command will only install the binaries that you
-		selected to compile.
-
 		wiiuse.so is installed to /usr/lib
 		wiiuse-example and wiiuse-sdl are installed to /usr/bin
 
 	Windows:
-		A Microsoft Visual C++ 6.0 project file has been included.
+		The CMake GUI can be used to generate a Visual Studio solution.
 
 		You need the install the Windows DDK (driver development kit)
-		to compile wiiuse. Make sure you include the inc/ and lib/
-		directories from the DDK in your IDE include and library paths.
+		to compile wiiuse.
 		You can download this from here:
 			http://www.microsoft.com/whdc/devtools/ddk/default.mspx
 
-		You need to link the following libraries (already set in the
-		included project file):
-			- Ws2_32.lib
-			- hid.lib
-			- setupapi.lib
+		You might also need to install the latest Windows SDK.
 
 
 USING THE LIBRARY IN A THIRD PARTY APPLICATION

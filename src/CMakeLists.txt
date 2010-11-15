@@ -19,28 +19,33 @@ set(SOURCES
 	os.h
 	wiiuse_internal.h
 	wiiboard.h)
-
+set(API
+	wiiuse.h)
+	
 if(WIN32)
 	list(APPEND SOURCES io_win.c)
+	set(CMAKE_DEBUG_POSTFIX _debug)
 elseif(APPLE)
 	list(APPEND SOURCES io_mac.c)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
 
-set(API
-	wiiuse.h)
+if(MSVC)
+	list(APPEND API ../msvc-stdint/stdint.h)
+endif()
 
 add_library(wiiuse SHARED ${SOURCES} ${API})
+
 if(WIN32)
-	# TODO
+	target_link_libraries(wiiuse Ws2_32.lib ${WINHID_LIBRARIES} setupapi.lib)
 elseif(APPLE)
 	find_library(IOBLUETOOTH_FRAMEWORK
 		NAMES
 		IOBluetooth)
 	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK})
-else()
-	target_link_libraries(wiiuse m bluetooth)
+elseif(LINUX)
+	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 endif()
 
 set_property(TARGET
@@ -49,14 +54,31 @@ set_property(TARGET
 	PUBLIC_HEADER
 	${API})
 
+set_property(TARGET
+	wiiuse
+	PROPERTY
+	COMPILE_DEFINITIONS_DEBUG
+	WITH_WIIUSE_DEBUG)
+
 install(TARGETS
 	wiiuse
 	RUNTIME
 	DESTINATION
 	bin
+	COMPONENT
+	runtime
+	ARCHIVE
+	DESTINATION
+	lib
+	COMPONENT
+	development
 	LIBRARY
 	DESTINATION
 	lib
+	COMPONENT
+	runtime
 	PUBLIC_HEADER
 	DESTINATION
-	include)
+	include
+	COMPONENT
+	development)

@@ -107,8 +107,8 @@ struct wiimote_t** wiiuse_init(int wiimotes) {
 	 */
 	if (!g_banner) {
 		printf(	"wiiuse v" WIIUSE_VERSION " loaded.\n"
-				"  By: Michael Laforest <thepara[at]gmail{dot}com>\n"
-				"  http://wiiuse.net  http://wiiuse.sf.net\n");
+				"  Fork at http://github.com/rpavlik/wiiuse\n"
+				"  Original By: Michael Laforest <thepara[at]gmail{dot}com> http://wiiuse.net\n");
 		g_banner = 1;
 	}
 
@@ -509,8 +509,12 @@ void wiiuse_status(struct wiimote_t* wm) {
  */
 struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid) {
 	int i = 0;
+	if (!wm)
+		return NULL;
 
 	for (; i < wiimotes; ++i) {
+		if (!wm[i])
+			continue;
 		if (wm[i]->unid == unid)
 			return wm[i];
 	}

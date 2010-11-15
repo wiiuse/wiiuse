@@ -68,7 +68,10 @@ static uint16_t big_to_lil(uint16_t num)
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
 	int i;
+	uint16_t *handshake_short;
+
 	/* decrypt data */
+#ifdef WITH_WIIUSE_DEBUG
 	printf("DECRYPTED DATA WIIBOARD\n");
 	for (i = 0; i < len; ++i)
 	{
@@ -82,8 +85,9 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 		printf("%02X ", data[i]);
 	}
 	printf("\n");
+#endif
 
-	uint16_t *handshake_short = (uint16_t*)data;
+	handshake_short = (uint16_t*)data;
 
 	wb->ctr[0] = big_to_lil(handshake_short[2]);
 	wb->cbr[0] = big_to_lil(handshake_short[3]);
@@ -122,10 +126,13 @@ void wii_board_disconnected(struct wii_board_t* wb) {
 }
 
 static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
+#define WIIBOARD_MIDDLE_CALIB 17.0f
 	if (raw < cal[1]) {
-		return ((raw-cal[0]) * 14.0f)/(float)(cal[1] - cal[0]);
+		return ((raw-cal[0]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[1] - cal[0]);
 	} else if (raw > cal[1]) {
-		return ((raw-cal[1]) * 14.0f)/(float)(cal[2] - cal[1]) + 14.0f;
+		return ((raw-cal[1]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[2] - cal[1]) + WIIBOARD_MIDDLE_CALIB;
+	} else {
+		return WIIBOARD_MIDDLE_CALIB;
 	}
 }
 

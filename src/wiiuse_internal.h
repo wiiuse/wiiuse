@@ -57,9 +57,6 @@
 
 #include <stdint.h>
 
-/* wiiuse version */
-#define WIIUSE_VERSION					"0.12"
-
 /********************
  *
  *	Wiimote internal codes
@@ -215,6 +212,12 @@
 #define SMOOTH_PITCH					0x02
 
 #include "wiiuse.h"
+
+#define _STRINGIFY(s) _STRINGIFY_IMPL(s)
+#define _STRINGIFY_IMPL(s) #s
+
+/* wiiuse version, from public per-component version defines */
+#define WIIUSE_VERSION _STRINGIFY(WIIUSE_MAJOR) "." _STRINGIFY(WIIUSE_MINOR) "." _STRINGIFY(WIIUSE_MICRO)
 
 #ifdef __cplusplus
 extern "C" {

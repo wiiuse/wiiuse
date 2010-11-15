@@ -39,6 +39,10 @@
 #ifndef WIIUSE_H_INCLUDED
 #define WIIUSE_H_INCLUDED
 
+#define WIIUSE_MAJOR 0
+#define WIIUSE_MINOR 13
+#define WIIUSE_MICRO 1
+
 #ifdef _WIN32
 	/* windows */
 	#include <windows.h>
@@ -688,7 +692,8 @@ WIIUSE_EXPORT extern void wiiuse_set_ir_sensitivity(struct wiimote_t* wm, int le
 WIIUSE_EXPORT extern void wiiuse_set_nunchuk_orient_threshold(struct wiimote_t* wm, float threshold);
 WIIUSE_EXPORT extern void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t* wm, int threshold);
 
-/* Balance Board */
+/* wiiboard.c */
+/* this function not currently implemented... */
 WIIUSE_EXPORT extern void wiiuse_set_wii_board_calib(struct wiimote_t *wm);
 
 #ifdef __cplusplus
