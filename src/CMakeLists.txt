@@ -18,6 +18,8 @@ set(SOURCES
 	nunchuk.h
 	os.h
 	util.c
+	speaker.c
+	speaker.h
 	wiiuse_internal.h
 	wiiboard.h)
 set(API

@@ -182,6 +182,11 @@
 
 /** @name Wiimote option flags */
 /** @{ */
+#define WIIUSE_SAMPLE_FORMAT_8BIT_PCM	0x40
+#define WIIUSE_SAMPLE_FORMAT_4BIT_PCM	0x00
+
+#define WIIUSE_SPEAKER_DEFAULT_FREQ		3000
+
 #define WIIUSE_SMOOTHING				0x01
 #define WIIUSE_CONTINUOUS				0x02
 #define WIIUSE_ORIENT_THRESH			0x04
@@ -263,6 +268,8 @@ typedef enum ir_position_t {
 #define WIIUSE_USING_EXP(wm)			((wm->state & 0x040) == 0x040)
 #define WIIUSE_USING_IR(wm)				((wm->state & 0x080) == 0x080)
 #define WIIUSE_USING_SPEAKER(wm)		((wm->state & 0x100) == 0x100)
+#define WIIUSE_SPEAKER_MUTE(wm)			((wm->state & 0x4000) == 0x4000)
+#define WIIUSE_SPEAKER_PLAYING(wm)		((wm->state & 0x8000) == 0x8000)
 
 #define WIIUSE_IS_LED_SET(wm, num)		((wm->leds & WIIMOTE_LED_##num) == WIIMOTE_LED_##num)
 /** @} */
@@ -434,6 +441,14 @@ typedef struct ir_t {
 	float z;						/**< calculated distance				*/
 } ir_t;
 
+/**
+ *	@struct speaker_t
+ *	@brief Speaker struct. Holds volume and frequence values.
+ */
+typedef struct speaker_t {
+	byte volume;					/**< output volume of the speaker (default 0x40)		*/
+	byte freq;					/**< output frequence of sample */
+} speaker_t;
 
 /**
  *	@brief Joystick calibration structure.
@@ -676,6 +691,8 @@ typedef struct wiimote_t {
 	WCONST struct gforce_t gforce;			/**< current gravity forces on each axis	*/
 
 	WCONST struct ir_t ir;					/**< IR data								*/
+	
+	WCONST struct speaker_t speaker;			/**< speaker information						*/
 
 	WCONST uint16_t btns;				/**< what buttons have just been pressed	*/
 	WCONST uint16_t btns_held;		/**< what buttons are being held down		*/
@@ -805,6 +822,17 @@ WIIUSE_EXPORT extern void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t* w
 /* wiiboard.c */
 /* this function not currently implemented... */
 WIIUSE_EXPORT extern void wiiuse_set_wii_board_calib(struct wiimote_t *wm);
+
+/* speaker.c */
+WIIUSE_EXPORT extern void wiiuse_set_speaker(struct wiimote_t* wm, int status);
+WIIUSE_EXPORT extern void wiiuse_mute_speaker(struct wiimote_t* wm, int status);
+WIIUSE_EXPORT extern byte* wiiuse_convert_wav(const char *path, byte type);
+WIIUSE_EXPORT extern void wiiuse_play_sound(struct wiimote_t* wm, byte *data, int size);
+WIIUSE_EXPORT extern void wiiuse_enable_speaker(struct wiimote_t *wm);
+WIIUSE_EXPORT extern void wiiuse_disable_speaker(struct wiimote_t *wm);
+WIIUSE_EXPORT extern void wiiuse_set_speaker_freq(struct wiimote_t *wm, int freq);
+WIIUSE_EXPORT extern void wiiuse_set_speaker_vol(struct wiimote_t *wm, byte vol);
+
 
 #ifdef __cplusplus
 }
