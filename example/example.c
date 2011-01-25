@@ -407,6 +407,10 @@ int main(int argc, char** argv) {
 						printf("Classic controller inserted.\n");
 						break;
 
+					case WIIUSE_WII_BOARD_CTRL_INSERTED:
+						printf("Balance board controller inserted.\n");
+						break;
+
 					case WIIUSE_GUITAR_HERO_3_CTRL_INSERTED:
 						/* some expansion was inserted */
 						handle_ctrl_status(wiimotes[i]);
@@ -416,6 +420,7 @@ int main(int argc, char** argv) {
 					case WIIUSE_NUNCHUK_REMOVED:
 					case WIIUSE_CLASSIC_CTRL_REMOVED:
 					case WIIUSE_GUITAR_HERO_3_CTRL_REMOVED:
+					case WIIUSE_WII_BOARD_CTRL_REMOVED:
 						/* some expansion was removed */
 						handle_ctrl_status(wiimotes[i]);
 						printf("An expansion was removed.\n");
