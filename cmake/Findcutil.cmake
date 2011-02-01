@@ -11,10 +11,10 @@
 # http://academic.cleardefinition.com
 # Iowa State University HCI Graduate Program/VRAC
 #
-#          Copyright Iowa State University 2009-2010
+# Copyright Iowa State University 2009-2010.
 # Distributed under the Boost Software License, Version 1.0.
-#    (See accompanying file LICENSE_1_0.txt or copy at
-#          http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
 
 
 find_package(CUDA QUIET)
@@ -22,8 +22,8 @@ find_package(CUDA QUIET)
 
 file(TO_CMAKE_PATH "${CUDA_SDK_ROOT_DIR}/C/common" CUTIL_ROOT_DIR)
 
-if(NOT EXISTS "${CUTIL_ROOT_DIR}//src/cutil.cpp")
-	set(CUDA_SDK_ROOT_DIR not-found CACHE PATH "NVIDIA GPU Computing SDK dir" FORCE)
+if(NOT EXISTS "${CUTIL_ROOT_DIR}/src/cutil.cpp")
+	set(CUDA_SDK_ROOT_DIR SDKDIR-NOTFOUND CACHE PATH "NVIDIA GPU Computing SDK dir" FORCE)
 endif()
 
 # handle the QUIETLY and REQUIRED arguments and set xxx_FOUND to TRUE if

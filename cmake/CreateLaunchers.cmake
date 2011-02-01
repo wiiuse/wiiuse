@@ -34,10 +34,10 @@
 # http://academic.cleardefinition.com
 # Iowa State University HCI Graduate Program/VRAC
 #
-#          Copyright Iowa State University 2009-2010
+# Copyright Iowa State University 2009-2010.
 # Distributed under the Boost Software License, Version 1.0.
-#    (See accompanying file LICENSE_1_0.txt or copy at
-#          http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
 
 if(__create_launchers)
 	return()
@@ -82,6 +82,15 @@ macro(_launcher_system_settings)
 		set(_pathdelim ":")
 		set(USERFILE_PLATFORM ${CMAKE_SYSTEM_NAME}${BITS})
 		set(_suffix "sh")
+		find_package(GDB QUIET)
+		if(GDB_FOUND)
+			set(LAUNCHERS_GOT_GDB YES)
+			if(GDB_HAS_RETURN_CHILD_RESULT)
+				set(LAUNCHERS_GDB_ARG --return-child-result)
+			endif()				
+		else()
+			set(LAUNCHERS_GOT_GDB)
+		endif()
 	endif()
 
 	if(WIN32 AND NOT USERFILE_REMOTE_MACHINE)

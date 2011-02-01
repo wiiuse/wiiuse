@@ -31,10 +31,10 @@
 # http://academic.cleardefinition.com
 # Iowa State University HCI Graduate Program/VRAC
 #
-#          Copyright Iowa State University 2009-2010
+# Copyright Iowa State University 2009-2010.
 # Distributed under the Boost Software License, Version 1.0.
-#    (See accompanying file LICENSE_1_0.txt or copy at
-#          http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
 
 if(__add_boost_test)
 	return()
@@ -67,19 +67,20 @@ include(GetForceIncludeDefinitions)
 include(CopyResourcesToBuildTree)
 
 if(Boost_FOUND AND NOT "${Boost_VERSION}0" LESS "1034000")
+	set(_boosttesttargets_libs)
+	set(_boostConfig "BoostTestTargetsIncluded.h")
 	if(NOT Boost_UNIT_TEST_FRAMEWORK_LIBRARY)
 		find_package(Boost 1.34.0 QUIET COMPONENTS unit_test_framework)
 	endif()
 	if(Boost_UNIT_TEST_FRAMEWORK_LIBRARY)
-		set(_boosttesttargets_libs ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+		set(_boosttesttargets_libs "${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}")
 		if(Boost_USE_STATIC_LIBS)
 			set(_boostConfig "BoostTestTargetsStatic.h")
 		else()
-			set(_boostConfig "BoostTestTargetsDynamic.h")
+			if(NOT APPLE)
+				set(_boostConfig "BoostTestTargetsDynamic.h")
+			endif()
 		endif()
-	else()
-		set(_boosttesttargets_libs)
-		set(_boostConfig "BoostTestTargetsIncluded.h")
 	endif()
 	get_filename_component(_moddir ${CMAKE_CURRENT_LIST_FILE} PATH)
 	configure_file("${_moddir}/${_boostConfig}"
