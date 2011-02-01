@@ -14,10 +14,10 @@
 # http://academic.cleardefinition.com
 # Iowa State University HCI Graduate Program/VRAC
 #
-#          Copyright Iowa State University 2009-2010
+# Copyright Iowa State University 2009-2010.
 # Distributed under the Boost Software License, Version 1.0.
-#    (See accompanying file LICENSE_1_0.txt or copy at
-#          http://www.boost.org/LICENSE_1_0.txt)
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
 
 include(ListFilter)
 include(ProgramFilesGlob)
@@ -53,8 +53,8 @@ if(_osgpaths)
 	list(SORT _osgpaths)
 	list(REVERSE _osgpaths)
 
-	# fallback last-ditch effort - use the environment variable
-	list(APPEND _osgpaths "$ENV{OSGHOME}")
+	# Use the environment variable to override
+	set(_osgpaths "$ENV{OSGHOME}" ${_osgpaths})
 	clean_directory_list(_osgpaths)
 
 	list(APPEND CMAKE_PREFIX_PATH ${_osgpaths})
