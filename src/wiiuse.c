@@ -52,7 +52,7 @@
 static int g_banner = 0;
 
 /**
- *	@breif Returns the version of the library.
+ *	@brief Returns the version of the library.
  */
 const char* wiiuse_version() {
 	return WIIUSE_VERSION;
