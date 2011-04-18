@@ -58,6 +58,24 @@ const char* wiiuse_version() {
 	return WIIUSE_VERSION;
 }
 
+/**
+ *	@brief Output FILE stream for each wiiuse_loglevel.
+ */
+FILE* logtarget[4];
+
+/**
+ *	@brief Initialize an array of wiimote structures.
+ *
+ *	@param loglevel The loglevel, for which the output should be set.
+ *
+ *	@param logfile A valid, writeable <code>FILE*</code>, or 0, if output should be disabled.
+ *
+ *  The default <code>FILE*</code> for all loglevels is <code>stderr</code>
+ */
+void wiiuse_set_output(enum wiiuse_loglevel loglevel, FILE *logfile)
+{
+	logtarget[(int)loglevel] = logfile;
+}
 
 /**
  *	@brief Clean up wiimote_t array created by wiiuse_init()
@@ -111,6 +129,11 @@ struct wiimote_t** wiiuse_init(int wiimotes) {
 				"  Original By: Michael Laforest <thepara[at]gmail{dot}com> http://wiiuse.net\n");
 		g_banner = 1;
 	}
+
+	logtarget[0] = stderr;
+	logtarget[1] = stderr;
+	logtarget[2] = stderr;
+	logtarget[3] = stderr;
 
 	if (!wiimotes)
 		return NULL;

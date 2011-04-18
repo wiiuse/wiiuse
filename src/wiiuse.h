@@ -612,6 +612,16 @@ typedef struct wiimote_t {
 	WCONST byte event_buf[MAX_PAYLOAD];		/**< event buffer							*/
 } wiimote;
 
+/**
+ *	@enum WIIUSE_LOGLEVEL
+ *	@brief Loglevels supported by wiiuse.
+ */
+typedef enum wiiuse_loglevel {
+	LOGLEVEL_ERROR = 0,
+	LOGLEVEL_WARNING = 1,
+	LOGLEVEL_INFO = 2,
+	LOGLEVEL_DEBUG = 3
+} wiiuse_loglevel;
 
 /*****************************************
  *
@@ -639,6 +649,8 @@ extern "C" {
 
 /* wiiuse.c */
 WIIUSE_EXPORT extern const char* wiiuse_version();
+#define WIIUSE_HAS_OUTPUT_REDIRECTION
+WIIUSE_EXPORT extern void wiiuse_set_output(enum wiiuse_loglevel loglevel, FILE *logtarget);
 
 WIIUSE_EXPORT extern struct wiimote_t** wiiuse_init(int wiimotes);
 WIIUSE_EXPORT extern void wiiuse_disconnected(struct wiimote_t* wm);

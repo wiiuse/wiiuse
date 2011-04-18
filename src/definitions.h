@@ -41,25 +41,34 @@
 
 //#define WITH_WIIUSE_DEBUG
 
+extern FILE* logtarget[];
+
+#define OUTF_ERROR logtarget[0]
+#define OUTF_WARNING logtarget[1]
+#define OUTF_INFO logtarget[2]
+#define OUTF_DEBUG logtarget[3]
+
 /* Error output macros */
-#define WIIUSE_ERROR(fmt, ...)		fprintf(stderr, "[ERROR] " fmt "\n", ##__VA_ARGS__)
+#define WIIUSE_ERROR(fmt, ...)		do { if (OUTF_ERROR) fprintf(OUTF_ERROR, "[ERROR] " fmt "\n", ##__VA_ARGS__); } while(0)
 
 /* Warning output macros */
-#define WIIUSE_WARNING(fmt, ...)	fprintf(stderr, "[WARNING] " fmt "\n",	##__VA_ARGS__)
+#define WIIUSE_WARNING(fmt, ...)	do { if (OUTF_WARNING) fprintf(OUTF_WARNING, "[WARNING] " fmt "\n",	##__VA_ARGS__); } while(0)
 
 /* Information output macros */
-#define WIIUSE_INFO(fmt, ...)		fprintf(stderr, "[INFO] " fmt "\n", ##__VA_ARGS__)
+#define WIIUSE_INFO(fmt, ...)		do { if (OUTF_INFO) fprintf(OUTF_INFO, "[INFO] " fmt "\n", ##__VA_ARGS__); } while(0)
 
 #ifdef WITH_WIIUSE_DEBUG
 	#ifdef WIN32
-		#define WIIUSE_DEBUG(fmt, ...)		do {																				\
-												char* file = __FILE__;															\
-												int i = strlen(file) - 1;														\
-												for (; i && (file[i] != '\\'); --i);											\
-												fprintf(stderr, "[DEBUG] %s:%i: " fmt "\n", file+i+1, __LINE__, ##__VA_ARGS__);	\
+		#define WIIUSE_DEBUG(fmt, ...)		do {																					\
+												if (OUTF_DEBUG) {																	\
+													char* file = __FILE__;															\
+													int i = strlen(file) - 1;														\
+													for (; i && (file[i] != '\\'); --i);											\
+													fprintf(OUTF_DEBUG, "[DEBUG] %s:%i: " fmt "\n", file+i+1, __LINE__, ##__VA_ARGS__);	\
+												}																					\
 											} while (0)
 	#else
-		#define WIIUSE_DEBUG(fmt, ...)	fprintf(stderr, "[DEBUG] " __FILE__ ":%i: " fmt "\n", __LINE__, ##__VA_ARGS__)
+		#define WIIUSE_DEBUG(fmt, ...)	do { if (OUTF_DEBUG) fprintf(OUTF_DEBUG, "[DEBUG] " __FILE__ ":%i: " fmt "\n", __LINE__, ##__VA_ARGS__); } while (0)
 	#endif
 #else
 	#define WIIUSE_DEBUG(fmt, ...)
