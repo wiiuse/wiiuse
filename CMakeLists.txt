@@ -80,7 +80,6 @@ endif()
 install(FILES
 	CHANGELOG
 	LICENSE
-	LICENSE_noncommercial
 	README
 	DESTINATION ${DOC_DIR} COMPONENT docs)
 
