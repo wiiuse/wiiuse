@@ -19,6 +19,8 @@ v0.14 -- ?
 			wiiuse_set_output in wiiuse.h. The preprocessor symbol
 			WIIUSE_HAS_OUTPUT_REDIRECTION indicates the presence of this
 			feature. Thanks to Johannes Zarl for this handy feature!
+		- Doxyfile and "doc" target to the build system, to easily make
+			use of the documentation already in the code. (rp)
 	Fixed:
 		- Off-by-two overflow in IR dot ordering - thanks to Karl Semich (xloem on GitHub)
 		- Documentation typo fix - thanks to Johannes Zarl

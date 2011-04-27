@@ -130,6 +130,10 @@ COMPILING
 			- wiiuseexample-sdl
 				Compiles wiiuse-sdl
 
+			- doc
+				Generates doxygen-based API documentation in HTML and PDF
+				format in docs-generated
+
 		Become root.
 
 		# make install
