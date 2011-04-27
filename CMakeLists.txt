@@ -1,4 +1,4 @@
-# 2009-2010 Ryan Pavlik <rpavlik@iastate.edu>
+# 2009-2011 Ryan Pavlik <rpavlik@iastate.edu>
 # http://academic.cleardefinition.com/
 # Iowa State University HCI Graduate Program/VRAC
 
@@ -27,6 +27,7 @@ option(CPACK_MONOLITHIC_INSTALL "Only produce a single component installer, rath
 # Locally-developed modules dist'ed with this app - always have this first.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(UseBackportedModules)
+include(DoxygenTargets)
 
 add_definitions(-DWIIUSE_COMPILE_LIB)
 
@@ -62,6 +63,9 @@ endif()
 if(BUILD_EXAMPLE_SDL)
     add_subdirectory(example-sdl)
 endif()
+
+# Documentation
+add_doxygen(Doxyfile)
 
 ###
 # Set packaging options (for CPack)
