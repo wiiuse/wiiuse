@@ -29,8 +29,8 @@ else()
 	list(APPEND SOURCES io_nix.c)
 endif()
 
-if(MSVC)
-	list(APPEND API ../msvc-stdint/stdint.h)
+if(MSVC AND MSVC_VERSION LESS 1600)
+	list(APPEND API wiiuse_msvcstdint.h)
 endif()
 
 add_library(wiiuse SHARED ${SOURCES} ${API})

@@ -76,7 +76,12 @@
 	#define WCONST		const
 #endif
 
-#include <stdint.h>
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
+/* MS compilers of pre-VC2010 versions don't have stdint.h */
+	#include <wiiuse_msvcstdint.h>
+#else
+	#include <stdint.h>
+#endif
 
 /* led bit masks */
 #define WIIMOTE_LED_NONE				0x00
