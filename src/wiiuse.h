@@ -36,6 +36,17 @@
  *	is also included which extends this file.
  */
 
+/**
+ *	@mainpage
+ *
+ *  @section publicapisec Public API
+ *
+ *  The full public API for WiiUse is found in @ref wiiuse.h
+ *
+ *  @section quicklinks Quick Links
+ *    - @ref wiiuse.h
+ *    - @ref wiimote structure
+ */
 #ifndef WIIUSE_H_INCLUDED
 #define WIIUSE_H_INCLUDED
 
