@@ -12,6 +12,23 @@ http://wiiuse.sourceforge.net/
 http://sourceforge.net/projects/wiiuse/
 
 ---------------------------
+v0.14 -- ?
+---------------------------
+	Added:
+		- Support for redirecting or disabling messages: function
+			wiiuse_set_output in wiiuse.h. The preprocessor symbol
+			WIIUSE_HAS_OUTPUT_REDIRECTION indicates the presence of this
+			feature. Thanks to Johannes Zarl for this handy feature!
+	Fixed:
+		- Off-by-two overflow in IR dot ordering - thanks to Karl Semich (xloem on GitHub)
+		- Documentation typo fix - thanks to Johannes Zarl
+	Changed:
+		- Cleaned up README.
+		- Removed references to the LGPL/noncommercial license, since it's
+			confusing and not useful in a practical sense. See, e.g.,
+			http://lists.fedoraproject.org/pipermail/legal/2010-November/001470.html
+
+---------------------------
 v0.13.1 -- 11 November 2010
 ---------------------------
 	Fixed:
