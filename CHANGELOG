@@ -29,6 +29,8 @@ v0.14 -- ?
 		- Removed references to the LGPL/noncommercial license, since it's
 			confusing and not useful in a practical sense. See, e.g.,
 			http://lists.fedoraproject.org/pipermail/legal/2010-November/001470.html
+		- Renamed bundled workaround stdint.h header for Visual Studio,
+			and don't use it with Visual Studio 2010 which comes with its own.
 
 ---------------------------
 v0.13.1 -- 11 November 2010
