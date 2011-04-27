@@ -15,49 +15,64 @@ http://sourceforge.net/projects/wiiuse/
 
 ABOUT
 
-	Wiiuse is a library written in C that connects with several Nintendo Wii remotes.
-	Supports motion sensing, IR tracking, nunchuk, classic controller, and the Guitar Hero 3 controller.
-	Single threaded and nonblocking makes a light weight and clean API.
+	Wiiuse is a library written in C that connects with several Nintendo
+	Wii remotes. Supports motion sensing, IR tracking, nunchuk, classic
+	controller, Balance Board, and the Guitar Hero 3 controller. Single
+	threaded and nonblocking makes a light weight and clean API.
 
-	Distributed under the GPL and LGPL.
+	Distributed under the GPL 3+.
 
-	This is a friendly fork, prompted by apparent non-maintained status of
-	upstream project but proliferation of ad-hoc forks without project
-	infrastructure.  Hopefully GitHub will help the community maintain this
-	more seamlessly now.
+	This is a friendly fork, prompted by apparent non-maintained status
+	of upstream project but proliferation of ad-hoc forks without
+	project infrastructure. Balance board support has been merged from
+	TU-Delft [1] cross-referenced with other similar implementations in
+	embedded forks of WiiUse in other applications. Hopefully GitHub will
+	help the community maintain this project more seamlessly now.
+
+	Patches and improvements are greatly appreciated - the easiest way
+	to submit them is to fork the repository on GitHub and make the
+	changes, then submit a pull request. The "fork and edit this file"
+	button on the web interface should make this even simpler.
+
+	[1] http://graphics.tudelft.nl/Projects/WiiBalanceBoard
 
 
 AUTHORS
 
 	Fork Maintainer: Ryan Pavlik <rpavlik@iastate.edu> or <abiryan@ryand.net>
+    Original Author: Michael Laforest < para > < thepara (--AT--) g m a i l [--DOT--] com >
 
-	Michael Laforest        < para >
-	Email: < thepara (--AT--) g m a i l [--DOT--] com >
-
-	The following people have contributed patches to wiiuse:
+	Additional Contributors:
 		- dhewg
+		- Christopher Sawczuk @ TU-Delft (initial Balance Board support)
+		- Paul Burton ( https://github.com/paulburton/wiiuse )
+		- Karl Semich ( https://github.com/xloem )
+		- Johannes Zarl <johannes.zarl@jku.at>
 
 
 LICENSE
 
-	There are two licenses for wiiuse.  Please read them carefully before choosing which one
-	you use.  You may of course at any time switch the license you are currently using to
-	the other.
+	This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	Briefly, the license options are:
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-		a) GNU LGPL (modified for non-commercial usage only)
-		b) GNU GPL
-
-	PLEASE READ THE LICENSES!
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-ACKNOWLEDGEMENTS
+ACKNOWLEDGEMENTS BY MICHAEL LAFOREST
 
 	http://wiibrew.org/
-		This site and their users have contributed an immense amount of information
-		about the wiimote and its technical details.  I could not have written this program
-		without the vast amounts of reverse engineered information that was researched by them.
+		This site and their users have contributed an immense amount of
+		information about the wiimote and its technical details. I could
+		not have written this program without the vast amounts of
+		reverse engineered information that was researched by them.
 
 	Nintendo
 		Of course Nintendo for designing and manufacturing the Wii and Wii remote.
@@ -68,27 +83,10 @@ ACKNOWLEDGEMENTS
 	Thanks to Brent for letting me borrow his Guitar Hero 3 controller.
 
 
-DISCLAIMER AND WARNINGS
-
-	I am in no way responsible for any damages or effects, intended or not, caused by this program.
-
-	*** WARNING *** WARNING *** WARNING ***
-
-	Be aware that writing to memory may damage or destroy your wiimote or expansions.
-
-	*** WARNING *** WARNING *** WARNING ***
-
-	This program was written using reverse engineered specifications available from wiibrew.org.
-	Therefore the operation of this program may not be entirely correct.
-	Results obtained by using this program may vary.
-
-
 AUDIENCE
 
-	This project is intended for developers who wish to include support for the Nintendo Wii remote
-	with their third party application.  Please be aware that by using this software you are bound
-	to the terms of the GNU GPL.
-
+	This project is intended for developers who wish to include support
+	for the Nintendo Wii remote with their third party application.
 
 PLATFORMS AND DEPENDENCIES
 
