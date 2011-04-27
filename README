@@ -138,8 +138,8 @@ COMPILING
 
 		# make install
 
-		wiiuse.so is installed to /usr/lib
-		wiiuse-example and wiiuse-sdl are installed to /usr/bin
+		libwiiuse.so is installed to CMAKE_INSTALL_PREFIX/lib
+		wiiuse-example and wiiuse-sdl are installed to CMAKE_INSTALL_PREFIX/bin
 
 	Windows:
 		The CMake GUI can be used to generate a Visual Studio solution.
