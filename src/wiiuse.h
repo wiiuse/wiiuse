@@ -39,13 +39,21 @@
 /**
  *	@mainpage
  *
+ *  @section project Project
+ *
+ *  This is a friendly fork of the original WiiUse project, which seems
+ *  to have gone defunct. This updated version is maintained at:
+ *
+ *    - http://github.com/rpavlik/wiiuse
+ *
  *  @section publicapisec Public API
  *
  *  The full public API for WiiUse is found in @ref wiiuse.h
  *
- *  @section quicklinks Quick Links
+ *  @section quicklinks API Docs Quick Links
  *    - @ref wiiuse.h
  *    - @ref wiimote structure
+ *
  */
 #ifndef WIIUSE_H_INCLUDED
 #define WIIUSE_H_INCLUDED
