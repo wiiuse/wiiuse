@@ -37,9 +37,6 @@
 #ifndef EVENTS_H_INCLUDED
 #define EVENTS_H_INCLUDED
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
 /* MS compilers of pre-VC2010 versions don't have stdint.h */
 	#include "wiiuse_msvcstdint.h"
@@ -51,10 +48,5 @@ void wiiuse_pressed_buttons(struct wiimote_t* wm, byte* msg);
 
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len);
 void disable_expansion(struct wiimote_t* wm);
-
-#ifdef __cplusplus
-}
-#endif
-
 
 #endif // EVENTS_H_INCLUDED
