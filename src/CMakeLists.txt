@@ -29,7 +29,7 @@ else()
 	list(APPEND SOURCES io_nix.c)
 endif()
 
-if(MSVC AND MSVC_VERSION LESS 1600)
+if(MSVC)
 	list(APPEND API wiiuse_msvcstdint.h)
 endif()
 
