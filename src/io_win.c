@@ -33,17 +33,13 @@
 
 #ifdef WIN32
 
+#include "io.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <windows.h>
 #include <hidsdi.h>
 #include <setupapi.h>
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "io.h"
-
 
 int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	GUID device_id;

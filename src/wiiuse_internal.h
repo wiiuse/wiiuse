@@ -44,7 +44,9 @@
 #ifndef WIIUSE_INTERNAL_H_INCLUDED
 #define WIIUSE_INTERNAL_H_INCLUDED
 
-#ifndef WIN32
+#ifdef WIN32
+	#include <Winsock2.h>
+#else
 	#include <arpa/inet.h>				/* htons() */
 	#include <bluetooth/bluetooth.h>
 #endif

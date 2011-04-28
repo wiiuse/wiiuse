@@ -35,6 +35,9 @@
  *	motion sensing.
  */
 
+#include "dynamics.h"
+#include "ir.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -43,10 +46,6 @@
 	#include <float.h>
 #endif
 
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "ir.h"
-#include "dynamics.h"
 
 /**
  *	@brief Calculate the roll, pitch, yaw.

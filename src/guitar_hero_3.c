@@ -31,19 +31,14 @@
  *	@brief Guitar Hero 3 expansion device.
  */
 
+#include "guitar_hero_3.h"
+
+#include "dynamics.h"
+#include "events.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-#ifdef WIN32
-	#include <Winsock2.h>
-#endif
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "dynamics.h"
-#include "events.h"
-#include "guitar_hero_3.h"
 
 static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now);
 

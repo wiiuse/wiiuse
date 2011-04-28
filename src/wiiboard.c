@@ -31,20 +31,14 @@
  *	@brief Wii Fit Balance Board device.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
 
-#ifdef WIN32
-	#include <Winsock2.h>
-#endif
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
+#include "wiiboard.h"
 #include "dynamics.h"
 #include "events.h"
-#include "wiiboard.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 static uint16_t big_to_lil(uint16_t num)
 {

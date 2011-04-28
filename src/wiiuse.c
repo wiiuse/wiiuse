@@ -35,19 +35,16 @@
  *	of the API.
  */
 
+#include "wiiuse_internal.h"
+#include "events.h"
+#include "io.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #ifndef WIN32
 	#include <unistd.h>
-#else
-	#include <Winsock2.h>
 #endif
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "events.h"
-#include "io.h"
 
 static int g_banner = 0;
 

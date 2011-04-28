@@ -30,13 +30,10 @@
  *	@file
  *	@brief Handles device I/O (non-OS specific).
  */
+#include "io.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "io.h"
 
 
  /**

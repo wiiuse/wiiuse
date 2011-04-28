@@ -34,30 +34,27 @@
  *	that are sent from the wiimote to us.
  */
 
-#include <stdio.h>
-
-#ifndef WIN32
-	#include <sys/time.h>
-	#include <unistd.h>
-	#include <errno.h>
-#else
-	#include <winsock2.h>
-#endif
-
-#include <sys/types.h>
-#include <stdlib.h>
-#include <math.h>
-
-#include "definitions.h"
-#include "io.h"
 #include "wiiuse_internal.h"
+#include "events.h"
+#include "io.h"
 #include "dynamics.h"
 #include "ir.h"
 #include "nunchuk.h"
 #include "classic.h"
 #include "guitar_hero_3.h"
 #include "wiiboard.h"
-#include "events.h"
+
+#include <stdio.h>
+
+#ifndef WIN32
+	#include <sys/time.h>
+	#include <unistd.h>
+	#include <errno.h>
+#endif
+
+#include <sys/types.h>
+#include <stdlib.h>
+#include <math.h>
 
 static void idle_cycle(struct wiimote_t* wm);
 static void clear_dirty_reads(struct wiimote_t* wm);

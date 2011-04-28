@@ -31,19 +31,13 @@
  *	@brief Classic controller expansion device.
  */
 
+#include "classic.h"
+#include "dynamics.h"
+#include "events.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-#ifdef WIN32
-	#include <Winsock2.h>
-#endif
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "dynamics.h"
-#include "events.h"
-#include "classic.h"
 
 static void classic_ctrl_pressed_buttons(struct classic_ctrl_t* cc, short now);
 

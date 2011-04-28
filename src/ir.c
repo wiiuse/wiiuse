@@ -31,16 +31,14 @@
  *	@brief Handles IR data.
  */
 
+#include "ir.h"
+
 #include <stdio.h>
 #include <math.h>
 
 #ifndef WIN32
 	#include <unistd.h>
 #endif
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "ir.h"
 
 static int get_ir_sens(struct wiimote_t* wm, char** block1, char** block2);
 static void interpret_ir_data(struct wiimote_t* wm);

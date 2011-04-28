@@ -35,6 +35,7 @@
 #define DEFINITIONS_H_INCLUDED
 
 /* this is wiiuse - used to distinguish from third party programs using wiiuse.h */
+#include <stdio.h>
 #include "os.h"
 
 #define WIIMOTE_PI			3.14159265f
