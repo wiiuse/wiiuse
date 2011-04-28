@@ -48,7 +48,9 @@
 	#include <Winsock2.h>
 #else
 	#include <arpa/inet.h>				/* htons() */
-	#include <bluetooth/bluetooth.h>
+	#ifndef __APPLE__
+		#include <bluetooth/bluetooth.h>
+	#endif
 #endif
 
 #include "definitions.h"

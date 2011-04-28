@@ -25,6 +25,8 @@ set(API
 if(WIN32)
 	list(APPEND SOURCES io_win.c)
 	set(CMAKE_DEBUG_POSTFIX _debug)
+elseif(APPLE)
+	list(APPEND SOURCES io_mac.c)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
@@ -37,6 +39,11 @@ add_library(wiiuse SHARED ${SOURCES} ${API})
 
 if(WIN32)
 	target_link_libraries(wiiuse Ws2_32.lib ${WINHID_LIBRARIES} setupapi.lib)
+elseif(APPLE)
+	find_library(IOBLUETOOTH_FRAMEWORK
+		NAMES
+		IOBluetooth)
+	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK})
 elseif(LINUX)
 	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 endif()

@@ -79,7 +79,7 @@ static int state_changed(struct wiimote_t* wm);
 int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 	int evnt = 0;
 
-	#ifndef WIN32
+	#ifdef WIIUSE_NIX
 		/*
 		 *	*nix
 		 */
@@ -163,7 +163,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 				idle_cycle(wm[i]);
 			}
 		}
-	#else
+	#elif defined(WIIUSE_WIN)
 		/*
 		 *	Windows
 		 */
@@ -185,6 +185,8 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 				idle_cycle(wm[i]);
 			}
 		}
+	#elif defined(WIIUSE_MAC)
+		/* TODO */
 	#endif
 
 	return evnt;
