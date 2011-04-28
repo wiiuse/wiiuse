@@ -33,7 +33,8 @@
 
 #ifndef WIN32
 
-#include <stdio.h>
+#include "io.h"
+
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -41,10 +42,6 @@
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
 #include <bluetooth/l2cap.h>
-
-#include "definitions.h"
-#include "wiiuse_internal.h"
-#include "io.h"
 
 static int wiiuse_connect_single(struct wiimote_t* wm, char* address);
 
