@@ -48,10 +48,6 @@ endif()
 # Build the project
 ###
 
-if(MSVC)
-	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/msvc-stdint")
-endif()
-
 # The lib is in the "src" subdirectory
 add_subdirectory(src)
 
