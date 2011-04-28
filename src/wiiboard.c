@@ -61,11 +61,11 @@ static uint16_t big_to_lil(uint16_t num)
  */
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
-	int i;
 	uint16_t *handshake_short;
 
 	/* decrypt data */
 #ifdef WITH_WIIUSE_DEBUG
+	int i;
 	printf("DECRYPTED DATA WIIBOARD\n");
 	for (i = 0; i < len; ++i)
 	{
