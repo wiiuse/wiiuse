@@ -35,7 +35,7 @@
 #include "nunchuk.h"
 #include "dynamics.h"
 #include "events.h"
-#include <stdio.h>
+
 #include <stdlib.h>
 #include <math.h>
 

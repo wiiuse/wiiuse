@@ -33,7 +33,6 @@
 
 #include "ir.h"
 
-#include <stdio.h>
 #include <math.h>
 
 #ifndef WIN32

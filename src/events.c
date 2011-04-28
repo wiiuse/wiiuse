@@ -44,8 +44,6 @@
 #include "guitar_hero_3.h"
 #include "wiiboard.h"
 
-#include <stdio.h>
-
 #ifndef WIN32
 	#include <sys/time.h>
 	#include <unistd.h>
