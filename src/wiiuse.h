@@ -70,9 +70,7 @@
 	#include <bluetooth/bluetooth.h>
 #endif
 
-#ifdef WIIUSE_INTERNAL_H_INCLUDED
-	#define WCONST
-#else
+#ifndef WCONST
 	#define WCONST		const
 #endif
 
