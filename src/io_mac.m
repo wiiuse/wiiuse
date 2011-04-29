@@ -90,18 +90,18 @@ wiimote * g_wiimotes[MAX_WIIMOTES] = {NULL, NULL, NULL, NULL};
 	}
 
 	if (wm == NULL) {
-		WIIUSE_INFO("Received packet for unknown wiimote");
+		WIIUSE_WARNING("Received packet for unknown wiimote");
 		return;
 	}
 
 	if (length > MAX_PAYLOAD) {
-		WIIUSE_INFO("Dropping packet for wiimote %i, too large",
+		WIIUSE_WARNING("Dropping packet for wiimote %i, too large",
 				wm->unid);
 		return;
 	}
 
 	if (wm->inputlen != 0) {
-		WIIUSE_INFO("Dropping packet for wiimote %i, queue full",
+		WIIUSE_WARNING("Dropping packet for wiimote %i, queue full",
 				wm->unid);
 		return;
 	}
@@ -129,11 +129,11 @@ wiimote * g_wiimotes[MAX_WIIMOTES] = {NULL, NULL, NULL, NULL};
 	}
 
 	if (wm == NULL) {
-		WIIUSE_INFO("Channel for unknown wiimote was closed");
+		WIIUSE_WARNING("Channel for unknown wiimote was closed");
 		return;
 	}
 
-	WIIUSE_INFO("Lost channel to wiimote %i", wm->unid);
+	WIIUSE_WARNING("Lost channel to wiimote %i", wm->unid);
 
 	wiiuse_disconnect(wm);
 }
@@ -172,7 +172,7 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 
 	bth = [[IOBluetoothHostController alloc] init];
 	if ([bth addressAsString] == nil) {
-		WIIUSE_INFO("No bluetooth host controller");
+		WIIUSE_ERROR("No bluetooth host controller");
 		[bth release];
 		return found_wiimotes;
 	}
@@ -191,7 +191,7 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	if ([bti start] == kIOReturnSuccess)
 		[bti retain];
 	else
-		WIIUSE_INFO("Unable to do bluetooth discovery");
+		WIIUSE_ERROR("Unable to do bluetooth discovery");
 
 	CFRunLoopRun();
 
@@ -276,7 +276,7 @@ static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
 	[wm->btd openL2CAPChannelSync: wm->ichan
 		withPSM: kBluetoothL2CAPPSMHIDInterrupt delegate: cbt];
 	if (wm->cchan == NULL || wm->ichan == NULL) {
-		WIIUSE_INFO("Unable to open L2CAP channels "
+		WIIUSE_ERROR("Unable to open L2CAP channels "
 			"for wiimote %i", wm->unid);
 		[cbt release];
 		return 0;
