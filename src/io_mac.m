@@ -320,6 +320,7 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 			g_wiimotes[i] = NULL;
 	}
 	[wm->btd closeConnection];
+	[wm->btd release];
 	wm->btd = NULL;
 	wm->cchan = NULL;
 	wm->ichan = NULL;
