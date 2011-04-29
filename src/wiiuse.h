@@ -62,22 +62,26 @@
 #define WIIUSE_MINOR 13
 #define WIIUSE_MICRO 1
 
-#ifdef _WIN32
+#if defined(_WIN32)
 	/* windows */
 	#include <windows.h>
 	#define WIIUSE_WIN
-#else
-	#ifdef __APPLE__
-		/* mac */
-		#include <CoreFoundation/CoreFoundation.h>
-		#include <IOBluetooth/Bluetooth.h>
-		#include <IOBluetooth/IOBluetoothUserLib.h>
-		#define WIIUSE_MAC
-	#else
-		/* nix */
-		#include <bluetooth/bluetooth.h>
-		#define WIIUSE_NIX
+#elif defined(__APPLE__)
+	/* mac */
+	#define BLUETOOTH_VERSION_USE_CURRENT
+	#ifndef __OBJC__
+	typedef void * IOBluetoothDevice;
+	typedef void * IOBluetoothL2CAPChannel;
 	#endif
+	#import <IOBluetooth/IOBluetooth.h>
+	#include <CoreFoundation/CoreFoundation.h>
+	#include <IOBluetooth/Bluetooth.h>
+	#include <IOBluetooth/IOBluetoothUserLib.h>
+	#define WIIUSE_MAC
+#else
+	/* nix */
+	#include <bluetooth/bluetooth.h>
+	#define WIIUSE_NIX
 #endif
 
 #ifndef WCONST
@@ -607,17 +611,19 @@ typedef struct wiimote_t {
 		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST int out_sock;				/**< output socket							*/
 		WCONST int in_sock;					/**< input socket 							*/
-	#elseif defined(WIIUSE_WIN)
+	#elif defined(WIIUSE_WIN)
 		WCONST HANDLE dev_handle;			/**< HID handle								*/
 		WCONST OVERLAPPED hid_overlap;		/**< overlap handle							*/
 		WCONST enum win_bt_stack_t stack;	/**< type of bluetooth stack to use			*/
 		WCONST int timeout;					/**< read timeout							*/
 		WCONST byte normal_timeout;			/**< normal timeout							*/
 		WCONST byte exp_timeout;			/**< timeout for expansion handshake		*/
-	#elseif defined(WIIUSE_MAC)
-		WCONST IOBluetoothDeviceRef wiiDevice;
-		WCONST IOBluetoothL2CAPChannelRef ichan;
-		WCONST IOBluetoothL2CAPChannelRef cchan;
+	#elif defined(WIIUSE_MAC)
+		IOBluetoothDevice *btd;
+		IOBluetoothL2CAPChannel *ichan;
+		IOBluetoothL2CAPChannel *cchan;
+		WCONST char input[MAX_PAYLOAD];
+		WCONST int inputlen;
 	#endif
 
 	WCONST int state;						/**< various state flags					*/

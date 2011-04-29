@@ -26,7 +26,7 @@ if(WIN32)
 	list(APPEND SOURCES io_win.c)
 	set(CMAKE_DEBUG_POSTFIX _debug)
 elseif(APPLE)
-	list(APPEND SOURCES io_mac.c)
+	list(APPEND SOURCES io_mac.m)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
@@ -43,7 +43,12 @@ elseif(APPLE)
 	find_library(IOBLUETOOTH_FRAMEWORK
 		NAMES
 		IOBluetooth)
-	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK})
+	
+	find_library(COREFOUNDATION_FRAMEWORK
+		NAMES
+		CoreFoundation)
+	include_directories(${IOBLUETOOTH_FRAMEWORK})
+	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK} ${COREFOUNDATION_FRAMEWORK})
 elseif(LINUX)
 	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 endif()
