@@ -47,7 +47,6 @@ elseif(APPLE)
 	find_library(COREFOUNDATION_FRAMEWORK
 		NAMES
 		CoreFoundation)
-	include_directories(${IOBLUETOOTH_FRAMEWORK})
 	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK} ${COREFOUNDATION_FRAMEWORK})
 elseif(LINUX)
 	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
