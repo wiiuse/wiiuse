@@ -181,13 +181,17 @@ static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
 		return 0;
 
 	addr.l2_family = AF_BLUETOOTH;
-
+	bdaddr_t *bdaddr = &wm->bdaddr;
 	if (address)
 		/* use provided address */
 		str2ba(address, &addr.l2_bdaddr);
 	else
+	{
+		bacmp(bdaddr, BDADDR_ANY);
 		/* use address of device discovered */
-		addr.l2_bdaddr = wm->bdaddr;
+		addr.l2_bdaddr = *bdaddr;
+		
+	}
 
 	/*
 	 *	OUTPUT CHANNEL
