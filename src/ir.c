@@ -626,7 +626,7 @@ static void reorder_ir_dots(struct ir_dot_t* dot) {
 		i = 0;
 
 		for (; !dot[i].visible || dot[i].order; ++i)
-		if (i > 4)
+		if (i == 4)
 			return;
 
 		for (j = 0; j < 4; ++j) {
