@@ -111,9 +111,17 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	/* handshake done */
 	wm->exp.type = EXP_NUNCHUK;
 
-	#ifdef WIN32
+	/* if min and max are reported as 0, initialize them to usable values based on center, and fine tune in nunchuck_event() */
+	if (nc->js.center.x) {
+		if (nc->js.min.x == 0) nc->js.min.x = nc->js.center.x - 80;
+		if (nc->js.max.x == 0) nc->js.max.x = nc->js.center.x + 80;
+	}
+	if (nc->js.center.y) {
+		if (nc->js.min.y == 0) nc->js.min.y = nc->js.center.y - 80;
+		if (nc->js.max.y == 0) nc->js.max.y = nc->js.center.y + 80;
+	}
+
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
-	#endif
 
 	return 1;
 }
@@ -146,8 +154,21 @@ void nunchuk_event(struct nunchuk_t* nc, byte* msg) {
 	/* get button states */
 	nunchuk_pressed_buttons(nc, msg[5]);
 
+	nc->js.pos.x = msg[0];
+	nc->js.pos.y = msg[1];
+
+	/* extend min and max values to physical range of motion */
+	if (nc->js.center.x) {
+		if (nc->js.min.x > nc->js.pos.x) nc->js.min.x = nc->js.pos.x;
+		if (nc->js.max.x < nc->js.pos.x) nc->js.max.x = nc->js.pos.x;
+	}
+	if (nc->js.center.y) {
+		if (nc->js.min.y > nc->js.pos.y) nc->js.min.y = nc->js.pos.y;
+		if (nc->js.max.y < nc->js.pos.y) nc->js.max.y = nc->js.pos.y;
+	}
+
 	/* calculate joystick state */
-	calc_joystick_state(&nc->js, msg[0], msg[1]);
+	calc_joystick_state(&nc->js, nc->js.pos.x, nc->js.pos.y);
 
 	/* calculate orientation */
 	nc->accel.x = msg[2];
