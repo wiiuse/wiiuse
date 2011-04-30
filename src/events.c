@@ -682,7 +682,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 		wiiuse_write_data(wm, WM_EXP_MEM_ENABLE, &buf, 1);
 
 		/* get the calibration data */
-		handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
+		handshake_buf = (byte *)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 		wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 
 		/* tell the wiimote to send expansion data */
