@@ -57,7 +57,6 @@ static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
 int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, byte* data, unsigned short len) {
-	int i;
 	int offset = 0;
 
 	/*
@@ -69,34 +68,10 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 	gh3->btns = 0;
 	gh3->btns_held = 0;
 	gh3->btns_released = 0;
+	gh3->wb_raw = 0;
 	gh3->whammy_bar = 0.0f;
-
-	/* decrypt data */
-	for (i = 0; i < len; ++i)
-		data[i] = (data[i] ^ 0x17) + 0x17;
-
-	if (data[offset] == 0xFF) {
-		/*
-		 *	Sometimes the data returned here is not correct.
-		 *	This might happen because the wiimote is lagging
-		 *	behind our initialization sequence.
-		 *	To fix this just request the handshake again.
-		 *
-		 *	Other times it's just the first 16 bytes are 0xFF,
-		 *	but since the next 16 bytes are the same, just use
-		 *	those.
-		 */
-		if (data[offset + 16] == 0xFF) {
-			/* get the calibration data */
-			byte* handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
-
-			WIIUSE_DEBUG("Guitar Hero 3 handshake appears invalid, trying again.");
-			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
-
-			return 0;
-		} else
-			offset += 16;
-	}
+	gh3->tb_raw = 0;
+	gh3->touch_bar = -1;
 
 	/* joystick stuff */
 	gh3->js.max.x = GUITAR_HERO_3_JS_MAX_X;
@@ -107,11 +82,10 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 	gh3->js.center.y = GUITAR_HERO_3_JS_CENTER_Y;
 
 	/* handshake done */
+	wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;
 	wm->exp.type = EXP_GUITAR_HERO_3;
 
-	#ifdef WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
-	#endif
 
 	return 1;
 }
@@ -143,11 +117,40 @@ void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg) {
 
 	guitar_hero_3_pressed_buttons(gh3, BIG_ENDIAN_SHORT(*(short*)(msg + 4)));
 
+	gh3->js.pos.x = (msg[0] & GUITAR_HERO_3_JS_MASK);
+	gh3->js.pos.y = (msg[1] & GUITAR_HERO_3_JS_MASK);
+	gh3->tb_raw = (msg[2] & GUITAR_HERO_3_TOUCH_MASK);
+	gh3->wb_raw = (msg[3] & GUITAR_HERO_3_WHAMMY_MASK);
+
+	/* touch bar */
+	gh3->touch_bar = 0;
+	if (gh3->tb_raw > 0x1B)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_ORANGE;
+	else if (gh3->tb_raw > 0x18)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_ORANGE | GUITAR_HERO_3_TOUCH_BLUE;
+	else if (gh3->tb_raw > 0x15)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_BLUE;
+	else if (gh3->tb_raw > 0x13)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_BLUE | GUITAR_HERO_3_TOUCH_YELLOW;
+	else if (gh3->tb_raw > 0x10)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_YELLOW;
+	else if (gh3->tb_raw > 0x0D)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_AVAILABLE;
+	else if (gh3->tb_raw > 0x0B)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_YELLOW | GUITAR_HERO_3_TOUCH_RED;
+	else if (gh3->tb_raw > 0x08)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_RED;
+	else if (gh3->tb_raw > 0x05)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_RED | GUITAR_HERO_3_TOUCH_GREEN;
+	else if (gh3->tb_raw > 0x02)
+		gh3->touch_bar = GUITAR_HERO_3_TOUCH_GREEN;
+
 	/* whammy bar */
 	gh3->whammy_bar = (msg[3] - GUITAR_HERO_3_WHAMMY_BAR_MIN) / (float)(GUITAR_HERO_3_WHAMMY_BAR_MAX - GUITAR_HERO_3_WHAMMY_BAR_MIN);
 
 	/* joy stick */
-	calc_joystick_state(&gh3->js, msg[0], msg[1]);
+	calc_joystick_state(&gh3->js, gh3->js.pos.x, gh3->js.pos.y);
+
 }
 
 
@@ -158,8 +161,12 @@ void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg) {
  *	@param msg		The message byte specified in the event packet.
  */
 static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now) {
+
 	/* message is inverted (0 is active, 1 is inactive) */
 	now = ~now & GUITAR_HERO_3_BUTTON_ALL;
+
+	/* preserve old btns pressed */
+	gh3->btns_last = gh3->btns;
 
 	/* pressed now & were pressed, then held */
 	gh3->btns_held = (now & gh3->btns);
