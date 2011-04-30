@@ -28,15 +28,11 @@
 
 /**
  *	@file
- *	@brief Handles the dynamics of the wiimote.
- *
- *	The file includes functions that handle the dynamics
- *	of the wiimote.  Such dynamics include orientation and
- *	motion sensing.
+ *	@brief Guitar Hero 3 expansion device.
  */
 
-#ifndef DYNAMICS_H_INCLUDED
-#define DYNAMICS_H_INCLUDED
+#ifndef WII_BOARD_H_INCLUDED
+#define WII_BOARD_H_INCLUDED
 
 #include "wiiuse_internal.h"
 
@@ -44,14 +40,14 @@
 extern "C" {
 #endif
 
-void calculate_orientation(struct accel_t* ac, struct vec3b_t* accel, struct orient_t* orient, int smooth);
-void calculate_gforce(struct accel_t* ac, struct vec3b_t* accel, struct gforce_t* gforce);
-void calc_joystick_state(struct joystick_t* js, float x, float y);
-void apply_smoothing(struct accel_t* ac, struct orient_t* orient, int type);
-void calc_balanceboard_state(struct wii_board_t *wb);
+int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, unsigned short len);
+
+void wii_board_disconnected(struct wii_board_t* wb);
+
+void wii_board_event(struct wii_board_t* wb, byte* msg);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // DYNAMICS_H_INCLUDED
+#endif
