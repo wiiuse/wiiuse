@@ -103,7 +103,7 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 			/* this is a wiimote */
 			wm[found]->dev_handle = dev;
 
-			wm[found]->hid_overlap.hEvent = CreateEvent(NULL, 1, 1, "");
+			wm[found]->hid_overlap.hEvent = CreateEvent(NULL, 1, 1, L"");
 			wm[found]->hid_overlap.Offset = 0;
 			wm[found]->hid_overlap.OffsetHigh = 0;
 
