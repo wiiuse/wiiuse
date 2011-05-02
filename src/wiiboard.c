@@ -39,16 +39,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-static uint16_t big_to_lil(uint16_t num)
-{
-	uint16_t ret = num;
-	uint8_t *bret = (uint8_t*)&ret;
-	uint8_t tmp = bret[1];
-	bret[1] = bret[0];
-	bret[0] = tmp;
-	return ret;
-}
-
 /**
  *	@brief Handle the handshake data from the wiiboard.
  *
@@ -82,20 +72,20 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 
 	handshake_short = (uint16_t*)data;
 
-	wb->ctr[0] = big_to_lil(handshake_short[2]);
-	wb->cbr[0] = big_to_lil(handshake_short[3]);
-	wb->ctl[0] = big_to_lil(handshake_short[4]);
-	wb->cbl[0] = big_to_lil(handshake_short[5]);
+	wb->ctr[0] = FROM_BIG_ENDIAN_SHORT(handshake_short[2]);
+	wb->cbr[0] = FROM_BIG_ENDIAN_SHORT(handshake_short[3]);
+	wb->ctl[0] = FROM_BIG_ENDIAN_SHORT(handshake_short[4]);
+	wb->cbl[0] = FROM_BIG_ENDIAN_SHORT(handshake_short[5]);
 
-	wb->ctr[1] = big_to_lil(handshake_short[6]);
-	wb->cbr[1] = big_to_lil(handshake_short[7]);
-	wb->ctl[1] = big_to_lil(handshake_short[8]);
-	wb->cbl[1] = big_to_lil(handshake_short[9]);
+	wb->ctr[1] = FROM_BIG_ENDIAN_SHORT(handshake_short[6]);
+	wb->cbr[1] = FROM_BIG_ENDIAN_SHORT(handshake_short[7]);
+	wb->ctl[1] = FROM_BIG_ENDIAN_SHORT(handshake_short[8]);
+	wb->cbl[1] = FROM_BIG_ENDIAN_SHORT(handshake_short[9]);
 
-	wb->ctr[2] = big_to_lil(handshake_short[10]);
-	wb->cbr[2] = big_to_lil(handshake_short[11]);
-	wb->ctl[2] = big_to_lil(handshake_short[12]);
-	wb->cbl[2] = big_to_lil(handshake_short[13]);
+	wb->ctr[2] = FROM_BIG_ENDIAN_SHORT(handshake_short[10]);
+	wb->cbr[2] = FROM_BIG_ENDIAN_SHORT(handshake_short[11]);
+	wb->ctl[2] = FROM_BIG_ENDIAN_SHORT(handshake_short[12]);
+	wb->cbl[2] = FROM_BIG_ENDIAN_SHORT(handshake_short[13]);
 
 	/* handshake done */
 	wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
@@ -137,10 +127,10 @@ static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
  */
 void wii_board_event(struct wii_board_t* wb, byte* msg) {
 	uint16_t *shmsg = (uint16_t*)(msg);
-	wb->rtr = (msg[0] << 8) + msg[1];// big_to_lil(shmsg[0]);
-	wb->rbr = (msg[2] << 8) + msg[3];// big_to_lil(shmsg[1]);
-	wb->rtl = (msg[4] << 8) + msg[5];// big_to_lil(shmsg[2]);
-	wb->rbl = (msg[6] << 8) + msg[7];// big_to_lil(shmsg[3]);
+	wb->rtr = FROM_BIG_ENDIAN_SHORT(shmsg[0]);
+	wb->rbr = FROM_BIG_ENDIAN_SHORT(shmsg[1]);
+	wb->rtl = FROM_BIG_ENDIAN_SHORT(shmsg[2]);
+	wb->rbl = FROM_BIG_ENDIAN_SHORT(shmsg[3]);
 
 	/*
 		Interpolate values
