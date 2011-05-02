@@ -60,7 +60,7 @@ const char* wiiuse_version() {
 FILE* logtarget[4];
 
 /**
- *	@brief Initialize an array of wiimote structures.
+ *	@brief Specify an alternate FILE stream for a log level.
  *
  *	@param loglevel The loglevel, for which the output should be set.
  *
