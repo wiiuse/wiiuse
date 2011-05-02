@@ -60,8 +60,6 @@ if(BUILD_EXAMPLE_SDL)
     add_subdirectory(example-sdl)
 endif()
 
-# Documentation
-add_doxygen(Doxyfile)
 
 ###
 # Set packaging options (for CPack)
@@ -72,6 +70,12 @@ if(WIN32)
 else()
 	set(DOC_DIR share/doc/wiiuse)
 endif()
+
+# Documentation
+add_doxygen(Doxyfile
+	INSTALL_DESTINATION ${DOC_DIR}
+	INSTALL_COMPONENT docs
+	NO_PDF)
 
 install(FILES
 	CHANGELOG
