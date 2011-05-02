@@ -36,7 +36,7 @@ endif()
 add_library(wiiuse SHARED ${SOURCES} ${API})
 
 if(WIN32)
-	target_link_libraries(wiiuse Ws2_32.lib ${WINHID_LIBRARIES} setupapi.lib)
+	target_link_libraries(wiiuse Ws2_32 setupapi ${WINHID_LIBRARIES})
 elseif(LINUX)
 	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 endif()
