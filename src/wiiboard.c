@@ -144,6 +144,9 @@ void wii_board_event(struct wii_board_t* wb, byte* msg) {
 	wb->bl = do_interpolate(wb->rbl, wb->cbl);
 }
 
+/**
+	@todo not implemented!
+*/
 void wiiuse_set_wii_board_calib(struct wiimote_t *wm)
 {
 }

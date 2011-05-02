@@ -515,18 +515,35 @@ typedef struct guitar_hero_3_t {
  *  Balance Board expansion device.
  */
 typedef struct wii_board_t {
-	float  tl;  /* Interpolated */
+	/** @name Interpolated weight per sensor (kg)
+	 *
+	 *  These are the values you're most likely to use.
+	 *
+	 *  See example.c for how to compute total weight and center of gravity
+	 *  from these values.
+	 */
+	/** @{ */
+	float  tl;
 	float  tr;
 	float  bl;
-	float  br;  /* End interp */
-	uint16_t  rtl; /* RAW */
+	float  br;
+	/** @} */
+
+	/** @name Raw sensor values */
+	/** @{ */
+	uint16_t  rtl;
 	uint16_t  rtr;
 	uint16_t  rbl;
-	uint16_t  rbr; /* /RAW */
+	uint16_t  rbr;
+	/** @} */
+
+	/** @name Sensor calibration values */
+	/** @{ */
 	uint16_t  ctl[3]; /* Calibration */
 	uint16_t  ctr[3];
 	uint16_t  cbl[3];
 	uint16_t  cbr[3]; /* /Calibration */
+	/** @} */
 	uint8_t update_calib;
 } wii_board_t;
 
