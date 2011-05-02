@@ -40,10 +40,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-
-#ifdef WIN32
-	#include <float.h>
-#endif
+#include <float.h>
 
 
 /**

@@ -44,9 +44,22 @@
 #ifndef WIIUSE_INTERNAL_H_INCLUDED
 #define WIIUSE_INTERNAL_H_INCLUDED
 
-#ifdef WIN32
+#ifndef WIIUSE_PLATFORM
+	#if defined(_WIN32)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_WIN32
+	#elif defined(__linux)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_BLUEZ
+	#else
+		#error "Platform not yet supported!"
+	#endif
+#endif
+
+#ifdef WIIUSE_WIN32
 	#include <Winsock2.h>
-#else
+#endif
+#ifdef WIIUSE_BLUEZ
 	#include <arpa/inet.h>				/* htons() */
 	#include <bluetooth/bluetooth.h>
 #endif

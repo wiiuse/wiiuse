@@ -34,7 +34,7 @@
 #ifndef CONNECT_H_INCLUDED
 #define CONNECT_H_INCLUDED
 
-#ifndef WIN32
+#ifdef WIIUSE_BLUEZ
 	#include <bluetooth/bluetooth.h>
 #endif
 

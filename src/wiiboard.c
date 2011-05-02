@@ -101,7 +101,7 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
 	wm->exp.type = EXP_WII_BOARD;
 
-	#ifdef WIN32
+	#ifdef WIIUSE_WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
 	#endif
 

@@ -69,10 +69,23 @@
 #define WIIUSE_MINOR 13
 #define WIIUSE_MICRO 1
 
-#ifdef _WIN32
+#ifndef WIIUSE_PLATFORM
+	#if defined(_WIN32)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_WIN32
+	#elif defined(__linux)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_BLUEZ
+	#else
+		#error "Platform not yet supported!"
+	#endif
+#endif
+
+#ifdef WIIUSE_WIN32
 	/* windows */
 	#include <windows.h>
-#else
+#endif
+#ifdef WIIUSE_BLUEZ
 	/* nix */
 	#include <bluetooth/bluetooth.h>
 #endif
@@ -262,7 +275,7 @@ typedef enum ir_position_t {
  *	This is left over from an old hack, but it may actually
  *	be a useful feature to keep so it wasn't removed.
  */
-#ifdef WIN32
+#ifdef WIIUSE_WIN32
 	#define WIIMOTE_DEFAULT_TIMEOUT		10
 	#define WIIMOTE_EXP_TIMEOUT			10
 #endif
@@ -605,18 +618,26 @@ typedef enum WIIUSE_EVENT_TYPE {
 typedef struct wiimote_t {
 	WCONST int unid;						/**< user specified id						*/
 
-	#ifndef WIN32
+	#ifdef WIIUSE_BLUEZ
+	/** @name Linux-specific (BlueZ) members */
+	/** @{ */
 		WCONST bdaddr_t bdaddr;				/**< bt address								*/
 		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST int out_sock;				/**< output socket							*/
 		WCONST int in_sock;					/**< input socket 							*/
-	#else
+	/** @} */
+	#endif
+
+	#ifdef WIIUSE_WIN32
+	/** @name Windows-specific members */
+	/** @{ */
 		WCONST HANDLE dev_handle;			/**< HID handle								*/
 		WCONST OVERLAPPED hid_overlap;		/**< overlap handle							*/
 		WCONST enum win_bt_stack_t stack;	/**< type of bluetooth stack to use			*/
 		WCONST int timeout;					/**< read timeout							*/
 		WCONST byte normal_timeout;			/**< normal timeout							*/
 		WCONST byte exp_timeout;			/**< timeout for expansion handshake		*/
+	/** @} */
 	#endif
 
 	WCONST int state;						/**< various state flags					*/
@@ -666,7 +687,7 @@ typedef enum wiiuse_loglevel {
  *
  *****************************************/
 
-#ifdef _WIN32
+#ifdef WIIUSE_WIN32
 	#define WIIUSE_EXPORT_DECL __declspec(dllexport)
 	#define WIIUSE_IMPORT_DECL __declspec(dllimport)
 #else

@@ -31,10 +31,10 @@
  *	@brief Handles device I/O for Windows.
  */
 
-#ifdef WIN32
 
 #include "io.h"
 
+#ifdef WIIUSE_WIN32
 #include <stdlib.h>
 
 #include <hidsdi.h>
@@ -241,4 +241,4 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
 	return 0;
 }
 
-#endif /* ifdef WIN32 */
+#endif /* ifdef WIIUSE_WIN32 */

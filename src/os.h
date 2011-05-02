@@ -39,18 +39,14 @@
 #ifndef OS_H_INCLUDED
 #define OS_H_INCLUDED
 
-#ifdef WIN32
-	/* windows */
+#ifdef _MSC_VER
+	/* windows with visual c */
 	#define isnan(x)		_isnan(x)
 	#define isinf(x)		!_finite(x)
-
 	/* disable warnings I don't care about */
 	#pragma warning(disable:4244)		/* possible loss of data conversion	*/
 	#pragma warning(disable:4273)		/* inconsistent dll linkage			*/
 	#pragma warning(disable:4217)
-#else
-	/* nix */
 #endif
-
 
 #endif // OS_H_INCLUDED

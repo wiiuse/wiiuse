@@ -61,7 +61,7 @@ extern FILE* logtarget[];
 #define WIIUSE_INFO(fmt, ...)		do { if (OUTF_INFO) fprintf(OUTF_INFO, "[INFO] " fmt "\n", ##__VA_ARGS__); } while(0)
 
 #ifdef WITH_WIIUSE_DEBUG
-	#ifdef WIN32
+	#ifdef WIIUSE_WIN32
 		#define WIIUSE_DEBUG(fmt, ...)		do {																					\
 												if (OUTF_DEBUG) {																	\
 													char* file = __FILE__;															\

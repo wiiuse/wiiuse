@@ -103,7 +103,7 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 	/* handshake done */
 	wm->exp.type = EXP_GUITAR_HERO_3;
 
-	#ifdef WIN32
+	#ifdef WIIUSE_WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
 	#endif
 

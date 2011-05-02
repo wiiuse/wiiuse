@@ -44,7 +44,7 @@
 #include "guitar_hero_3.h"
 #include "wiiboard.h"
 
-#ifndef WIN32
+#ifndef WIIUSE_WIN32
 	#include <sys/time.h>
 	#include <unistd.h>
 	#include <errno.h>
@@ -79,7 +79,7 @@ static int state_changed(struct wiimote_t* wm);
 int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 	int evnt = 0;
 
-	#ifndef WIN32
+	#ifdef WIIUSE_BLUEZ
 		/*
 		 *	*nix
 		 */
@@ -566,7 +566,7 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 		exp_changed = 1;
 	}
 
-	#ifdef WIN32
+	#ifdef WIIUSE_WIN32
 	if (!attachment) {
 		WIIUSE_DEBUG("Setting timeout to normal %i ms.", wm->normal_timeout);
 		wm->timeout = wm->normal_timeout;
@@ -640,7 +640,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			disable_expansion(wm);
 
 		/* increase the timeout until the handshake completes */
-		#ifdef WIN32
+		#ifdef WIIUSE_WIN32
 		WIIUSE_DEBUG("Setting timeout to expansion %i ms.", wm->exp_timeout);
 		wm->timeout = wm->exp_timeout;
 		#endif

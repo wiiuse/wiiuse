@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-#ifndef WIN32
+#ifndef WIIUSE_WIN32
 	#include <unistd.h>
 #endif
 
@@ -115,10 +115,10 @@ void wiiuse_set_ir(struct wiimote_t* wm, int status) {
 	wiiuse_write_data(wm, WM_REG_IR, &buf, 1);
 
 	/* wait for the wiimote to catch up */
-	#ifndef WIN32
-		usleep(50000);
-	#else
+	#ifdef WIIUSE_WIN32
 		Sleep(50);
+	#else
+		usleep(50000);
 	#endif
 
 	/* write sensitivity blocks */
@@ -132,10 +132,10 @@ void wiiuse_set_ir(struct wiimote_t* wm, int status) {
 		buf = WM_IR_TYPE_EXTENDED;
 	wiiuse_write_data(wm, WM_REG_IR_MODENUM, &buf, 1);
 
-	#ifndef WIN32
-		usleep(50000);
-	#else
+	#ifdef WIIUSE_WIN32
 		Sleep(50);
+	#else
+		usleep(50000);
 	#endif
 
 	/* set the wiimote report type */

@@ -105,7 +105,7 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 	/* handshake done */
 	wm->exp.type = EXP_CLASSIC;
 
-	#ifdef WIN32
+	#ifdef WIIUSE_WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
 	#endif
 

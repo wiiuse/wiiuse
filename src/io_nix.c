@@ -31,9 +31,9 @@
  *	@brief Handles device I/O for *nix.
  */
 
-#ifndef WIN32
-
 #include "io.h"
+
+#ifdef WIIUSE_BLUEZ
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -265,4 +265,4 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
 
 
 
-#endif /* ifndef WIN32 */
+#endif /* ifdef WIIUSE_BLUEZ */
