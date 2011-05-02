@@ -144,6 +144,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 						/* this can happen if the bluetooth dongle is disconnected */
 						WIIUSE_ERROR("Bluetooth appears to be disconnected.  Wiimote unid %i will be disconnected.", wm[i]->unid);
 						wiiuse_disconnect(wm[i]);
+						wiiuse_disconnected(wm[i]);
 						wm[i]->event = WIIUSE_UNEXPECTED_DISCONNECT;
 					}
 
