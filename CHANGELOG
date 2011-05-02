@@ -20,17 +20,20 @@ v0.14 -- ?
 			WIIUSE_HAS_OUTPUT_REDIRECTION indicates the presence of this
 			feature. Thanks to Johannes Zarl for this handy feature!
 		- Doxyfile and "doc" target to the build system, to easily make
-			use of the documentation already in the code. (rp)
+			use of the documentation already in the code, along with doc
+			cleanups and improvements. (rp)
 	Fixed:
 		- Off-by-two overflow in IR dot ordering - thanks to Karl Semich (xloem on GitHub)
 		- Documentation typo fix - thanks to Johannes Zarl
+		- Check malloc results. (rp)
+		- Initialize an array entirely. (rp)
 	Changed:
-		- Cleaned up README.
+		- Cleaned up README. (rp)
 		- Removed references to the LGPL/noncommercial license, since it's
 			confusing and not useful in a practical sense. See, e.g.,
 			http://lists.fedoraproject.org/pipermail/legal/2010-November/001470.html
 		- Renamed bundled workaround stdint.h header for Visual Studio,
-			and don't use it with Visual Studio 2010 which comes with its own.
+			which we still have to use on MSVC 2010 for some unknown reason. (rp)
 
 ---------------------------
 v0.13.1 -- 11 November 2010
