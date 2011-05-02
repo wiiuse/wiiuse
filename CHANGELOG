@@ -22,11 +22,13 @@ v0.14 -- ?
 		- Doxyfile and "doc" target to the build system, to easily make
 			use of the documentation already in the code, along with doc
 			cleanups and improvements. (rp)
+		- Added balance board code to example (Paul Burton, rp)
 	Fixed:
 		- Off-by-two overflow in IR dot ordering - thanks to Karl Semich (xloem on GitHub)
 		- Documentation typo fix - thanks to Johannes Zarl
 		- Check malloc results. (rp)
 		- Initialize an array entirely. (rp)
+		- Fixed reading of balance board data. (rp)
 	Changed:
 		- Cleaned up README. (rp)
 		- Removed references to the LGPL/noncommercial license, since it's
