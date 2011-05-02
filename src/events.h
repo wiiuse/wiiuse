@@ -47,9 +47,13 @@
 	#include <stdint.h>
 #endif
 
+
+/** @defgroup internal_events Internal: Event Utilities */
+/** @{ */
 void wiiuse_pressed_buttons(struct wiimote_t* wm, byte* msg);
 
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len);
 void disable_expansion(struct wiimote_t* wm);
+/** @} */
 
 #endif // EVENTS_H_INCLUDED

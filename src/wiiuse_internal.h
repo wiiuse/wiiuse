@@ -69,6 +69,9 @@
  *
  ********************/
 
+
+/** @addtogroup internal_general Internal: API for General Internal Use */
+/** @{ */
 /* Communication channels */
 #define WM_OUTPUT_CHANNEL			0x11
 #define WM_INPUT_CHANNEL			0x13
@@ -217,8 +220,10 @@
 #define SMOOTH_ROLL						0x01
 #define SMOOTH_PITCH					0x02
 
+/** @} */
 #include "wiiuse.h"
-
+/** @addtogroup internal_general */
+/** @{ */
 #define _STRINGIFY(s) _STRINGIFY_IMPL(s)
 #define _STRINGIFY_IMPL(s) #s
 
@@ -238,5 +243,6 @@ int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buff
 #ifdef __cplusplus
 }
 #endif
+/** @} */
 
 #endif /* WIIUSE_INTERNAL_H_INCLUDED */

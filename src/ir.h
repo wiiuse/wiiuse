@@ -43,9 +43,13 @@
 extern "C" {
 #endif
 
+
+/** @defgroup internal_ir Internal: IR Sensor */
+/** @{ */
 void calculate_basic_ir(struct wiimote_t* wm, byte* data);
 void calculate_extended_ir(struct wiimote_t* wm, byte* data);
 float calc_yaw(struct ir_t* ir);
+/** @} */
 
 #ifdef __cplusplus
 }

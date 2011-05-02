@@ -37,6 +37,8 @@
 /* this is wiiuse - used to distinguish from third party programs using wiiuse.h */
 #include <stdio.h>
 #include "os.h"
+/** @addtogroup internal_general */
+/** @{ */
 
 #define WIIMOTE_PI			3.14159265f
 
@@ -87,4 +89,8 @@ extern FILE* logtarget[];
 #define diff_f(x, y)				((x >= y) ? (absf(x - y)) : (absf(y - x)))
 
 #define WCONST
+
+
+/** @} */
+
 #endif // DEFINITIONS_H_INCLUDED
