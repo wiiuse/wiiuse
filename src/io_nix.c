@@ -37,6 +37,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
@@ -75,7 +76,11 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	/* get the id of the first bluetooth device. */
 	device_id = hci_get_route(NULL);
 	if (device_id < 0) {
-		perror("hci_get_route");
+		if (errno == ENODEV) {
+			WIIUSE_ERROR("Could not detect a Bluetooth adapter!");
+		} else {
+			perror("hci_get_route");
+		}
 		return 0;
 	}
 
