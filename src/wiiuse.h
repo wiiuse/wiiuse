@@ -66,8 +66,8 @@
 #define WIIUSE_H_INCLUDED
 
 #define WIIUSE_MAJOR 0
-#define WIIUSE_MINOR 13
-#define WIIUSE_MICRO 1
+#define WIIUSE_MINOR 14
+#define WIIUSE_MICRO 0
 
 #ifndef WIIUSE_PLATFORM
 	#if defined(_WIN32)
