@@ -191,10 +191,6 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 	return evnt;
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Harts API */
-
 int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb callback) {
 	if (wiiuse_poll(wiimotes, nwiimotes)) {
 		static struct WiimoteState_t s;
@@ -226,7 +222,6 @@ int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb c
 	}
 	return 0;
 }
-
 
 /**
  *	@brief Called on a cycle where no significant change occurs.
