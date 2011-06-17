@@ -229,6 +229,7 @@ void wiiuse_rumble(struct wiimote_t* wm, int status) {
 	} else {
 		WIIUSE_DEBUG("Stopping rumble...");
 		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_RUMBLE);
+		buf &= ~(0x01);
 	}
 
 	/* preserve IR state */
