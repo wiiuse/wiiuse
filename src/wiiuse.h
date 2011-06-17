@@ -784,6 +784,8 @@ WIIUSE_EXPORT extern int wiiuse_poll(struct wiimote_t** wm, int wiimotes);
  *
  *  Alternative to calling wiiuse_poll yourself, and provides the same
  *  information struct on all platforms.
+ *
+ *  @return Number of wiimotes that had an event.
  */
 WIIUSE_EXPORT extern int wiiuse_update(struct wiimote_t** wm, int wiimotes, wiiuse_update_cb callback);
 

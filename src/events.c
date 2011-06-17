@@ -192,6 +192,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 }
 
 int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb callback) {
+	int evnt = 0;
 	if (wiiuse_poll(wiimotes, nwiimotes)) {
 		static struct WiimoteState_t s;
 		int i = 0;
@@ -215,12 +216,12 @@ int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb c
 					s.state = wiimotes[i]->state;
 					s.expansion = wiimotes[i]->exp;
 					callback( &s );
+					evnt++;
 					break;
 			}
 		}
-		return 1;
 	}
-	return 0;
+	return evnt;
 }
 
 /**
