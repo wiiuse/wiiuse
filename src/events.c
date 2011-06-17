@@ -192,6 +192,42 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Harts API */
+
+int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb callback) {
+	if (wiiuse_poll(wiimotes, nwiimotes)) {
+		static struct WiimoteState_t s;
+		int i = 0;
+		for (; i < nwiimotes; ++i) {
+			switch (wiimotes[i]->event) {
+				case WIIUSE_NONE:
+					break;
+				default:
+					/* this could be:  WIIUSE_EVENT, WIIUSE_STATUS, WIIUSE_CONNECT, etc.. */
+					s.uid = wiimotes[i]->unid;
+					s.leds = wiimotes[i]->leds;
+					s.battery_level = wiimotes[i]->battery_level;
+					s.accel = wiimotes[i]->accel;
+					s.orient = wiimotes[i]->orient;
+					s.gforce = wiimotes[i]->gforce;
+					s.ir = wiimotes[i]->ir;
+					s.buttons = wiimotes[i]->btns;
+					s.buttons_held = wiimotes[i]->btns_held;
+					s.buttons_released = wiimotes[i]->btns_released;
+					s.event = wiimotes[i]->event;
+					s.state = wiimotes[i]->state;
+					s.expansion = wiimotes[i]->exp;
+					callback( &s );
+					break;
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
+
 /**
  *	@brief Called on a cycle where no significant change occurs.
  *

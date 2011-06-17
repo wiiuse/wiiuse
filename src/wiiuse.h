@@ -773,6 +773,29 @@ WIIUSE_EXPORT extern void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t* w
 /* this function not currently implemented... */
 WIIUSE_EXPORT extern void wiiuse_set_wii_board_calib(struct wiimote_t *wm);
 
+/* wiiuse.c harts API */
+typedef struct WiimoteState_t {
+	WCONST int uid;
+	WCONST byte leds;
+	WCONST float battery_level;
+	WCONST struct vec3b_t accel;
+	WCONST struct orient_t orient;	
+	WCONST struct gforce_t gforce;
+	WCONST struct ir_t ir;
+	WCONST uint16_t buttons;
+	WCONST uint16_t buttons_held;
+	WCONST uint16_t buttons_released;
+	WCONST WIIUSE_EVENT_TYPE event;
+	WCONST int state;
+	WCONST struct expansion_t expansion;
+} WiimoteState;
+
+typedef void (*wiiuse_update_cb)(struct WiimoteState_t* wm);
+
+WIIUSE_EXPORT extern int wiiuse_update(struct wiimote_t** wm, int wiimotes, wiiuse_update_cb callback); 
+
+/* end harts API */
+
 #ifdef __cplusplus
 }
 #endif
