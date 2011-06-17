@@ -96,6 +96,8 @@ PLATFORMS AND DEPENDENCIES
 	For Linux:
 		- The kernel must support bluetooth
 		- The BlueZ bluetooth drivers must be installed
+		- If compiling, you'll need the BlueZ dev files (Debian/Ubuntu package
+		  libbluetooth-dev)
 
 	For Windows:
 		- Bluetooth driver (tested with Microsoft's stack with Windows XP SP2)
