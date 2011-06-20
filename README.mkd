@@ -122,13 +122,13 @@ You need SDL and OpenGL installed to compile the (optional) SDL example.
 
 If `target` is omitted then everything is compiled.
 
-Where `target can be any of the following:
+Where `target` can be any of the following:
 
-- *wiiuse* - Compiles libwiiuse.so
+- *wiiuse* - Compiles `libwiiuse.so`
 
-- *wiiuseexample* - Compiles wiiuse-example
+- *wiiuseexample* - Compiles `wiiuse-example`
 
-- *wiiuseexample-sdl* - Compiles wiiuse-sdl
+- *wiiuseexample-sdl* - Compiles `wiiuse-sdl`
 
 - *doc* - Generates doxygen-based API documentation in HTML and PDF
 	format in `docs-generated`
