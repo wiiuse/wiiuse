@@ -689,7 +689,7 @@ typedef struct wiimote_t {
 } wiimote;
 
 /** @brief Data passed to a callback during wiiuse_update() */
-typedef struct WiimoteState_t {
+typedef struct wiimote_callback_data_t {
 	WCONST int uid;
 	WCONST byte leds;
 	WCONST float battery_level;
@@ -703,10 +703,10 @@ typedef struct WiimoteState_t {
 	WCONST WIIUSE_EVENT_TYPE event;
 	WCONST int state;
 	WCONST struct expansion_t expansion;
-} WiimoteState;
+} wiimote_callback_data_t;
 
 /** @brief Callback type */
-typedef void (*wiiuse_update_cb)(struct WiimoteState_t* wm);
+typedef void (*wiiuse_update_cb)(struct wiimote_callback_data_t* wm);
 
 /**
  *	@brief Loglevels supported by wiiuse.

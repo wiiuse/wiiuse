@@ -194,7 +194,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb callback) {
 	int evnt = 0;
 	if (wiiuse_poll(wiimotes, nwiimotes)) {
-		static struct WiimoteState_t s;
+		static struct wiimote_callback_data_t s;
 		int i = 0;
 		for (; i < nwiimotes; ++i) {
 			switch (wiimotes[i]->event) {
