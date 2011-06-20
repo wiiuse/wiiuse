@@ -114,7 +114,7 @@ You need SDL and OpenGL installed to compile the (optional) SDL example.
 
 	$ ccmake .. [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DCMAKE_BUILD_TYPE=Release]
 
-OR
+	OR
 
 	$ cmake-gui ..
 
