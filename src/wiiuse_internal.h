@@ -129,10 +129,13 @@
 /* offsets in wiimote memory */
 #define WM_MEM_OFFSET_CALIBRATION	0x16
 #define WM_EXP_MEM_BASE				0x04A40000
+#define WM_EXP_ID				0x04A400FA
 #define WM_EXP_MEM_ENABLE			0x04A40040
+#define WM_EXP_MEM_ENABLE1			0x04A400F0
+#define WM_EXP_MEM_ENABLE2			0x04A400FB
 #define WM_EXP_MEM_CALIBR			0x04A40020
-
-#define WM_REG_IR					0x04B00030
+#define WM_EXP_MOTION_PLUS_ENABLE   		0x04A600FE
+#define WM_REG_IR				0x04B00030
 #define WM_REG_IR_BLOCK1			0x04B00000
 #define WM_REG_IR_BLOCK2			0x04B0001A
 #define WM_REG_IR_MODENUM			0x04B00033
@@ -167,6 +170,7 @@
 #define EXP_ID_CODE_WII_BOARD				0xA4200402
 #define EXP_ID_CODE_CLASSIC_CONTROLLER		0x9A1EFDFD
 #define EXP_ID_CODE_GUITAR					0x9A1EFDFB
+#define EXP_ID_CODE_MOTION_PLUS				0xa4200405
 
 #define EXP_HANDSHAKE_LEN					224
 
@@ -180,6 +184,8 @@
 #define WIIMOTE_STATE_DEV_FOUND				0x0001
 #define WIIMOTE_STATE_HANDSHAKE				0x0002	/* actual connection exists but no handshake yet */
 #define WIIMOTE_STATE_HANDSHAKE_COMPLETE	0x0004	/* actual connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_HANDSHAKE				0x00020	/* actual connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_FAILED				0x00040	/* actual connection exists but no handshake yet */
 #define WIIMOTE_STATE_CONNECTED				0x0008
 #define WIIMOTE_STATE_RUMBLE				0x0010
 #define WIIMOTE_STATE_ACC					0x0020

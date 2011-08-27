@@ -567,6 +567,104 @@ int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data,
 	return 1;
 }
 
+/**
+ *	@brief	Write data to the wiimote (callback version).
+ *
+ *	@param wm			Pointer to a wiimote_t structure.
+ *	@param addr			The address to write to.
+ *	@param data			The data to be written to the memory location.
+ *	@param len			The length of the block to be written.
+ *	@param cb			Function pointer to call when the data arrives from the wiimote.
+ *
+ *	The library can only handle one data read request at a time
+ *	because it must keep track of the buffer and other
+ *	events that are specific to that request.  So if a request
+ *	has already been made, subsequent requests will be added
+ *	to a pending list and be sent out when the previous
+ *	finishes.
+ */
+int wiiuse_write_data_cb(struct wiimote_t *wm,uint addr,unsigned char *data,unsigned char len,wiiuse_write_cb write_cb)
+{
+	struct data_req_t* req;
+
+	if(!wm || !WIIMOTE_IS_CONNECTED(wm)) return 0;
+	if( !data || !len ) return 0;
+
+	req = (struct data_req_t*)malloc(sizeof(struct data_req_t));
+	req->cb = write_cb;
+	req->len = len;
+	memcpy(req->data,data,req->len);
+	req->state = REQ_READY;
+	req->addr = addr;//BIG_ENDIAN_LONG(addr);
+	req->next = NULL;
+	/* add this to the request list */
+	if (!wm->data_req) {
+		/* root node */
+		wm->data_req = req;
+
+		WIIUSE_DEBUG("Data write request can be sent out immediately.");
+
+		/* send the request out immediately */
+		wiiuse_send_next_pending_write_request(wm);
+	} else {
+		struct data_req_t* nptr = wm->data_req;
+WIIUSE_DEBUG("chaud2fois");
+		for (; nptr->next; nptr = nptr->next);
+		nptr->next = req;
+
+		WIIUSE_DEBUG("Added pending data write request.");
+	}
+
+	return 1;
+}
+
+/**
+ *	@brief Send the next pending data write request to the wiimote.
+ *
+ *	@param wm		Pointer to a wiimote_t structure.
+ *
+ *	@see wiiuse_write_data()
+ *
+ *	This function is not part of the wiiuse API.
+ */
+void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
+	byte buf[21] = {0};		/* the payload is always 23 */
+	struct data_req_t* req = wm->data_req;
+
+	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
+		return;
+	if (!req->data || !req->len)
+		return;
+	if(req->state!=REQ_READY) return;
+	req = wm->data_req;
+	if (!req)
+		return;
+
+	WIIUSE_DEBUG("Writing %i bytes to memory location 0x%x...", req->len, req->addr);
+
+	#ifdef WITH_WIIUSE_DEBUG
+	{
+		unsigned int i = 0;
+		printf("Write data is: ");
+		for (; i < req->len; ++i)
+			printf("%x ", req->data[i]);
+		printf("\n");
+	}
+	#endif
+
+	/* the offset is in big endian */
+	*(int*)(buf) = BIG_ENDIAN_LONG(req->addr);
+
+	/* length */
+	*(byte*)(buf + 4) = req->len;//BIG_ENDIAN_SHORT(req->len);
+
+	/* data */
+	memcpy(buf + 5, req->data, req->len);
+
+	wiiuse_send(wm, WM_CMD_WRITE_DATA, buf, 21);
+	req->state = REQ_SENT;
+	return;
+}
 
 /**
  *	@brief	Send a packet to the wiimote.
