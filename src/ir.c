@@ -49,6 +49,18 @@ static int ir_correct_for_bounds(int* x, int* y, enum aspect_t aspect, int offse
 static void ir_convert_to_vres(int* x, int* y, enum aspect_t aspect, int vx, int vy);
 
 
+void wiiuse_set_ir_mode(struct wiimote_t *wm)
+{
+	byte buf = 0x00;
+
+	if(!wm) return;
+	if(!WIIMOTE_IS_SET(wm,WIIMOTE_STATE_IR)) return;
+
+	if(WIIMOTE_IS_SET(wm,WIIMOTE_STATE_EXP)) buf = WM_IR_TYPE_BASIC;
+	else buf = WM_IR_TYPE_EXTENDED;
+	wiiuse_write_data(wm,WM_REG_IR_MODENUM, &buf, 1);
+}
+
 /**
  *	@brief	Set if the wiimote should track IR targets.
  *
