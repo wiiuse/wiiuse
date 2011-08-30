@@ -195,6 +195,7 @@
 #define EXP_CLASSIC						2
 #define EXP_GUITAR_HERO_3				3
 #define EXP_WII_BOARD					4
+#define EXP_MOTION_PLUS					5
 /** @} */
 
 /** @brief IR correction types */
@@ -508,6 +509,17 @@ typedef struct guitar_hero_3_t {
 	struct joystick_t js;			/**< joystick calibration					*/
 } guitar_hero_3_t;
 
+
+/**
+ * 	@brief Motion Plus expansion device
+ */
+typedef struct motion_plus_t
+{
+	short rx, ry, rz;
+	unsigned char status;
+	unsigned char ext;
+} motion_plus_t;
+
 /**
  *	@brief Wii Balance Board "expansion" device.
  *
@@ -559,6 +571,7 @@ typedef struct expansion_t {
 		struct classic_ctrl_t classic;
 		struct guitar_hero_3_t gh3;
 		struct wii_board_t wb;
+		struct motion_plus_t mp;
 	};
 } expansion_t;
 
@@ -587,6 +600,11 @@ typedef struct wiimote_state_t {
 	struct vec3b_t exp_accel;
 	float exp_r_shoulder;
 	float exp_l_shoulder;
+	
+	/* motion plus */
+	short drx;
+	short dry;
+	short drz;
 
 	/* wiiboard */
 	uint16_t exp_wb_rtr;
@@ -624,7 +642,9 @@ typedef enum WIIUSE_EVENT_TYPE {
 	WIIUSE_GUITAR_HERO_3_CTRL_INSERTED,
 	WIIUSE_GUITAR_HERO_3_CTRL_REMOVED,
 	WIIUSE_WII_BOARD_CTRL_INSERTED,
-	WIIUSE_WII_BOARD_CTRL_REMOVED
+	WIIUSE_WII_BOARD_CTRL_REMOVED,
+	WIIUSE_MOTION_PLUS_ACTIVATED,
+	WIIUSE_MOTION_PLUS_REMOVED
 } WIIUSE_EVENT_TYPE;
 
 /**
@@ -664,6 +684,8 @@ typedef struct wiimote_t {
 	WCONST int flags;						/**< options flag							*/
 
 	WCONST byte handshake_state;			/**< the state of the connection handshake	*/
+	WCONST unsigned char expansion_state;			/**< the state of the expansion handshake	*/
+	WCONST struct data_req_t* data_req;		/**< list of data read requests				*/
 
 	WCONST struct read_req_t* read_req;		/**< list of data read requests				*/
 	WCONST struct accel_t accel_calib;		/**< wiimote accelerometer calibration		*/
@@ -686,6 +708,7 @@ typedef struct wiimote_t {
 
 	WCONST WIIUSE_EVENT_TYPE event;			/**< type of event that occured				*/
 	WCONST byte event_buf[MAX_PAYLOAD];		/**< event buffer							*/
+	WCONST byte motion_plus_id[6];
 } wiimote;
 
 /** @brief Data passed to a callback during wiiuse_update() */
@@ -707,6 +730,42 @@ typedef struct wiimote_callback_data_t {
 
 /** @brief Callback type */
 typedef void (*wiiuse_update_cb)(struct wiimote_callback_data_t* wm);
+
+/**
+ *      @brief Callback that handles a write event.
+ *
+ *      @param wm               Pointer to a wiimote_t structure.
+ *      @param data             Pointer to the sent data block.
+ *      @param len              Length in bytes of the data block.
+ *
+ *      @see wiiuse_init()
+ *
+ *      A registered function of this type is called automatically by the wiiuse
+ *      library when the wiimote has returned the full data requested by a previous
+ *      call to wiiuse_write_data().
+ */
+typedef void (*wiiuse_write_cb)(struct wiimote_t* wm, unsigned char* data, unsigned short len);
+
+typedef enum data_req_s
+{
+	REQ_READY = 0,
+	REQ_SENT,
+	REQ_DONE
+} data_req_s;
+
+/**
+ *	@struct data_req_t
+ *	@brief Data write request structure.
+ */
+struct data_req_t {
+	
+	unsigned char data[21];					/**< buffer where read data is written						*/
+	unsigned int len;
+	unsigned int addr;
+	data_req_s state;			/**< set to 1 if not using callback and needs to be cleaned up	*/
+	wiiuse_write_cb cb;			/**< read data callback											*/
+	struct data_req_t *next;
+};
 
 /**
  *	@brief Loglevels supported by wiiuse.
@@ -803,6 +862,8 @@ WIIUSE_EXPORT extern void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t* w
 /* wiiboard.c */
 /* this function not currently implemented... */
 WIIUSE_EXPORT extern void wiiuse_set_wii_board_calib(struct wiimote_t *wm);
+
+WIIUSE_EXPORT extern void wiiuse_set_motion_plus(struct wiimote_t *wm, int status);
 
 #ifdef __cplusplus
 }

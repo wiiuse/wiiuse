@@ -13,6 +13,8 @@ set(SOURCES
 	dynamics.h
 	events.h
 	guitar_hero_3.h
+	motion_plus.h
+	motion_plus.c
 	io.h
 	ir.h
 	nunchuk.h
