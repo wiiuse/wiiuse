@@ -260,8 +260,10 @@ void wiiuse_millisleep(int durationMilliseconds);
 
 int wiiuse_set_report_type(struct wiimote_t* wm);
 void wiiuse_send_next_pending_read_request(struct wiimote_t* wm);
+void wiiuse_send_next_pending_write_request(struct wiimote_t* wm);
 int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len);
 int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int offset, uint16_t len);
+int wiiuse_write_data_cb(struct wiimote_t *wm, uint addr, unsigned char *data, unsigned char len, wiiuse_write_cb write_cb);
 
 
 #ifdef WIIUSE_DOXYGEN_PARSING
