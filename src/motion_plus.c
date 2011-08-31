@@ -32,6 +32,7 @@
 #include "wiiuse_internal.h"
 #include "dynamics.h"
 #include "events.h"
+#include "ir.h"
 
 #include <stdlib.h>
 #include <math.h>
