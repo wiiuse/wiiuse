@@ -28,22 +28,14 @@
  *
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
 
-#ifdef WIN32
-	#include <Winsock2.h>
-#endif
-
-#include "definitions.h"
 #include "wiiuse_internal.h"
 #include "dynamics.h"
 #include "events.h"
-//#include ".h"
-#include "io.h"
+
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
 
 void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len)
 {
