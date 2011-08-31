@@ -55,7 +55,7 @@ void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len
 			/* handshake done */
 			wm->event = WIIUSE_MOTION_PLUS_ACTIVATED;
 			wm->exp.type = EXP_MOTION_PLUS;
-			WIIUSE_DEBUG("Motion plus connected");			
+			WIIUSE_DEBUG("Motion plus connected");
 			WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
 			wiiuse_set_ir_mode(wm);
 		}
@@ -77,14 +77,13 @@ static void wiiuse_set_motion_plus_clear1(struct wiimote_t *wm,byte *data,unsign
 	wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_set_motion_plus_clear2);
 }
 
-
 void wiiuse_set_motion_plus(struct wiimote_t *wm, int status)
 {
 	unsigned char val;
-	
+
 	if(WIIMOTE_IS_SET(wm,WIIMOTE_STATE_EXP_HANDSHAKE))
 		return;
-	
+
 	WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
 	if(status)
 	{
