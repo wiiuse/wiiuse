@@ -47,7 +47,7 @@ void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len
 		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP);
 		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
 		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
-		val = (data[3] << 16) | (data[2] << 24) | (data[4] << 8) | data[5];
+		val = from_big_endian_uint32_t(data + 2);
 		if(val == EXP_ID_CODE_MOTION_PLUS)
 		{
 			/* handshake done */
