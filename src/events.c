@@ -36,23 +36,24 @@
 
 #include "wiiuse_internal.h"
 #include "events.h"
-#include "io.h"
-#include "dynamics.h"
-#include "ir.h"
-#include "nunchuk.h"
-#include "classic.h"
-#include "guitar_hero_3.h"
-#include "wiiboard.h"
+
+#include "classic.h"                    // for classic_ctrl_disconnected, etc
+#include "dynamics.h"                   // for calculate_gforce, etc
+#include "guitar_hero_3.h"              // for guitar_hero_3_disconnected, etc
+#include "ir.h"                         // for calculate_basic_ir, etc
+#include "nunchuk.h"                    // for nunchuk_disconnected, etc
+#include "wiiboard.h"                   // for wii_board_disconnected, etc
 
 #ifndef WIIUSE_WIN32
-	#include <sys/time.h>
-	#include <unistd.h>
-	#include <errno.h>
+	#include <sys/time.h>                   // for timeval
+	#include <sys/select.h>                 // for select, fd_set
+	#include <unistd.h>                     // for read
 #endif
 
-#include <sys/types.h>
-#include <stdlib.h>
-#include <math.h>
+#include <errno.h>                      // for errno
+#include <stdio.h>                      // for printf, perror
+#include <stdlib.h>                     // for free, malloc
+#include <string.h>                     // for memcpy, memset
 
 static void idle_cycle(struct wiimote_t* wm);
 static void clear_dirty_reads(struct wiimote_t* wm);

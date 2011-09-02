@@ -36,11 +36,9 @@
  */
 
 #include "dynamics.h"
-#include "ir.h"
 
-#include <stdlib.h>
-#include <math.h>
-#include <float.h>
+#include <math.h>                       // for atan2f, atanf, sqrt
+#include <stdlib.h>                     // for abs
 
 
 /**

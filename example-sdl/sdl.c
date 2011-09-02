@@ -21,23 +21,26 @@
  *	$Header$
  */
 
-#include <stdlib.h>
-#include <math.h>
+#include <wiiuse.h>
 
-#ifndef WIN32
-	#include <unistd.h>
-	#include <sys/time.h>
-	#include <time.h>
+#include <SDL.h>                        // for SDL_Init, SDL_Quit
+#include <SDL_error.h>                  // for SDL_GetError
+#include <SDL_events.h>                 // for SDL_Event, SDL_PollEvent, etc
+#include <SDL_video.h>                  // for SDL_GL_SetAttribute, etc
+
+#include <GL/gl.h>                      // for glVertex3f, GLfloat, etc
+#include <GL/glu.h>                     // for gluLookAt, gluOrtho2D, etc
+#include <GL/glut.h>                    // for glutSolidTeapot
+
+#ifndef WIIUSE_WIN32
+	#include <sys/time.h>                   // for timeval, gettimeofday
+	#include <time.h>                       // for time
+	#include <unistd.h>                     // for usleep
 #else
 	#include <windows.h>
 #endif
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#include <SDL.h>
-
-#include <wiiuse.h>
+#include <stdio.h>                      // for printf
 
 #define PI 3.14159265358979323846
 #define PI_DIV_180 0.017453292519943296

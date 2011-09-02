@@ -34,14 +34,13 @@
  *	This file is an example of how to use the wiiuse library.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>                      // for printf
 
 #ifndef WIN32
-	#include <unistd.h>
+	#include <unistd.h>                     // for usleep
 #endif
 
-#include "wiiuse.h"
+#include "wiiuse.h"                     // for wiimote_t, classic_ctrl_t, etc
 
 
 #define MAX_WIIMOTES				4
