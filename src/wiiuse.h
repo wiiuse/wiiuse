@@ -602,7 +602,7 @@ typedef struct wiimote_state_t {
 	struct vec3b_t exp_accel;
 	float exp_r_shoulder;
 	float exp_l_shoulder;
-	
+
 	/* motion plus */
 	short drx;
 	short dry;
@@ -760,7 +760,7 @@ typedef enum data_req_s
  *	@brief Data write request structure.
  */
 struct data_req_t {
-	
+
 	unsigned char data[21];					/**< buffer where read data is written						*/
 	unsigned int len;
 	unsigned int addr;
