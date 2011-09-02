@@ -21,7 +21,7 @@ set(SOURCES
 	wiiboard.h)
 set(API
 	wiiuse.h)
-	
+
 if(WIN32)
 	list(APPEND SOURCES io_win.c)
 	set(CMAKE_DEBUG_POSTFIX _debug)
