@@ -420,8 +420,8 @@ static void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 void wiiuse_pressed_buttons(struct wiimote_t* wm, byte* msg) {
 	int16_t now;
 
-	/* convert to big endian */
-	now = BIG_ENDIAN_SHORT(*(int16_t*)msg) & WIIMOTE_BUTTON_ALL;
+	/* convert from big endian */
+	now = from_big_endian_uint16_t(msg) & WIIMOTE_BUTTON_ALL;
 
 	/* pressed now & were pressed, then held */
 	wm->btns_held = (now & wm->btns);
@@ -489,7 +489,7 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 	}
 
 	len = ((msg[2] & 0xF0) >> 4) + 1;
-	offset = BIG_ENDIAN_SHORT(*(uint16_t*)(msg + 3));
+	offset = from_big_endian_uint16_t(msg + 3);
 	req->addr = (req->addr & 0xFFFF);
 
 	req->wait -= len;
@@ -691,7 +691,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 		return;
 	}
 
-	id = BIG_ENDIAN_LONG(*(int*)(data + 220));
+	id = from_big_endian_uint32_t(data + 220);
 
 	/* call the corresponding handshake function for this expansion */
 	switch (id) {

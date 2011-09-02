@@ -135,7 +135,7 @@ void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg) {
 	for (i = 0; i < 6; ++i)
 		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
-	guitar_hero_3_pressed_buttons(gh3, BIG_ENDIAN_SHORT(*(short*)(msg + 4)));
+	guitar_hero_3_pressed_buttons(gh3, from_big_endian_uint16_t(msg + 4));
 
 	/* whammy bar */
 	gh3->whammy_bar = (msg[3] - GUITAR_HERO_3_WHAMMY_BAR_MIN) / (float)(GUITAR_HERO_3_WHAMMY_BAR_MAX - GUITAR_HERO_3_WHAMMY_BAR_MIN);
