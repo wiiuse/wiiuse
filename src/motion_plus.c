@@ -37,7 +37,7 @@
 
 void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len)
 {
-	int val;
+	uint32_t val;
 	if(data == NULL)
 	{
 	    wiiuse_read_data_cb(wm, wiiuse_motion_plus_check, wm->motion_plus_id, WM_EXP_ID, 6);
@@ -71,13 +71,13 @@ static void wiiuse_set_motion_plus_clear2(struct wiimote_t *wm,byte *data,unsign
 
 static void wiiuse_set_motion_plus_clear1(struct wiimote_t *wm,byte *data,unsigned short len)
 {
-	unsigned char val = 0x00;
+	byte val = 0x00;
 	wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_set_motion_plus_clear2);
 }
 
 void wiiuse_set_motion_plus(struct wiimote_t *wm, int status)
 {
-	unsigned char val;
+	byte val;
 
 	if(WIIMOTE_IS_SET(wm,WIIMOTE_STATE_EXP_HANDSHAKE))
 		return;
