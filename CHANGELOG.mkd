@@ -24,6 +24,9 @@ Added:
 
 Fixed:
 
+- Properly disable rumbling when told to. Thanks to Jeff Baker from
+	(Inv3rsion, LLC.)(http://www.inv3rsion.com/)
+
 Changed:
 
 - Improved header includes using feedback from (include-what-you-use)[iwyu]
