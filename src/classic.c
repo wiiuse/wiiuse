@@ -138,7 +138,7 @@ void classic_ctrl_event(struct classic_ctrl_t* cc, byte* msg) {
 	for (i = 0; i < 6; ++i)
 		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
-	classic_ctrl_pressed_buttons(cc, BIG_ENDIAN_SHORT(*(short*)(msg + 4)));
+	classic_ctrl_pressed_buttons(cc, from_big_endian_uint16_t(msg + 4));
 
 	/* left/right buttons */
 	l = (((msg[2] & 0x60) >> 2) | ((msg[3] & 0xE0) >> 5));

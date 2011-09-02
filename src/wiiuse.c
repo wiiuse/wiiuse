@@ -488,10 +488,10 @@ void wiiuse_send_next_pending_read_request(struct wiimote_t* wm) {
 		return;
 
 	/* the offset is in big endian */
-	*(int32_t*)(buf) = BIG_ENDIAN_LONG(req->addr);
+	to_big_endian_uint32_t(buf, req->addr);
 
 	/* the length is in big endian */
-	*(int16_t*)(buf + 4) = BIG_ENDIAN_SHORT(req->size);
+	to_big_endian_uint16_t(buf + 4, req->size);
 
 	WIIUSE_DEBUG("Request read at address: 0x%x  length: %i", req->addr, req->size);
 	wiiuse_send(wm, WM_CMD_READ_DATA, buf, 6);
@@ -570,14 +570,15 @@ int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, byte* data, byte 
 	}
 	#endif
 
+	byte * bufPtr = buf;
 	/* the offset is in big endian */
-	*(int*)(buf) = BIG_ENDIAN_LONG(addr);
+	buffer_big_endian_uint32_t(&bufPtr, addr);
 
 	/* length */
-	*(byte*)(buf + 4) = len;
+	buffer_big_endian_uint8_t(&bufPtr, len);
 
 	/* data */
-	memcpy(buf + 5, data, len);
+	memcpy(bufPtr, data, len);
 
 	wiiuse_send(wm, WM_CMD_WRITE_DATA, buf, 21);
 	return 1;
