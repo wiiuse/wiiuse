@@ -628,16 +628,16 @@ WIIUSE_DEBUG("chaud2fois");
  *	This function is not part of the wiiuse API.
  */
 void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
-	struct data_req_t* req = wm->data_req;
+	struct data_req_t* req;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
+		return;
+	req = wm->data_req;
+	if (!req)
 		return;
 	if (!req->data || !req->len)
 		return;
 	if(req->state!=REQ_READY) return;
-	req = wm->data_req;
-	if (!req)
-		return;
 
 	wiiuse_write_data(wm, req->addr, req->data, req->len);
 
