@@ -644,7 +644,6 @@ WIIUSE_DEBUG("chaud2fois");
  *	This function is not part of the wiiuse API.
  */
 void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
-	byte buf[21] = {0};		/* the payload is always 23 */
 	struct data_req_t* req = wm->data_req;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
@@ -656,28 +655,8 @@ void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
 	if (!req)
 		return;
 
-	WIIUSE_DEBUG("Writing %i bytes to memory location 0x%x...", req->len, req->addr);
+	wiiuse_write_data(wm, req->addr, req->data, req->len);
 
-	#ifdef WITH_WIIUSE_DEBUG
-	{
-		unsigned int i = 0;
-		printf("Write data is: ");
-		for (; i < req->len; ++i)
-			printf("%x ", req->data[i]);
-		printf("\n");
-	}
-	#endif
-
-	/* the offset is in big endian */
-	*(int*)(buf) = BIG_ENDIAN_LONG(req->addr);
-
-	/* length */
-	*(byte*)(buf + 4) = req->len;//BIG_ENDIAN_SHORT(req->len);
-
-	/* data */
-	memcpy(buf + 5, req->data, req->len);
-
-	wiiuse_send(wm, WM_CMD_WRITE_DATA, buf, 21);
 	req->state = REQ_SENT;
 	return;
 }
