@@ -33,11 +33,11 @@
 
 
 #include "nunchuk.h"
-#include "dynamics.h"
-#include "events.h"
+#include "dynamics.h"                   // for calc_joystick_state, etc
+#include "events.h"                     // for handshake_expansion
 
-#include <stdlib.h>
-#include <math.h>
+#include <stdlib.h>                     // for malloc
+#include <string.h>                     // for memset
 
 
 static void nunchuk_pressed_buttons(struct nunchuk_t* nc, byte now);

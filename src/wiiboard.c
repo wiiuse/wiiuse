@@ -33,11 +33,9 @@
 
 
 #include "wiiboard.h"
-#include "dynamics.h"
-#include "events.h"
 
-#include <stdlib.h>
-#include <math.h>
+#include <stdio.h>                      // for printf
+#include <string.h>                     // for memset
 
 /**
  *	@brief Handle the handshake data from the wiiboard.

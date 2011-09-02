@@ -35,14 +35,17 @@
 
 #ifdef WIIUSE_BLUEZ
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-#include <bluetooth/l2cap.h>
+#include <bluetooth/bluetooth.h>        // for ba2str, str2ba
+#include <bluetooth/hci.h>              // for inquiry_info
+#include <bluetooth/hci_lib.h>          // for hci_get_route, hci_inquiry, etc
+#include <bluetooth/l2cap.h>            // for sockaddr_l2
+
+#include <stdio.h>                      // for perror
+#include <string.h>                     // for memset
+#include <sys/socket.h>                 // for connect, socket
+#include <unistd.h>                     // for close, write
+#include <errno.h>
 
 static int wiiuse_connect_single(struct wiimote_t* wm, char* address);
 

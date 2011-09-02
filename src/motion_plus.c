@@ -28,15 +28,12 @@
  *
  */
 
+#include "motion_plus.h"
 
-#include "wiiuse_internal.h"
-#include "dynamics.h"
-#include "events.h"
-#include "ir.h"
+#include "events.h"                     // for disable_expansion
+#include "ir.h"                         // for wiiuse_set_ir_mode
 
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <string.h>                     // for memset
 
 void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len)
 {

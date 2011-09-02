@@ -33,10 +33,9 @@
 
 #include "ir.h"
 
-#include <math.h>
-
+#include <math.h>                       // for atanf, cos, sin, sqrt
 #ifndef WIIUSE_WIN32
-	#include <unistd.h>
+	#include <unistd.h>                     // for usleep
 #endif
 
 static int get_ir_sens(struct wiimote_t* wm, char** block1, char** block2);

@@ -36,14 +36,11 @@
  */
 
 #include "wiiuse_internal.h"
-#include "events.h"
-#include "io.h"
+#include "io.h"                         // for wiiuse_handshake, etc
 
-#include <stdlib.h>
-
-#ifndef WIIUSE_WIN32
-	#include <unistd.h>
-#endif
+#include <stdio.h>                      // for printf, FILE
+#include <stdlib.h>                     // for malloc, free
+#include <string.h>                     // for memcpy, memset
 
 static int g_banner = 0;
 
