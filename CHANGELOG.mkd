@@ -19,9 +19,16 @@ Added:
 	by and included with RPythonic http://code.google.com/p/rpythonic/
 	Thanks to hartsantler for this feature.
 
+- Initial MotionPlus support, merged from fwiine - thanks to admiral0 for
+	the pull request.
+
 Fixed:
 
 Changed:
+
+- Improved header includes using feedback from (include-what-you-use)[iwyu]
+
+[iwyu]:http://code.google.com/p/include-what-you-use/
 
 v0.14 -- 2 May 2011
 -------------------
