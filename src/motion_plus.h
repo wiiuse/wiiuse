@@ -41,9 +41,12 @@
 extern "C" {
 #endif
 
+/** @defgroup internal_mp Internal: MotionPlus */
+/** @{ */
 void motion_plus_disconnected(struct motion_plus_t* mp);
 
 void motion_plus_event(struct motion_plus_t* mp, byte* msg);
+/** @} */
 
 #ifdef __cplusplus
 }
