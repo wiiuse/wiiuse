@@ -31,6 +31,10 @@ Changed:
 - Additional internal function `wiiuse_millisleep()` to reduce the number
 	of `ifdef`s scattered through the code.
 
+- Provide endianness-conversion and buffer/unbuffer functions, rather than
+	a jumble of function-style macros and raw type punning. This should
+	fix all aliasing warnings.
+
 [iwyu]:http://code.google.com/p/include-what-you-use/
 
 v0.14 -- 2 May 2011
