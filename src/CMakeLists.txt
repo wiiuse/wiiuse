@@ -1,33 +1,33 @@
 set(SOURCES
-	classic.c
-	dynamics.c
-	events.c
-	guitar_hero_3.c
-	io.c
-	ir.c
-	nunchuk.c
-	wiiuse.c
-	wiiboard.c
+	classic.cpp
 	classic.h
 	definitions.h
+	dynamics.cpp
 	dynamics.h
+	events.cpp
 	events.h
+	guitar_hero_3.cpp
 	guitar_hero_3.h
+	io.cpp
 	io.h
+	ir.cpp
 	ir.h
+	nunchuk.cpp
 	nunchuk.h
 	os.h
 	util.c
-	wiiuse_internal.h
-	wiiboard.h)
+	wiiboard.cpp
+	wiiboard.h
+	wiiuse.cpp
+	wiiuse_internal.h)
 set(API
 	wiiuse.h)
 
 if(WIN32)
-	list(APPEND SOURCES io_win.c)
+	list(APPEND SOURCES io_win.cpp)
 	set(CMAKE_DEBUG_POSTFIX _debug)
 else()
-	list(APPEND SOURCES io_nix.c)
+	list(APPEND SOURCES io_nix.cpp)
 endif()
 
 if(MSVC)
