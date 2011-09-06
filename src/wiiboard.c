@@ -48,7 +48,7 @@
  */
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
-
+	byte * bufptr;
 	/* decrypt data */
 #ifdef WITH_WIIUSE_DEBUG
 	int i;
@@ -67,7 +67,7 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	printf("\n");
 #endif
 
-	byte * bufptr = data + 4;
+	bufptr = data + 4;
 	wb->ctr[0] = unbuffer_big_endian_uint16_t(&bufptr);
 	wb->cbr[0] = unbuffer_big_endian_uint16_t(&bufptr);
 	wb->ctl[0] = unbuffer_big_endian_uint16_t(&bufptr);

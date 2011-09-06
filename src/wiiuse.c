@@ -553,6 +553,7 @@ struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid
 int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, byte* data, byte len) {
 	byte buf[21] = {0};		/* the payload is always 23 */
 
+	byte * bufPtr = buf;
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
 		return 0;
 	if (!data || !len)
@@ -570,9 +571,8 @@ int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, byte* data, byte 
 	}
 	#endif
 
-	byte * bufPtr = buf;
 	/* the offset is in big endian */
-	buffer_big_endian_uint32_t(&bufPtr, addr);
+	buffer_big_endian_uint32_t(&bufPtr, (uint32_t)addr);
 
 	/* length */
 	buffer_big_endian_uint8_t(&bufPtr, len);
