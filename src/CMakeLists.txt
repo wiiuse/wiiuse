@@ -17,6 +17,7 @@ set(SOURCES
 	ir.h
 	nunchuk.h
 	os.h
+	util.c
 	wiiuse_internal.h
 	wiiboard.h)
 set(API
