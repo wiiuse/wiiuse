@@ -24,6 +24,8 @@ Fixed:
 - Properly disable rumbling when told to. Thanks to Jeff Baker from
 	(Inv3rsion, LLC.)(http://www.inv3rsion.com/)
 
+- Builds properly now on mingw (both cross-compile and native).
+
 Changed:
 
 - Improved header includes using feedback from (include-what-you-use)[iwyu]
