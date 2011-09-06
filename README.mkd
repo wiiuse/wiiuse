@@ -260,8 +260,14 @@ greatly appreciated.
 
 	- MotionPlus support added
 
-- DolphinEmu PPA: used to have a WiiUse 0.13, which I believe contained Mac
-	support.
+- DolphinEmu PPA: used to have a WiiUse 0.13
+
+	- Added Mac support.
+
+	- Unknown other changes - not yet investigated.
+
+	- Source package zipped up and available here:
+		<https://github.com/rpavlik/wiiuse/downloads>
 
 Other Links
 -----------
