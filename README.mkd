@@ -144,7 +144,7 @@ Become root.
 
 
 ### Windows: ###
-	
+
 The CMake GUI can be used to generate a Visual Studio solution.
 
 You need the install the Windows DDK (driver development kit) to compile
@@ -190,4 +190,76 @@ BlueZ
 
 Thanks to Brent for letting me borrow his Guitar Hero 3 controller.
 
+Known Forks/Derivative Versions
+-------------------------------
+The last "old upstream" version of WiiUse was 0.12. A number of projects
+forked or embedded that version or earlier, making their own improvements.
+A (probably incomplete) list follows, split between those whose improvements
+are completed integrated into this new mainline version, and those whose
+improvements have not yet been ported/merged into this version.
 
+### Forks that have been fully integrated: ###
+- (TU Delft's version with Balance Board support)(http://graphics.tudelft.nl/Projects/WiiBalanceBoard)
+
+	- Added balance board support only.
+
+	- Integrated into mainline 0.13.
+
+- (fwiine)(http://sourceforge.net/projects/fwiine/files/wiiuse/0.13/)
+
+	- Created an 0.13 version with some very preliminary MotionPlus support.
+
+	- Integrated into mainline 0.15
+
+
+### Forks not yet fully integrated: ###
+- (libogc/WPAD/DevKitPro)(http://wiibrew.org/wiki/Libogc)
+
+	- Started before the disappearance of the original upstream
+
+	- Focused on Wiimote use with Wii hardware
+
+	- Functions renamed, copyright statements removed
+
+	- Additional functionality unknown?
+
+	- git-svn mirror found here: <https://github.com/xloem/libogc-wiiuse>
+
+- (DolphinEmu)(http://code.google.com/p/dolphin-emu/source/checkout)
+
+	- Embedded, converted to C++, drastically changed over time and
+		mostly unrecognizable now.
+
+	- A mostly intact version is here:
+		<http://code.google.com/p/dolphin-emu/source/browse/?name=2.0#git%2FExternals%2FWiiUseSrc%2FSrc>
+
+	- Added Mac support
+
+	- Added code to handle finding and pairing wiimotes on windows, see:
+		<http://code.google.com/p/dolphin-emu/source/browse/Source/Core/Core/Src/HW/WiimoteReal/IOWin.cpp>
+
+	- Fully modified version of the IO code is here:
+		<http://code.google.com/p/dolphin-emu/source/browse/#git%2FSource%2FCore%2FCore%2FSrc%2FHW%2FWiimoteReal>
+
+- (paulburton on github)(https://github.com/paulburton/wiiuse)
+
+	- Added balance board support - skipped in favor of the TU Delft version.
+
+	- Added static library support - not yet added to the mainline.
+
+- (KzMz on github)(https://github.com/KzMz/wiiuse_fork)
+
+	- Started work on speaker support.
+
+- (WiiC)(http://wiic.sourceforge.net/)
+
+	- Dramatically changed, C++ API added
+
+	- MotionPlus support added
+
+- DolphinEmu PPA: used to have a WiiUse 0.13, which I believe contained Mac
+	support.
+
+Other Links
+-----------
+- Thread about MotionPlus: <http://forum.wiibrew.org/read.php?11,32585,32922>
