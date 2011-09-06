@@ -76,6 +76,9 @@
 	#elif defined(__linux)
 		#define WIIUSE_PLATFORM
 		#define WIIUSE_BLUEZ
+	#elif defined(__APPLE__)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_OSX
 	#else
 		#error "Platform not yet supported!"
 	#endif
