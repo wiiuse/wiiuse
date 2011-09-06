@@ -249,6 +249,12 @@
 /* wiiuse version, from public per-component version defines */
 #define WIIUSE_VERSION _STRINGIFY(WIIUSE_MAJOR) "." _STRINGIFY(WIIUSE_MINOR) "." _STRINGIFY(WIIUSE_MICRO)
 
+#ifdef _MSC_VER
+#	define INLINE_UTIL __inline
+#else
+#	define INLINE_UTIL static inline
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -359,22 +365,22 @@ uint8_t unbuffer_big_endian_uint32_t(byte ** buf)
 /** @} */
 #else /* this else is true when not in doxygen */
 
-static inline void to_big_endian_uint8_t(byte * buf, uint8_t val) {
+INLINE_UTIL void to_big_endian_uint8_t(byte * buf, uint8_t val) {
 	memcpy(buf, &val, 1);
 }
 
-static inline uint8_t from_big_endian_uint8_t(byte * buf) {
+INLINE_UTIL uint8_t from_big_endian_uint8_t(byte * buf) {
 	uint8_t beVal;
 	memcpy(&beVal, buf, 1);
 	return beVal;
 }
 
 #define WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS(_TYPE, _TOBE, _FROMBE) \
-static inline void to_big_endian_##_TYPE(byte * buf, _TYPE val) { \
+INLINE_UTIL void to_big_endian_##_TYPE(byte * buf, _TYPE val) { \
 	_TYPE beVal = _TOBE(val); \
 	memcpy(buf, &beVal, sizeof(_TYPE)); \
 } \
-static inline _TYPE from_big_endian_##_TYPE(byte * buf) { \
+INLINE_UTIL _TYPE from_big_endian_##_TYPE(byte * buf) { \
 	_TYPE beVal; \
 	memcpy(&beVal, buf, sizeof(_TYPE)); \
 	return _FROMBE(beVal); \
@@ -386,11 +392,11 @@ WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS(uint32_t, htonl, ntohl)
 #undef WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS
 
 #define WIIUSE_DECLARE_BUFFERING_OPS(_TYPE) \
-static inline void buffer_big_endian_##_TYPE (byte ** buf, _TYPE val) { \
+INLINE_UTIL void buffer_big_endian_##_TYPE (byte ** buf, _TYPE val) { \
 	to_big_endian_##_TYPE(*buf, val); \
 	*buf += sizeof(_TYPE); \
 } \
-static inline _TYPE unbuffer_big_endian_##_TYPE (byte ** buf) { \
+INLINE_UTIL _TYPE unbuffer_big_endian_##_TYPE (byte ** buf) { \
 	byte * current = *buf; \
 	*buf += sizeof(_TYPE); \
 	return from_big_endian_##_TYPE(current); \
