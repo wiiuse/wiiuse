@@ -57,7 +57,7 @@
 #endif
 
 #ifdef WIIUSE_WIN32
-	#include <Winsock2.h>
+	#include <winsock2.h>
 #endif
 #ifdef WIIUSE_BLUEZ
 	#include <arpa/inet.h>				/* htons() */
