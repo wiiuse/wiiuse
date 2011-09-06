@@ -23,6 +23,10 @@ Fixed:
 
 Changed:
 
+- Improved header includes using feedback from (include-what-you-use)[iwyu]
+
+[iwyu]:http://code.google.com/p/include-what-you-use/
+
 v0.14 -- 2 May 2011
 -------------------
 Added:
