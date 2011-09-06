@@ -41,11 +41,11 @@ Added:
 	`wiiuse_set_output` in `wiiuse.h`. The preprocessor symbol
 	`WIIUSE_HAS_OUTPUT_REDIRECTION` indicates the presence of this feature.
 	Thanks to Johannes Zarl for this handy feature!
-	
+
 - Doxyfile and "doc" target to the build system, to easily make use of
 	the documentation already in the code, along with doc cleanups and
 	improvements. (rp)
-	
+
 - Added balance board code to example (Paul Burton, rp)
 
 Fixed:
@@ -83,7 +83,7 @@ Fixed:
 v0.13 -- 11 November 2010
 -------------------------
 Added:
-- Support for Wii Balance Board ("wiiboard"): your code can 
+- Support for Wii Balance Board ("wiiboard"): your code can
 	`#ifdef EXP_WII_BOARD` (support based in part on code from TU-Delft)
 
 - CMake-based cross-platform build system
