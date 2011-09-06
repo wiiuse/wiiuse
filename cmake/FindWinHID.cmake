@@ -100,6 +100,7 @@ else()
 		libhid
 		HINTS
 		"${WINHID_ROOT_DIR}"
+		/mingw
 		PATH_SUFFIXES
 		lib
 		lib/w32api)
@@ -108,6 +109,7 @@ else()
 		hidsdi.h
 		PATHS
 		"${WINHID_ROOT_DIR}"
+		/mingw
 		PATH_SUFFIXES
 		include/w32api/ddk
 		include/ddk
