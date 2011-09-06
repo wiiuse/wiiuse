@@ -34,9 +34,6 @@
 #include "ir.h"
 
 #include <math.h>                       // for atanf, cos, sin, sqrt
-#ifndef WIIUSE_WIN32
-	#include <unistd.h>                     // for usleep
-#endif
 
 static int get_ir_sens(struct wiimote_t* wm, char** block1, char** block2);
 static void interpret_ir_data(struct wiimote_t* wm);
@@ -114,11 +111,7 @@ void wiiuse_set_ir(struct wiimote_t* wm, int status) {
 	wiiuse_write_data(wm, WM_REG_IR, &buf, 1);
 
 	/* wait for the wiimote to catch up */
-	#ifdef WIIUSE_WIN32
-		Sleep(50);
-	#else
-		usleep(50000);
-	#endif
+	wiiuse_millisleep(50);
 
 	/* write sensitivity blocks */
 	wiiuse_write_data(wm, WM_REG_IR_BLOCK1, (byte*)block1, 9);
@@ -131,11 +124,7 @@ void wiiuse_set_ir(struct wiimote_t* wm, int status) {
 		buf = WM_IR_TYPE_EXTENDED;
 	wiiuse_write_data(wm, WM_REG_IR_MODENUM, &buf, 1);
 
-	#ifdef WIIUSE_WIN32
-		Sleep(50);
-	#else
-		usleep(50000);
-	#endif
+	wiiuse_millisleep(50);
 
 	/* set the wiimote report type */
 	wiiuse_set_report_type(wm);
