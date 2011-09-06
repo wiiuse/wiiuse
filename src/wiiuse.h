@@ -92,6 +92,10 @@
 	/* nix */
 	#include <bluetooth/bluetooth.h>
 #endif
+#ifdef WIIUSE_OSX
+	#include <CoreFoundation/CoreFoundation.h>
+	#include <IOBluetooth/IOBluetoothUserLib.h>
+#endif
 
 #ifndef WCONST
 	#define WCONST		const
@@ -640,6 +644,13 @@ typedef enum WIIUSE_EVENT_TYPE {
 typedef struct wiimote_t {
 	WCONST int unid;						/**< user specified id						*/
 
+	#ifdef WIIUSE_OSX
+	/** @name Mac-specific members */
+	/** @{ */
+		WCONST IOBluetoothDeviceRef *device;
+		WCONST char bdaddr_str[18];
+	/** @} */
+	#endif
 	#ifdef WIIUSE_BLUEZ
 	/** @name Linux-specific (BlueZ) members */
 	/** @{ */
