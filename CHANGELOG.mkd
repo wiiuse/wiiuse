@@ -28,6 +28,9 @@ Changed:
 
 - Improved header includes using feedback from (include-what-you-use)[iwyu]
 
+- Additional internal function `wiiuse_millisleep()` to reduce the number
+	of `ifdef`s scattered through the code.
+
 [iwyu]:http://code.google.com/p/include-what-you-use/
 
 v0.14 -- 2 May 2011
