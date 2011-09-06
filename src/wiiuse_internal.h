@@ -254,6 +254,15 @@ extern "C" {
 #endif
 
 /* not part of the api */
+
+/** @brief Cross-platform call to sleep for at least the specified number
+ * of milliseconds.
+ *
+ * Use instead of Sleep(), usleep(), or similar functions.
+ * Defined in util.c
+ */
+void wiiuse_millisleep(int durationMilliseconds);
+
 int wiiuse_set_report_type(struct wiimote_t* wm);
 void wiiuse_send_next_pending_read_request(struct wiimote_t* wm);
 void wiiuse_send_next_pending_write_request(struct wiimote_t* wm);
