@@ -262,6 +262,95 @@ void wiiuse_send_next_pending_read_request(struct wiimote_t* wm);
 int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len);
 int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int offset, uint16_t len);
 
+
+#ifdef WIIUSE_DOXYGEN_PARSING
+/** @addtogroup betosystem Big-endian buffer to system-byte-order value
+	@{ */
+
+/** @brief Given a buffer buf, copy and return a value of type uint8_t.
+*/
+uint8_t from_big_endian_uint8_t(byte * buf);
+/** @brief Given a buffer buf, copy out a uint16_t, convert it from big-endian
+	to system byte order, and return it.
+
+	@note Requires that at least 2 bytes be available in buf, but does not
+	check this - it is your responsibility.
+*/
+uint16_t from_big_endian_uint16_t(byte * buf);
+
+/** @brief Given a buffer buf, copy out a uint32_t, convert it from big-endian
+	to system byte order, and return it.
+
+	@note Requires that at least 4 bytes be available in buf, but does not
+	check this - it is your responsibility.
+*/
+uint32_t from_big_endian_uint32_t(byte * buf);
+/** @} */
+
+/** @addtogroup systemtobe System-byte-order value to big-endian buffer
+	@{
+*/
+
+/** @brief Copies the value val into the buffer buf.
+	@note Requires that at least 1 byte is available in buf, but does not
+	check this - it is your responsibility.
+*/
+void to_big_endian_uint8_t(byte * buf, uint8_t val);
+
+/** @brief Converts the value val from system byte order to big endian,
+	and copies it into the given buffer starting at buf.
+
+	@note Requires that at least 2 bytes be available in buf, but does not
+	check this - it is your responsibility.
+*/
+void to_big_endian_uint16_t(byte * buf, uint16_t val);
+
+/** @brief Converts the value val from system byte order to big endian,
+	and copies it into the given buffer starting at buf.
+
+	@note Requires that at least 4 bytes be available in buf, but does not
+	check this - it is your responsibility.
+*/
+void to_big_endian_uint32_t(byte * buf, uint32_t val);
+/** @}
+*/
+
+/** @addtogroup bufferfunc Buffering functions
+	@brief These wrap around from/to_big_endian_TYPE, but take a byte** so that
+	they can advance the input/output pointer appropriately.
+	@{
+*/
+/** @brief Converts the value val from system byte order to big endian,
+	copies it into the given buffer starting at *buf, and advances buf by
+	sizeof(uint16_t).
+*/
+void buffer_big_endian_uint16_t(byte ** buf, uint16_t val);
+
+/** @brief Given the address of a buffer pointer buf, copy out a uint16_t
+	from *buf, convert it from big-endian to system byte order, advance
+	buf by sizeof(uint16_t), and return the value retrieved.
+*/
+uint16_t unbuffer_big_endian_uint16_t(byte ** buf);
+
+/** @sa buffer_big_endian_uint16_t()
+*/
+void buffer_big_endian_uint8_t(byte ** buf, uint8_t val);
+
+/** @sa unbuffer_big_endian_uint8_t
+*/
+uint8_t unbuffer_big_endian_uint8_t(byte ** buf);
+
+/** @sa buffer_big_endian_uint16_t
+*/
+void buffer_big_endian_uint32_t(byte ** buf, uint32_t val);
+
+/** @sa unbuffer_big_endian_uint32_t
+*/
+uint8_t unbuffer_big_endian_uint32_t(byte ** buf)
+
+/** @} */
+#else /* this else is true when not in doxygen */
+
 static inline void to_big_endian_uint8_t(byte * buf, uint8_t val) {
 	memcpy(buf, &val, 1);
 }
@@ -304,6 +393,8 @@ WIIUSE_DECLARE_BUFFERING_OPS(uint16_t)
 WIIUSE_DECLARE_BUFFERING_OPS(uint32_t)
 
 #undef WIIUSE_DECLARE_BUFFERING_OPS
+
+#endif // not in doxygen
 
 #ifdef __cplusplus
 }
