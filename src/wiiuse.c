@@ -583,7 +583,7 @@ int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data,
  *	to a pending list and be sent out when the previous
  *	finishes.
  */
-int wiiuse_write_data_cb(struct wiimote_t *wm,uint addr,unsigned char *data,unsigned char len,wiiuse_write_cb write_cb)
+int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte *data, byte len, wiiuse_write_cb write_cb)
 {
 	struct data_req_t* req;
 

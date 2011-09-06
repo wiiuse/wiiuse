@@ -761,8 +761,8 @@ typedef enum data_req_s
  */
 struct data_req_t {
 
-	unsigned char data[21];					/**< buffer where read data is written						*/
-	unsigned int len;
+	byte data[21];					/**< buffer where read data is written						*/
+	byte len;
 	unsigned int addr;
 	data_req_s state;			/**< set to 1 if not using callback and needs to be cleaned up	*/
 	wiiuse_write_cb cb;			/**< read data callback											*/
