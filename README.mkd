@@ -196,7 +196,10 @@ The last "old upstream" version of WiiUse was 0.12. A number of projects
 forked or embedded that version or earlier, making their own improvements.
 A (probably incomplete) list follows, split between those whose improvements
 are completed integrated into this new mainline version, and those whose
-improvements have not yet been ported/merged into this version.
+improvements have not yet been ported/merged into this version. An eventual
+goal is to integrate all appropriate improvements (under the GPL 3+) back
+into this mainline community-maintained "master fork" - contributions are
+greatly appreciated.
 
 ### Forks that have been fully integrated: ###
 - [TU Delft's version with Balance Board support](http://graphics.tudelft.nl/Projects/WiiBalanceBoard)
