@@ -268,7 +268,7 @@ void wiiuse_send_next_pending_read_request(struct wiimote_t* wm);
 void wiiuse_send_next_pending_write_request(struct wiimote_t* wm);
 int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len);
 int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int offset, uint16_t len);
-int wiiuse_write_data_cb(struct wiimote_t *wm, uint addr, unsigned char *data, unsigned char len, wiiuse_write_cb write_cb);
+int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte *data, byte len, wiiuse_write_cb write_cb);
 
 
 #ifdef WIIUSE_DOXYGEN_PARSING
@@ -395,6 +395,7 @@ static inline _TYPE unbuffer_big_endian_##_TYPE (byte ** buf) { \
 	*buf += sizeof(_TYPE); \
 	return from_big_endian_##_TYPE(current); \
 }
+
 
 WIIUSE_DECLARE_BUFFERING_OPS(uint8_t)
 WIIUSE_DECLARE_BUFFERING_OPS(uint16_t)
