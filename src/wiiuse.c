@@ -532,7 +532,7 @@ struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid
  *	@param data			The data to be written to the memory location.
  *	@param len			The length of the block to be written.
  */
-int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, byte* data, byte len) {
+int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data, byte len) {
 	byte buf[21] = {0};		/* the payload is always 23 */
 
 	byte * bufPtr = buf;
