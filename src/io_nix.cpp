@@ -72,8 +72,10 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	int found_wiimotes;
 
 	/* reset all wiimote bluetooth device addresses */
-	for (found_wiimotes = 0; found_wiimotes < max_wiimotes; ++found_wiimotes)
-		wm[found_wiimotes]->bdaddr = *BDADDR_ANY;
+	for (found_wiimotes = 0; found_wiimotes < max_wiimotes; ++found_wiimotes) {
+		//bacpy(&(wm[found_wiimotes]->bdaddr), BDADDR_ANY);
+		memset(&(wm[found_wiimotes]->bdaddr), 0, sizeof(bdaddr_t));
+	}
 	found_wiimotes = 0;
 
 	/* get the id of the first bluetooth device. */
@@ -187,7 +189,8 @@ static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
 		str2ba(address, &addr.l2_bdaddr);
 	else
 	{
-		bacmp(bdaddr, BDADDR_ANY);
+		/** @todo this line doesn't make sense
+		bacmp(bdaddr, BDADDR_ANY);*/
 		/* use address of device discovered */
 		addr.l2_bdaddr = *bdaddr;
 		
