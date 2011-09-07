@@ -278,6 +278,17 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
 	return write(wm->out_sock, buf, len);
 }
 
+void wiiuse_init_platform_fields(struct wiimote_t* wm) {
+	memset(&(wm->bdaddr), 0, sizeof(bdaddr_t)); /* = *BDADDR_ANY;*/
+	wm->out_sock = -1;
+	wm->in_sock = -1;
+}
+
+void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
+	wm->out_sock = -1;
+	wm->in_sock = -1;
+}
+
 
 
 #endif /* ifdef WIIUSE_BLUEZ */

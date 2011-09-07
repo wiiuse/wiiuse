@@ -253,4 +253,16 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
 	return 0;
 }
 
+void wiiuse_init_platform_fields(struct wiimote_t* wm) {
+	wm->dev_handle = 0;
+	wm->stack = WIIUSE_STACK_UNKNOWN;
+	wm->normal_timeout = WIIMOTE_DEFAULT_TIMEOUT;
+	wm->exp_timeout = WIIMOTE_EXP_TIMEOUT;
+	wm->timeout = wm->normal_timeout;
+}
+
+void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
+	wm->dev_handle = 0;
+}
+
 #endif /* ifdef WIIUSE_WIN32 */
