@@ -105,6 +105,9 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 				wiiuse_set_ir(wm, 1);
 			}
 
+			wm->event = WIIUSE_CONNECT;
+			wiiuse_status(wm);
+
 			break;
 		}
 		default:
