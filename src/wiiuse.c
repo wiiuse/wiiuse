@@ -138,19 +138,7 @@ struct wiimote_t** wiiuse_init(int wiimotes) {
 		memset(wm[i], 0, sizeof(struct wiimote_t));
 
 		wm[i]->unid = i+1;
-
-		#ifdef WIIUSE_BLUEZ
-			wm[i]->bdaddr = *BDADDR_ANY;
-			wm[i]->out_sock = -1;
-			wm[i]->in_sock = -1;
-		#endif
-		#ifdef WIIUSE_WIN32
-			wm[i]->dev_handle = 0;
-			wm[i]->stack = WIIUSE_STACK_UNKNOWN;
-			wm[i]->normal_timeout = WIIMOTE_DEFAULT_TIMEOUT;
-			wm[i]->exp_timeout = WIIMOTE_EXP_TIMEOUT;
-			wm[i]->timeout = wm[i]->normal_timeout;
-		#endif
+		wiiuse_init_platform_fields(wm[i]);
 
 		wm[i]->state = WIIMOTE_INIT_STATES;
 		wm[i]->flags = WIIUSE_INIT_FLAGS;
@@ -186,13 +174,7 @@ void wiiuse_disconnected(struct wiimote_t* wm) {
 	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
 
 	/* reset a bunch of stuff */
-	#ifdef WIIUSE_BLUEZ
-		wm->out_sock = -1;
-		wm->in_sock = -1;
-	#endif
-	#ifdef WIIUSE_WIN32
-		wm->dev_handle = 0;
-	#endif
+	wiiuse_cleanup_platform_fields(wm);
 
 	wm->leds = 0;
 	wm->state = WIIMOTE_INIT_STATES;
