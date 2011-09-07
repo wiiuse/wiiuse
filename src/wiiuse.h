@@ -761,7 +761,7 @@ WIIUSE_EXPORT extern void wiiuse_toggle_rumble(struct wiimote_t* wm);
 WIIUSE_EXPORT extern void wiiuse_set_leds(struct wiimote_t* wm, int leds);
 WIIUSE_EXPORT extern void wiiuse_motion_sensing(struct wiimote_t* wm, int status);
 WIIUSE_EXPORT extern int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int offset, uint16_t len);
-WIIUSE_EXPORT extern int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, byte* data, byte len);
+WIIUSE_EXPORT extern int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data, byte len);
 WIIUSE_EXPORT extern void wiiuse_status(struct wiimote_t* wm);
 WIIUSE_EXPORT extern struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid);
 WIIUSE_EXPORT extern int wiiuse_set_flags(struct wiimote_t* wm, int enable, int disable);
