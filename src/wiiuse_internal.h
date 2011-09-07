@@ -137,17 +137,6 @@
 #define WM_REG_IR_BLOCK2			0x04B0001A
 #define WM_REG_IR_MODENUM			0x04B00033
 
-/* ir block data */
-#define WM_IR_BLOCK1_LEVEL1			"\x02\x00\x00\x71\x01\x00\x64\x00\xfe"
-#define WM_IR_BLOCK2_LEVEL1			"\xfd\x05"
-#define WM_IR_BLOCK1_LEVEL2			"\x02\x00\x00\x71\x01\x00\x96\x00\xb4"
-#define WM_IR_BLOCK2_LEVEL2			"\xb3\x04"
-#define WM_IR_BLOCK1_LEVEL3			"\x02\x00\x00\x71\x01\x00\xaa\x00\x64"
-#define WM_IR_BLOCK2_LEVEL3			"\x63\x03"
-#define WM_IR_BLOCK1_LEVEL4			"\x02\x00\x00\x71\x01\x00\xc8\x00\x36"
-#define WM_IR_BLOCK2_LEVEL4			"\x35\x03"
-#define WM_IR_BLOCK1_LEVEL5			"\x07\x00\x00\x71\x01\x00\x72\x00\x20"
-#define WM_IR_BLOCK2_LEVEL5			"\x1f\x03"
 
 #define WM_IR_TYPE_BASIC			0x01
 #define WM_IR_TYPE_EXTENDED			0x03

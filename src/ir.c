@@ -35,7 +35,7 @@
 
 #include <math.h>                       // for atanf, cos, sin, sqrt
 
-static int get_ir_sens(struct wiimote_t* wm, char** block1, char** block2);
+static int get_ir_sens(struct wiimote_t* wm, const byte** block1, const byte** block2);
 static void interpret_ir_data(struct wiimote_t* wm);
 static void fix_rotated_ir_dots(struct ir_dot_t* dot, float ang);
 static void get_ir_dot_avg(struct ir_dot_t* dot, int* x, int* y);
@@ -45,6 +45,18 @@ static int ir_correct_for_bounds(int* x, int* y, enum aspect_t aspect, int offse
 static void ir_convert_to_vres(int* x, int* y, enum aspect_t aspect, int vx, int vy);
 
 
+/* ir block data */
+static const byte WM_IR_BLOCK1_LEVEL1[] = "\x02\x00\x00\x71\x01\x00\x64\x00\xfe";
+static const byte WM_IR_BLOCK2_LEVEL1[] = "\xfd\x05";
+static const byte WM_IR_BLOCK1_LEVEL2[] = "\x02\x00\x00\x71\x01\x00\x96\x00\xb4";
+static const byte WM_IR_BLOCK2_LEVEL2[] = "\xb3\x04";
+static const byte WM_IR_BLOCK1_LEVEL3[] = "\x02\x00\x00\x71\x01\x00\xaa\x00\x64";
+static const byte WM_IR_BLOCK2_LEVEL3[] = "\x63\x03";
+static const byte WM_IR_BLOCK1_LEVEL4[] = "\x02\x00\x00\x71\x01\x00\xc8\x00\x36";
+static const byte WM_IR_BLOCK2_LEVEL4[] = "\x35\x03";
+static const byte WM_IR_BLOCK1_LEVEL5[] = "\x07\x00\x00\x71\x01\x00\x72\x00\x20";
+static const byte WM_IR_BLOCK2_LEVEL5[] = "\x1f\x03";
+
 /**
  *	@brief	Set if the wiimote should track IR targets.
  *
@@ -53,8 +65,8 @@ static void ir_convert_to_vres(int* x, int* y, enum aspect_t aspect, int vx, int
  */
 void wiiuse_set_ir(struct wiimote_t* wm, int status) {
 	byte buf;
-	char* block1 = NULL;
-	char* block2 = NULL;
+	const byte* block1 = NULL;
+	const byte* block2 = NULL;
 	int ir_level;
 
 	if (!wm)
@@ -142,7 +154,7 @@ void wiiuse_set_ir(struct wiimote_t* wm, int status) {
  *
  *	@return Returns the sensitivity level.
  */
-static int get_ir_sens(struct wiimote_t* wm, char** block1, char** block2) {
+static int get_ir_sens(struct wiimote_t* wm, const byte** block1, const byte** block2) {
 	if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR_SENS_LVL1)) {
 		*block1 = WM_IR_BLOCK1_LEVEL1;
 		*block2 = WM_IR_BLOCK2_LEVEL1;
@@ -257,8 +269,8 @@ void wiiuse_set_aspect_ratio(struct wiimote_t* wm, enum aspect_t aspect) {
  *	If the level is > 5, then level will be set to 5.
  */
 void wiiuse_set_ir_sensitivity(struct wiimote_t* wm, int level) {
-	char* block1 = NULL;
-	char* block2 = NULL;
+	const byte* block1 = NULL;
+	const byte* block2 = NULL;
 
 	if (!wm)	return;
 
@@ -294,8 +306,8 @@ void wiiuse_set_ir_sensitivity(struct wiimote_t* wm, int level) {
 	/* set the new sensitivity */
 	get_ir_sens(wm, &block1, &block2);
 
-	wiiuse_write_data(wm, WM_REG_IR_BLOCK1, (byte*)block1, 9);
-	wiiuse_write_data(wm, WM_REG_IR_BLOCK2, (byte*)block2, 2);
+	wiiuse_write_data(wm, WM_REG_IR_BLOCK1, block1, 9);
+	wiiuse_write_data(wm, WM_REG_IR_BLOCK2, block2, 2);
 
 	WIIUSE_DEBUG("Set IR sensitivity to level %i (unid %i)", level, wm->unid);
 }
