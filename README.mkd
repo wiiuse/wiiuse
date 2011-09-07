@@ -53,6 +53,7 @@ Additional Contributors:
 - Karl Semich <https://github.com/xloem>
 - Johannes Zarl <johannes.zarl@jku.at>
 - hartsantler <http://code.google.com/p/rpythonic/>
+- Jeff Baker/Inv3rsion, LLC. <http://www.inv3rsion.com/>
 
 
 License
