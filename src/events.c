@@ -1,37 +1,37 @@
 /*
- *	wiiuse
+ *    wiiuse
  *
- *	Written By:
- *		Michael Laforest	< para >
- *		Email: < thepara (--AT--) g m a i l [--DOT--] com >
+ *    Written By:
+ *        Michael Laforest    < para >
+ *        Email: < thepara (--AT--) g m a i l [--DOT--] com >
  *
- *	Copyright 2006-2007
+ *    Copyright 2006-2007
  *
- *	This file is part of wiiuse.
+ *    This file is part of wiiuse.
  *
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 3 of the License, or
- *	(at your option) any later version.
+ *    This program is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 3 of the License, or
+ *    (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *	$Header$
+ *    $Header$
  *
  */
 
 /**
- *	@file
- *	@brief Handles wiimote events.
+ *    @file
+ *    @brief Handles wiimote events.
  *
- *	The file includes functions that handle the events
- *	that are sent from the wiimote to us.
+ *    The file includes functions that handle the events
+ *    that are sent from the wiimote to us.
  */
 
 #include "wiiuse_internal.h"
@@ -69,23 +69,23 @@ static void save_state(struct wiimote_t* wm);
 static int state_changed(struct wiimote_t* wm);
 
 /**
- *	@brief Poll the wiimotes for any events.
+ *    @brief Poll the wiimotes for any events.
  *
- *	@param wm		An array of pointers to wiimote_t structures.
- *	@param wiimotes	The number of wiimote_t structures in the \a wm array.
+ *    @param wm        An array of pointers to wiimote_t structures.
+ *    @param wiimotes    The number of wiimote_t structures in the \a wm array.
  *
- *	@return Returns number of wiimotes that an event has occured on.
+ *    @return Returns number of wiimotes that an event has occured on.
  *
- *	It is necessary to poll the wiimote devices for events
- *	that occur.  If an event occurs on a particular wiimote,
- *	the event variable will be set.
+ *    It is necessary to poll the wiimote devices for events
+ *    that occur.  If an event occurs on a particular wiimote,
+ *    the event variable will be set.
  */
 int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
     int evnt = 0;
 
     #ifdef WIIUSE_BLUEZ
         /*
-         *	*nix
+         *    *nix
          */
         struct timeval tv;
         fd_set fds;
@@ -170,7 +170,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
         }
     #else
         /*
-         *	Windows
+         *    Windows
          */
         int i;
 
@@ -229,21 +229,21 @@ int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb c
 }
 
 /**
- *	@brief Called on a cycle where no significant change occurs.
+ *    @brief Called on a cycle where no significant change occurs.
  *
- *	@param wm		Pointer to a wiimote_t structure.
+ *    @param wm        Pointer to a wiimote_t structure.
  */
 static void idle_cycle(struct wiimote_t* wm) {
     /*
-     *	Smooth the angles.
+     *    Smooth the angles.
      *
-     *	This is done to make sure that on every cycle the orientation
-     *	angles are smoothed.  Normally when an event occurs the angles
-     *	are updated and smoothed, but if no packet comes in then the
-     *	angles remain the same.  This means the angle wiiuse reports
-     *	is still an old value.  Smoothing needs to be applied in this
-     *	case in order for the angle it reports to converge to the true
-     *	angle of the device.
+     *    This is done to make sure that on every cycle the orientation
+     *    angles are smoothed.  Normally when an event occurs the angles
+     *    are updated and smoothed, but if no packet comes in then the
+     *    angles remain the same.  This means the angle wiiuse reports
+     *    is still an old value.  Smoothing needs to be applied in this
+     *    case in order for the angle it reports to converge to the true
+     *    angle of the device.
      */
     if (WIIUSE_USING_ACC(wm) && WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING)) {
         apply_smoothing(&wm->accel_calib, &wm->orient, SMOOTH_ROLL);
@@ -256,9 +256,9 @@ static void idle_cycle(struct wiimote_t* wm) {
 
 
 /**
- *	@brief Clear out all old 'dirty' read requests.
+ *    @brief Clear out all old 'dirty' read requests.
  *
- *	@param wm		Pointer to a wiimote_t structure.
+ *    @param wm        Pointer to a wiimote_t structure.
  */
 static void clear_dirty_reads(struct wiimote_t* wm) {
     struct read_req_t* req = wm->read_req;
@@ -274,13 +274,13 @@ static void clear_dirty_reads(struct wiimote_t* wm) {
 
 
 /**
- *	@brief Analyze the event that occured on a wiimote.
+ *    @brief Analyze the event that occured on a wiimote.
  *
- *	@param wm		An array of pointers to wiimote_t structures.
- *	@param event	The event that occured.
- *	@param msg		The message specified in the event packet.
+ *    @param wm        An array of pointers to wiimote_t structures.
+ *    @param event    The event that occured.
+ *    @param msg        The message specified in the event packet.
  *
- *	Pass the event to the registered event callback.
+ *    Pass the event to the registered event callback.
  */
 static void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
     save_state(wm);
@@ -415,10 +415,10 @@ static void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 
 
 /**
- *	@brief Find what buttons are pressed.
+ *    @brief Find what buttons are pressed.
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param msg		The message specified in the event packet.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param msg        The message specified in the event packet.
  */
 void wiiuse_pressed_buttons(struct wiimote_t* wm, byte* msg) {
     int16_t now;
@@ -438,16 +438,16 @@ void wiiuse_pressed_buttons(struct wiimote_t* wm, byte* msg) {
 
 
 /**
- *	@brief Received a data packet from a read request.
+ *    @brief Received a data packet from a read request.
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param msg		The message specified in the event packet.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param msg        The message specified in the event packet.
  *
- *	Data from the wiimote comes in packets.  If the requested
- *	data segment size is bigger than one packet can hold then
- *	several packets will be received.  These packets are first
- *	reassembled into one, then the registered callback function
- *	that handles data reads is invoked.
+ *    Data from the wiimote comes in packets.  If the requested
+ *    data segment size is bigger than one packet can hold then
+ *    several packets will be received.  These packets are first
+ *    reassembled into one, then the registered callback function
+ *    that handles data reads is invoked.
  */
 static void event_data_read(struct wiimote_t* wm, byte* msg) {
     /* we must always assume the packet received is from the most recent request */
@@ -531,11 +531,11 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
             free(req);
         } else {
             /*
-             *	This should generate an event.
-             *	We need to leave the event in the array so the client
-             *	can access it still.  We'll flag is as being 'dirty'
-             *	and give the client one cycle to use it.  Next event
-             *	we will remove it from the list.
+             *    This should generate an event.
+             *    We need to leave the event in the array so the client
+             *    can access it still.  We'll flag is as being 'dirty'
+             *    and give the client one cycle to use it.  Next event
+             *    we will remove it from the list.
              */
             wm->event = WIIUSE_READ_DATA;
             req->dirty = 1;
@@ -595,12 +595,12 @@ static void event_data_write(struct wiimote_t *wm, byte *msg)
 }
 
 /**
- *	@brief Read the controller status.
+ *    @brief Read the controller status.
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param msg		The message specified in the event packet.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param msg        The message specified in the event packet.
  *
- *	Read the controller status and execute the registered status callback.
+ *    Read the controller status and execute the registered status callback.
  */
 static void event_status(struct wiimote_t* wm, byte* msg) {
     int led[4] = {0, 0, 0, 0};
@@ -610,19 +610,19 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
     struct data_req_t* req = wm->data_req;
 
     /*
-     *	An event occured.
-     *	This event can be overwritten by a more specific
-     *	event type during a handshake or expansion removal.
+     *    An event occured.
+     *    This event can be overwritten by a more specific
+     *    event type during a handshake or expansion removal.
      */
     wm->event = WIIUSE_STATUS;
 
     wiiuse_pressed_buttons(wm, msg);
 
     /* find what LEDs are lit */
-    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_1)	led[0] = 1;
-    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_2)	led[1] = 1;
-    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_3)	led[2] = 1;
-    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_4)	led[3] = 1;
+    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_1)    led[0] = 1;
+    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_2)    led[1] = 1;
+    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_3)    led[2] = 1;
+    if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_4)    led[3] = 1;
 
     /* is an attachment connected to the expansion port? */
     if ((msg[2] & WM_CTRL_STATUS_BYTE1_ATTACHMENT) == WM_CTRL_STATUS_BYTE1_ATTACHMENT)
@@ -657,32 +657,75 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
     }
     #endif
 
-    // retry to detect the attachment
-    if(!exp_changed)
+
+#if 0
+    switch(wm->expansion_state)
     {
-        if(wm->expansion_state < 10)
+        case 0: // regular expansion detection
         {
-            wm->expansion_state++;
-            wiiuse_status(wm);
-            wiiuse_millisleep(100);
-            return;
+            if(attachment && wm->exp.type != EXP_NONE)
+            {
+                wm->expansion_dattempts = 0;
+                wm->expansion_state++;
+            }
+
+            else
+            {
+                // give it another chance still
+                if(wm->expansion_dattempts < 10)
+                {
+                    wm->expansion_dattempts++;
+                    wiiuse_status(wm);
+                    return;
+                }
+
+                // likely no attachment, give up and try M+
+                else {
+                    wm->expansion_dattempts = 0;
+                    wiiuse_set_motion_plus(wm, WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP) ? 2 : 1);
+                    wm->expansion_state++;
+                }
+            }
+
+            break;
         }
 
-        else if(wm->exp.mp.ext_initialized == 0 &&
-                        wm->expansion_state >= 10)
+        case 1: // try to init Motion+
         {
-            wiiuse_set_motion_plus(wm, WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP) ? 2 : 1);
-            wm->exp.mp.ext_initialized = 1;
-            wiiuse_status(wm);
-            return;
+            if(attachment && wm->exp.type != EXP_NONE)
+            {
+                wm->expansion_dattempts = 0;
+                wm->expansion_state++;
+            }
+
+            else
+            {
+                // give it another chance still
+                if(wm->expansion_dattempts < 10)
+                {
+                    wm->expansion_dattempts++;
+                    wiiuse_status(wm);
+                    return;
+                }
+
+                else {
+                    // give up and move on
+                    wm->expansion_state++;
+                }
+            }
+            break;
         }
+
+        default:
+            break;
     }
 
+#endif
 
     /*
-     *	From now on the remote will only send status packets.
-     *	We need to send a WIIMOTE_CMD_REPORT_TYPE packet to
-     *	reenable other incoming reports.
+     *    From now on the remote will only send status packets.
+     *    We need to send a WIIMOTE_CMD_REPORT_TYPE packet to
+     *    reenable other incoming reports.
      */
 
     if (exp_changed)
@@ -720,10 +763,10 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 
 
 /**
- *	@brief Handle data from the expansion.
+ *    @brief Handle data from the expansion.
  *
- *	@param wm		A pointer to a wiimote_t structure.
- *	@param msg		The message specified in the event packet for the expansion.
+ *    @param wm        A pointer to a wiimote_t structure.
+ *    @param msg        The message specified in the event packet for the expansion.
  */
 static void handle_expansion(struct wiimote_t* wm, byte* msg) {
     switch (wm->exp.type) {
@@ -751,17 +794,17 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
 
 
 /**
- *	@brief Handle the handshake data from the expansion device.
+ *    @brief Handle the handshake data from the expansion device.
  *
- *	@param wm		A pointer to a wiimote_t structure.
- *	@param data		The data read in from the device.
- *	@param len		The length of the data block, in bytes.
+ *    @param wm        A pointer to a wiimote_t structure.
+ *    @param data        The data read in from the device.
+ *    @param len        The length of the data block, in bytes.
  *
- *	Tries to determine what kind of expansion was attached
- *	and invoke the correct handshake function.
+ *    Tries to determine what kind of expansion was attached
+ *    and invoke the correct handshake function.
  *
- *	If the data is NULL then this function will try to start
- *	a handshake with the expansion.
+ *    If the data is NULL then this function will try to start
+ *    a handshake with the expansion.
  */
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
     int id;
@@ -841,14 +884,14 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 
 
 /**
- *	@brief Disable the expansion device if it was enabled.
+ *    @brief Disable the expansion device if it was enabled.
  *
- *	@param wm		A pointer to a wiimote_t structure.
- *	@param data		The data read in from the device.
- *	@param len		The length of the data block, in bytes.
+ *    @param wm        A pointer to a wiimote_t structure.
+ *    @param data        The data read in from the device.
+ *    @param len        The length of the data block, in bytes.
  *
- *	If the data is NULL then this function will try to start
- *	a handshake with the expansion.
+ *    If the data is NULL then this function will try to start
+ *    a handshake with the expansion.
  */
 void disable_expansion(struct wiimote_t* wm) {
     if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
@@ -888,8 +931,8 @@ void disable_expansion(struct wiimote_t* wm) {
 
 
 /**
- *	@brief Save important state data.
- *	@param wm	A pointer to a wiimote_t structure.
+ *    @brief Save important state data.
+ *    @param wm    A pointer to a wiimote_t structure.
  */
 static void save_state(struct wiimote_t* wm) {
     /* wiimote */
@@ -970,45 +1013,45 @@ static void save_state(struct wiimote_t* wm) {
 
 
 /**
- *	@brief Determine if the current state differs significantly from the previous.
- *	@param wm	A pointer to a wiimote_t structure.
- *	@return	1 if a significant change occured, 0 if not.
+ *    @brief Determine if the current state differs significantly from the previous.
+ *    @param wm    A pointer to a wiimote_t structure.
+ *    @return    1 if a significant change occured, 0 if not.
  */
 static int state_changed(struct wiimote_t* wm) {
-    #define STATE_CHANGED(a, b)		if (a != b)				return 1
+    #define STATE_CHANGED(a, b)        if (a != b)                return 1
 
-    #define CROSS_THRESH(last, now, thresh)										\
-                do {															\
-                    if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH)) {		\
-                        if ((diff_f(last.roll, now.roll) >= thresh) ||			\
-                            (diff_f(last.pitch, now.pitch) >= thresh) ||		\
-                            (diff_f(last.yaw, now.yaw) >= thresh))				\
-                        {														\
-                            last = now;											\
-                            return 1;											\
-                        }														\
-                    } else {													\
-                        if (last.roll != now.roll)		return 1;				\
-                        if (last.pitch != now.pitch)	return 1;				\
-                        if (last.yaw != now.yaw)		return 1;				\
-                    }															\
+    #define CROSS_THRESH(last, now, thresh)                                        \
+                do {                                                            \
+                    if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH)) {        \
+                        if ((diff_f(last.roll, now.roll) >= thresh) ||            \
+                            (diff_f(last.pitch, now.pitch) >= thresh) ||        \
+                            (diff_f(last.yaw, now.yaw) >= thresh))                \
+                        {                                                        \
+                            last = now;                                            \
+                            return 1;                                            \
+                        }                                                        \
+                    } else {                                                    \
+                        if (last.roll != now.roll)        return 1;                \
+                        if (last.pitch != now.pitch)    return 1;                \
+                        if (last.yaw != now.yaw)        return 1;                \
+                    }                                                            \
                 } while (0)
 
-    #define CROSS_THRESH_XYZ(last, now, thresh)									\
-                do {															\
-                    if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH)) {		\
-                        if ((diff_f(last.x, now.x) >= thresh) ||				\
-                            (diff_f(last.y, now.y) >= thresh) ||				\
-                            (diff_f(last.z, now.z) >= thresh))					\
-                        {														\
-                            last = now;											\
-                            return 1;											\
-                        }														\
-                    } else {													\
-                        if (last.x != now.x)		return 1;					\
-                        if (last.y != now.y)		return 1;					\
-                        if (last.z != now.z)		return 1;					\
-                    }															\
+    #define CROSS_THRESH_XYZ(last, now, thresh)                                    \
+                do {                                                            \
+                    if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH)) {        \
+                        if ((diff_f(last.x, now.x) >= thresh) ||                \
+                            (diff_f(last.y, now.y) >= thresh) ||                \
+                            (diff_f(last.z, now.z) >= thresh))                    \
+                        {                                                        \
+                            last = now;                                            \
+                            return 1;                                            \
+                        }                                                        \
+                    } else {                                                    \
+                        if (last.x != now.x)        return 1;                    \
+                        if (last.y != now.y)        return 1;                    \
+                        if (last.z != now.z)        return 1;                    \
+                    }                                                            \
                 } while (0)
 
     /* ir */

@@ -1,38 +1,38 @@
 /*
- *	wiiuse
+ *    wiiuse
  *
- *	Written By:
- *		Michael Laforest	< para >
- *		Email: < thepara (--AT--) g m a i l [--DOT--] com >
+ *    Written By:
+ *        Michael Laforest    < para >
+ *        Email: < thepara (--AT--) g m a i l [--DOT--] com >
  *
- *	Copyright 2006-2007
+ *    Copyright 2006-2007
  *
- *	This file is part of wiiuse.
+ *    This file is part of wiiuse.
  *
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 3 of the License, or
- *	(at your option) any later version.
+ *    This program is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 3 of the License, or
+ *    (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *	$Header$
+ *    $Header$
  *
  */
 
 /**
- *	@file
- *	@brief General wiimote operations.
+ *    @file
+ *    @brief General wiimote operations.
  *
- *	The file includes functions that handle general
- *	tasks.  Most of these are functions that are part
- *	of the API.
+ *    The file includes functions that handle general
+ *    tasks.  Most of these are functions that are part
+ *    of the API.
  */
 
 #include "wiiuse_internal.h"
@@ -45,23 +45,23 @@
 static int g_banner = 0;
 
 /**
- *	@brief Returns the version of the library.
+ *    @brief Returns the version of the library.
  */
 const char* wiiuse_version() {
     return WIIUSE_VERSION;
 }
 
 /**
- *	@brief Output FILE stream for each wiiuse_loglevel.
+ *    @brief Output FILE stream for each wiiuse_loglevel.
  */
 FILE* logtarget[4];
 
 /**
- *	@brief Specify an alternate FILE stream for a log level.
+ *    @brief Specify an alternate FILE stream for a log level.
  *
- *	@param loglevel The loglevel, for which the output should be set.
+ *    @param loglevel The loglevel, for which the output should be set.
  *
- *	@param logfile A valid, writeable <code>FILE*</code>, or 0, if output should be disabled.
+ *    @param logfile A valid, writeable <code>FILE*</code>, or 0, if output should be disabled.
  *
  *  The default <code>FILE*</code> for all loglevels is <code>stderr</code>
  */
@@ -71,7 +71,7 @@ void wiiuse_set_output(enum wiiuse_loglevel loglevel, FILE *logfile)
 }
 
 /**
- *	@brief Clean up wiimote_t array created by wiiuse_init()
+ *    @brief Clean up wiimote_t array created by wiiuse_init()
  */
 void wiiuse_cleanup(struct wiimote_t** wm, int wiimotes) {
     int i = 0;
@@ -93,31 +93,31 @@ void wiiuse_cleanup(struct wiimote_t** wm, int wiimotes) {
 
 
 /**
- *	@brief Initialize an array of wiimote structures.
+ *    @brief Initialize an array of wiimote structures.
  *
- *	@param wiimotes		Number of wiimote_t structures to create.
+ *    @param wiimotes        Number of wiimote_t structures to create.
  *
- *	@return An array of initialized wiimote_t structures.
+ *    @return An array of initialized wiimote_t structures.
  *
- *	@see wiiuse_connect()
+ *    @see wiiuse_connect()
  *
- *	The array returned by this function can be passed to various
- *	functions, including wiiuse_connect().
+ *    The array returned by this function can be passed to various
+ *    functions, including wiiuse_connect().
  */
 struct wiimote_t** wiiuse_init(int wiimotes) {
     int i = 0;
     struct wiimote_t** wm = NULL;
 
     /*
-     *	Please do not remove this banner.
-     *	GPL asks that you please leave output credits intact.
-     *	Thank you.
+     *    Please do not remove this banner.
+     *    GPL asks that you please leave output credits intact.
+     *    Thank you.
      *
-     *	This banner is only displayed once so that if you need
-     *	to call this function again it won't be intrusive.
+     *    This banner is only displayed once so that if you need
+     *    to call this function again it won't be intrusive.
      */
     if (!g_banner) {
-        printf(	"wiiuse v" WIIUSE_VERSION " loaded.\n"
+        printf(    "wiiuse v" WIIUSE_VERSION " loaded.\n"
                 "  Fork at http://github.com/rpavlik/wiiuse\n"
                 "  Original By: Michael Laforest <thepara[at]gmail{dot}com> http://wiiuse.net\n");
         g_banner = 1;
@@ -158,6 +158,8 @@ struct wiimote_t** wiiuse_init(int wiimotes) {
         wm[i]->event = WIIUSE_NONE;
 
         wm[i]->exp.type = EXP_NONE;
+        wm[i]->expansion_state = 0;
+        wm[i]->expansion_dattempts = 0;
 
         wiiuse_set_aspect_ratio(wm[i], WIIUSE_ASPECT_4_3);
         wiiuse_set_ir_position(wm[i], WIIUSE_IR_ABOVE);
@@ -173,12 +175,12 @@ struct wiimote_t** wiiuse_init(int wiimotes) {
 
 
 /**
- *	@brief	The wiimote disconnected.
+ *    @brief    The wiimote disconnected.
  *
- *	@param wm	Pointer to a wiimote_t structure.
+ *    @param wm    Pointer to a wiimote_t structure.
  */
 void wiiuse_disconnected(struct wiimote_t* wm) {
-    if (!wm)	return;
+    if (!wm)    return;
 
     WIIUSE_INFO("Wiimote disconnected [id %i].", wm->unid);
 
@@ -208,10 +210,10 @@ void wiiuse_disconnected(struct wiimote_t* wm) {
 
 
 /**
- *	@brief	Enable or disable the rumble.
+ *    @brief    Enable or disable the rumble.
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param status	1 to enable, 0 to disable.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param status    1 to enable, 0 to disable.
  */
 void wiiuse_rumble(struct wiimote_t* wm, int status) {
     byte buf;
@@ -241,24 +243,24 @@ void wiiuse_rumble(struct wiimote_t* wm, int status) {
 
 
 /**
- *	@brief	Toggle the state of the rumble.
+ *    @brief    Toggle the state of the rumble.
  *
- *	@param wm		Pointer to a wiimote_t structure.
+ *    @param wm        Pointer to a wiimote_t structure.
  */
 void wiiuse_toggle_rumble(struct wiimote_t* wm) {
-    if (!wm)	return;
+    if (!wm)    return;
 
     wiiuse_rumble(wm, !WIIMOTE_IS_SET(wm, WIIMOTE_STATE_RUMBLE));
 }
 
 
 /**
- *	@brief	Set the enabled LEDs.
+ *    @brief    Set the enabled LEDs.
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param leds		What LEDs to enable.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param leds        What LEDs to enable.
  *
- *	\a leds is a bitwise or of WIIMOTE_LED_1, WIIMOTE_LED_2, WIIMOTE_LED_3, or WIIMOTE_LED_4.
+ *    \a leds is a bitwise or of WIIMOTE_LED_1, WIIMOTE_LED_2, WIIMOTE_LED_3, or WIIMOTE_LED_4.
  */
 void wiiuse_set_leds(struct wiimote_t* wm, int leds) {
     byte buf;
@@ -280,14 +282,14 @@ void wiiuse_set_leds(struct wiimote_t* wm, int leds) {
 
 
 /**
- *	@brief	Set if the wiimote should report motion sensing.
+ *    @brief    Set if the wiimote should report motion sensing.
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param status	1 to enable, 0 to disable.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param status    1 to enable, 0 to disable.
  *
- *	Since reporting motion sensing sends a lot of data,
- *	the wiimote saves power by not transmitting it
- *	by default.
+ *    Since reporting motion sensing sends a lot of data,
+ *    the wiimote saves power by not transmitting it
+ *    by default.
  */
 void wiiuse_motion_sensing(struct wiimote_t* wm, int status) {
     if (status)
@@ -300,16 +302,16 @@ void wiiuse_motion_sensing(struct wiimote_t* wm, int status) {
 
 
 /**
- *	@brief	Set the report type based on the current wiimote state.
+ *    @brief    Set the report type based on the current wiimote state.
  *
- *	@param wm		Pointer to a wiimote_t structure.
+ *    @param wm        Pointer to a wiimote_t structure.
  *
- *	@return The report type sent.
+ *    @return The report type sent.
  *
- *	The wiimote reports formatted packets depending on the
- *	report type that was last requested.  This function will
- *	update the type of report that should be sent based on
- *	the current state of the device.
+ *    The wiimote reports formatted packets depending on the
+ *    report type that was last requested.  This function will
+ *    update the type of report that should be sent based on
+ *    the current state of the device.
  */
 int wiiuse_set_report_type(struct wiimote_t* wm) {
     byte buf[2];
@@ -318,7 +320,7 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
     if (!wm || !WIIMOTE_IS_CONNECTED(wm))
         return 0;
 
-    buf[0] = (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_CONTINUOUS) ? 0x04 : 0x00);	/* set to 0x04 for continuous reporting */
+    buf[0] = (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_CONTINUOUS) ? 0x04 : 0x00);    /* set to 0x04 for continuous reporting */
     buf[1] = 0x00;
 
     /* if rumble is enabled, make sure we keep it */
@@ -329,14 +331,14 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
     exp = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP);
     ir = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR);
 
-    if (motion && ir && exp)	buf[1] = WM_RPT_BTN_ACC_IR_EXP;
-    else if (motion && exp)		buf[1] = WM_RPT_BTN_ACC_EXP;
-    else if (motion && ir)		buf[1] = WM_RPT_BTN_ACC_IR;
-    else if (ir && exp)			buf[1] = WM_RPT_BTN_IR_EXP;
-    else if (ir)				buf[1] = WM_RPT_BTN_ACC_IR;
-    else if (exp)				buf[1] = WM_RPT_BTN_EXP;
-    else if (motion)			buf[1] = WM_RPT_BTN_ACC;
-    else						buf[1] = WM_RPT_BTN;
+    if (motion && ir && exp)    buf[1] = WM_RPT_BTN_ACC_IR_EXP;
+    else if (motion && exp)        buf[1] = WM_RPT_BTN_ACC_EXP;
+    else if (motion && ir)        buf[1] = WM_RPT_BTN_ACC_IR;
+    else if (ir && exp)            buf[1] = WM_RPT_BTN_IR_EXP;
+    else if (ir)                buf[1] = WM_RPT_BTN_ACC_IR;
+    else if (exp)                buf[1] = WM_RPT_BTN_EXP;
+    else if (motion)            buf[1] = WM_RPT_BTN_ACC;
+    else                        buf[1] = WM_RPT_BTN;
 
     WIIUSE_DEBUG("Setting report type: 0x%x", buf[1]);
 
@@ -349,21 +351,21 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
 
 
 /**
- *	@brief	Read data from the wiimote (callback version).
+ *    @brief    Read data from the wiimote (callback version).
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param read_cb	Function pointer to call when the data arrives from the wiimote.
- *	@param buffer	An allocated buffer to store the data as it arrives from the wiimote.
- *					Must be persistent in memory and large enough to hold the data.
- *	@param addr		The address of wiimote memory to read from.
- *	@param len		The length of the block to be read.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param read_cb    Function pointer to call when the data arrives from the wiimote.
+ *    @param buffer    An allocated buffer to store the data as it arrives from the wiimote.
+ *                    Must be persistent in memory and large enough to hold the data.
+ *    @param addr        The address of wiimote memory to read from.
+ *    @param len        The length of the block to be read.
  *
- *	The library can only handle one data read request at a time
- *	because it must keep track of the buffer and other
- *	events that are specific to that request.  So if a request
- *	has already been made, subsequent requests will be added
- *	to a pending list and be sent out when the previous
- *	finishes.
+ *    The library can only handle one data read request at a time
+ *    because it must keep track of the buffer and other
+ *    events that are specific to that request.  So if a request
+ *    has already been made, subsequent requests will be added
+ *    to a pending list and be sent out when the previous
+ *    finishes.
  */
 int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int addr, uint16_t len) {
     struct read_req_t* req;
@@ -407,20 +409,20 @@ int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buff
 
 
 /**
- *	@brief	Read data from the wiimote (event version).
+ *    @brief    Read data from the wiimote (event version).
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param buffer	An allocated buffer to store the data as it arrives from the wiimote.
- *					Must be persistent in memory and large enough to hold the data.
- *	@param addr		The address of wiimote memory to read from.
- *	@param len		The length of the block to be read.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param buffer    An allocated buffer to store the data as it arrives from the wiimote.
+ *                    Must be persistent in memory and large enough to hold the data.
+ *    @param addr        The address of wiimote memory to read from.
+ *    @param len        The length of the block to be read.
  *
- *	The library can only handle one data read request at a time
- *	because it must keep track of the buffer and other
- *	events that are specific to that request.  So if a request
- *	has already been made, subsequent requests will be added
- *	to a pending list and be sent out when the previous
- *	finishes.
+ *    The library can only handle one data read request at a time
+ *    because it must keep track of the buffer and other
+ *    events that are specific to that request.  So if a request
+ *    has already been made, subsequent requests will be added
+ *    to a pending list and be sent out when the previous
+ *    finishes.
  */
 int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int addr, uint16_t len) {
     struct read_req_t* req;
@@ -464,13 +466,13 @@ int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int addr, uint
 
 
 /**
- *	@brief Send the next pending data read request to the wiimote.
+ *    @brief Send the next pending data read request to the wiimote.
  *
- *	@param wm		Pointer to a wiimote_t structure.
+ *    @param wm        Pointer to a wiimote_t structure.
  *
- *	@see wiiuse_read_data()
+ *    @see wiiuse_read_data()
  *
- *	This function is not part of the wiiuse API.
+ *    This function is not part of the wiiuse API.
  */
 void wiiuse_send_next_pending_read_request(struct wiimote_t* wm) {
     byte buf[6];
@@ -478,7 +480,7 @@ void wiiuse_send_next_pending_read_request(struct wiimote_t* wm) {
 
     if (!wm || !WIIMOTE_IS_CONNECTED(wm))
         return;
-    if (!wm->read_req)	return;
+    if (!wm->read_req)    return;
 
     /* skip over dirty ones since they have already been read */
     req = wm->read_req;
@@ -499,11 +501,11 @@ void wiiuse_send_next_pending_read_request(struct wiimote_t* wm) {
 
 
 /**
- *	@brief Request the wiimote controller status.
+ *    @brief Request the wiimote controller status.
  *
- *	@param wm		Pointer to a wiimote_t structure.
+ *    @param wm        Pointer to a wiimote_t structure.
  *
- *	Controller status includes: battery level, LED status, expansions
+ *    Controller status includes: battery level, LED status, expansions
  */
 void wiiuse_status(struct wiimote_t* wm) {
     byte buf = 0;
@@ -518,13 +520,13 @@ void wiiuse_status(struct wiimote_t* wm) {
 
 
 /**
- *	@brief Find a wiimote_t structure by its unique identifier.
+ *    @brief Find a wiimote_t structure by its unique identifier.
  *
- *	@param wm		Pointer to a wiimote_t structure.
- *	@param wiimotes	The number of wiimote_t structures in \a wm.
- *	@param unid		The unique identifier to search for.
+ *    @param wm        Pointer to a wiimote_t structure.
+ *    @param wiimotes    The number of wiimote_t structures in \a wm.
+ *    @param unid        The unique identifier to search for.
  *
- *	@return Pointer to a wiimote_t structure, or NULL if not found.
+ *    @return Pointer to a wiimote_t structure, or NULL if not found.
  */
 struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid) {
     int i = 0;
@@ -543,15 +545,15 @@ struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid
 
 
 /**
- *	@brief	Write data to the wiimote.
+ *    @brief    Write data to the wiimote.
  *
- *	@param wm			Pointer to a wiimote_t structure.
- *	@param addr			The address to write to.
- *	@param data			The data to be written to the memory location.
- *	@param len			The length of the block to be written.
+ *    @param wm            Pointer to a wiimote_t structure.
+ *    @param addr            The address to write to.
+ *    @param data            The data to be written to the memory location.
+ *    @param len            The length of the block to be written.
  */
 int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, byte* data, byte len) {
-    byte buf[21] = {0};		/* the payload is always 23 */
+    byte buf[21] = {0};        /* the payload is always 23 */
 
     byte * bufPtr = buf;
     if (!wm || !WIIMOTE_IS_CONNECTED(wm))
@@ -585,20 +587,20 @@ int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, byte* data, byte 
 }
 
 /**
- *	@brief	Write data to the wiimote (callback version).
+ *    @brief    Write data to the wiimote (callback version).
  *
- *	@param wm			Pointer to a wiimote_t structure.
- *	@param addr			The address to write to.
- *	@param data			The data to be written to the memory location.
- *	@param len			The length of the block to be written.
- *	@param cb			Function pointer to call when the data arrives from the wiimote.
+ *    @param wm            Pointer to a wiimote_t structure.
+ *    @param addr            The address to write to.
+ *    @param data            The data to be written to the memory location.
+ *    @param len            The length of the block to be written.
+ *    @param cb            Function pointer to call when the data arrives from the wiimote.
  *
- *	The library can only handle one data read request at a time
- *	because it must keep track of the buffer and other
- *	events that are specific to that request.  So if a request
- *	has already been made, subsequent requests will be added
- *	to a pending list and be sent out when the previous
- *	finishes.
+ *    The library can only handle one data read request at a time
+ *    because it must keep track of the buffer and other
+ *    events that are specific to that request.  So if a request
+ *    has already been made, subsequent requests will be added
+ *    to a pending list and be sent out when the previous
+ *    finishes.
  */
 int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte *data, byte len, wiiuse_write_cb write_cb)
 {
@@ -636,13 +638,13 @@ WIIUSE_DEBUG("chaud2fois");
 }
 
 /**
- *	@brief Send the next pending data write request to the wiimote.
+ *    @brief Send the next pending data write request to the wiimote.
  *
- *	@param wm		Pointer to a wiimote_t structure.
+ *    @param wm        Pointer to a wiimote_t structure.
  *
- *	@see wiiuse_write_data()
+ *    @see wiiuse_write_data()
  *
- *	This function is not part of the wiiuse API.
+ *    This function is not part of the wiiuse API.
  */
 void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
     struct data_req_t* req;
@@ -663,17 +665,17 @@ void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
 }
 
 /**
- *	@brief	Send a packet to the wiimote.
+ *    @brief    Send a packet to the wiimote.
  *
- *	@param wm			Pointer to a wiimote_t structure.
- *	@param report_type	The report type to send (WIIMOTE_CMD_LED, WIIMOTE_CMD_RUMBLE, etc). Found in wiiuse.h
- *	@param msg			The payload.
- *	@param len			Length of the payload in bytes.
+ *    @param wm            Pointer to a wiimote_t structure.
+ *    @param report_type    The report type to send (WIIMOTE_CMD_LED, WIIMOTE_CMD_RUMBLE, etc). Found in wiiuse.h
+ *    @param msg            The payload.
+ *    @param len            Length of the payload in bytes.
  *
- *	This function should replace any write()s directly to the wiimote device.
+ *    This function should replace any write()s directly to the wiimote device.
  */
 int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
-    byte buf[32];		/* no payload is better than this */
+    byte buf[32];        /* no payload is better than this */
     int rumble = 0;
 
     #ifdef WIIUSE_WIN32
@@ -730,19 +732,19 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 
 
 /**
- *	@brief Set flags for the specified wiimote.
+ *    @brief Set flags for the specified wiimote.
  *
- *	@param wm			Pointer to a wiimote_t structure.
- *	@param enable		Flags to enable.
- *	@param disable		Flags to disable.
+ *    @param wm            Pointer to a wiimote_t structure.
+ *    @param enable        Flags to enable.
+ *    @param disable        Flags to disable.
  *
- *	@return The flags set after 'enable' and 'disable' have been applied.
+ *    @return The flags set after 'enable' and 'disable' have been applied.
  *
- *	The values 'enable' and 'disable' may be any flags OR'ed together.
- *	Flags are defined in wiiuse.h.
+ *    The values 'enable' and 'disable' may be any flags OR'ed together.
+ *    Flags are defined in wiiuse.h.
  */
 int wiiuse_set_flags(struct wiimote_t* wm, int enable, int disable) {
-    if (!wm)	return 0;
+    if (!wm)    return 0;
 
     /* remove mutually exclusive flags */
     enable &= ~disable;
@@ -756,22 +758,22 @@ int wiiuse_set_flags(struct wiimote_t* wm, int enable, int disable) {
 
 
 /**
- *	@brief Set the wiimote smoothing alpha value.
+ *    @brief Set the wiimote smoothing alpha value.
  *
- *	@param wm			Pointer to a wiimote_t structure.
- *	@param alpha		The alpha value to set. Between 0 and 1.
+ *    @param wm            Pointer to a wiimote_t structure.
+ *    @param alpha        The alpha value to set. Between 0 and 1.
  *
- *	@return Returns the old alpha value.
+ *    @return Returns the old alpha value.
  *
- *	The alpha value is between 0 and 1 and is used in an exponential
- *	smoothing algorithm.
+ *    The alpha value is between 0 and 1 and is used in an exponential
+ *    smoothing algorithm.
  *
- *	Smoothing is only performed if the WIIMOTE_USE_SMOOTHING is set.
+ *    Smoothing is only performed if the WIIMOTE_USE_SMOOTHING is set.
  */
 float wiiuse_set_smooth_alpha(struct wiimote_t* wm, float alpha) {
     float old;
 
-    if (!wm)	return 0.0f;
+    if (!wm)    return 0.0f;
 
     old = wm->accel_calib.st_alpha;
 
@@ -786,17 +788,17 @@ float wiiuse_set_smooth_alpha(struct wiimote_t* wm, float alpha) {
 
 
 /**
- *	@brief	Set the bluetooth stack type to use.
+ *    @brief    Set the bluetooth stack type to use.
  *
- *	@param wm		Array of wiimote_t structures.
- *	@param wiimotes	Number of objects in the wm array.
- *	@param type		The type of bluetooth stack to use.
+ *    @param wm        Array of wiimote_t structures.
+ *    @param wiimotes    Number of objects in the wm array.
+ *    @param type        The type of bluetooth stack to use.
  */
 void wiiuse_set_bluetooth_stack(struct wiimote_t** wm, int wiimotes, enum win_bt_stack_t type) {
     #ifdef WIIUSE_WIN32
     int i;
 
-    if (!wm)	return;
+    if (!wm)    return;
 
     for (i = 0; i < wiimotes; ++i)
         wm[i]->stack = type;
@@ -805,42 +807,42 @@ void wiiuse_set_bluetooth_stack(struct wiimote_t** wm, int wiimotes, enum win_bt
 
 
 /**
- *	@brief	Set the orientation event threshold.
+ *    @brief    Set the orientation event threshold.
  *
- *	@param wm			Pointer to a wiimote_t structure.
- *	@param threshold	The decimal place that should be considered a significant change.
+ *    @param wm            Pointer to a wiimote_t structure.
+ *    @param threshold    The decimal place that should be considered a significant change.
  *
- *	If threshold is 0.01, and any angle changes by 0.01 then a significant change
- *	has occured and the event callback will be invoked.  If threshold is 1 then
- *	the angle has to change by a full degree to generate an event.
+ *    If threshold is 0.01, and any angle changes by 0.01 then a significant change
+ *    has occured and the event callback will be invoked.  If threshold is 1 then
+ *    the angle has to change by a full degree to generate an event.
  */
 void wiiuse_set_orient_threshold(struct wiimote_t* wm, float threshold) {
-    if (!wm)	return;
+    if (!wm)    return;
 
     wm->orient_threshold = threshold;
 }
 
 
 /**
- *	@brief	Set the accelerometer event threshold.
+ *    @brief    Set the accelerometer event threshold.
  *
- *	@param wm			Pointer to a wiimote_t structure.
- *	@param threshold	The decimal place that should be considered a significant change.
+ *    @param wm            Pointer to a wiimote_t structure.
+ *    @param threshold    The decimal place that should be considered a significant change.
  */
 void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold) {
-    if (!wm)	return;
+    if (!wm)    return;
 
     wm->accel_threshold = threshold;
 }
 
 
 /**
- *	@brief Try to resync with the wiimote by starting a new handshake.
+ *    @brief Try to resync with the wiimote by starting a new handshake.
  *
- *	@param wm			Pointer to a wiimote_t structure.
+ *    @param wm            Pointer to a wiimote_t structure.
  */
 void wiiuse_resync(struct wiimote_t* wm) {
-    if (!wm)	return;
+    if (!wm)    return;
 
     wm->handshake_state = 0;
     wiiuse_handshake(wm, NULL, 0);
@@ -848,18 +850,18 @@ void wiiuse_resync(struct wiimote_t* wm) {
 
 
 /**
- *	@brief Set the normal and expansion handshake timeouts.
+ *    @brief Set the normal and expansion handshake timeouts.
  *
- *	@param wm				Array of wiimote_t structures.
- *	@param wiimotes			Number of objects in the wm array.
- *	@param normal_timeout	The timeout in milliseconds for a normal read.
- *	@param exp_timeout		The timeout in millisecondsd to wait for an expansion handshake.
+ *    @param wm                Array of wiimote_t structures.
+ *    @param wiimotes            Number of objects in the wm array.
+ *    @param normal_timeout    The timeout in milliseconds for a normal read.
+ *    @param exp_timeout        The timeout in millisecondsd to wait for an expansion handshake.
  */
 void wiiuse_set_timeout(struct wiimote_t** wm, int wiimotes, byte normal_timeout, byte exp_timeout) {
     #ifdef WIIUSE_WIN32
     int i;
 
-    if (!wm)	return;
+    if (!wm)    return;
 
     for (i = 0; i < wiimotes; ++i) {
         wm[i]->normal_timeout = normal_timeout;
