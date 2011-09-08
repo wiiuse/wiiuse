@@ -41,19 +41,21 @@
 static void wiiuse_calibrate_motion_plus(struct motion_plus_t *mp);
 static void calculate_gyro_rates(struct motion_plus_t* mp);
 
-void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len)
+
+void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short len)
 {
     uint32_t val;
     if(data == NULL)
     {
-        wiiuse_read_data_cb(wm, wiiuse_motion_plus_check, wm->motion_plus_id, WM_EXP_ID, 6);
+        wiiuse_read_data_cb(wm, wiiuse_motion_plus_handshake, wm->motion_plus_id, WM_EXP_ID, 6);
     }
     else
     {
-        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP);
         WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
         WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+
         val = from_big_endian_uint32_t(data + 2);
+
         if(val == EXP_ID_CODE_MOTION_PLUS ||
                         val == EXP_ID_CODE_MOTION_PLUS_NUNCHUK ||
                         val == EXP_ID_CODE_MOTION_PLUS_CLASSIC)
@@ -83,7 +85,6 @@ void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len
             }
 
             WIIUSE_DEBUG("Motion plus connected");
-            WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
 
             // Init gyroscopes
             wm->exp.mp.cal_gyro.r = 0;
@@ -98,14 +99,21 @@ void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len
             wm->exp.mp.classic = &(wm->exp.classic);
             wm->exp.nunchuk.flags = &wm->flags;
 
+            wm->exp.mp.ext = 0;
+            wm->exp.mp.ext_initialized = 0;
+
             wiiuse_set_ir_mode(wm);
+
+
+
         }
     }
 }
 
+
+
 static void wiiuse_set_motion_plus_clear2(struct wiimote_t *wm,byte *data,unsigned short len)
 {
-    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP);
     WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
     WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
     wiiuse_set_ir_mode(wm);
@@ -122,14 +130,12 @@ void wiiuse_set_motion_plus(struct wiimote_t *wm, int status)
 {
     byte val;
 
-    if(WIIMOTE_IS_SET(wm,WIIMOTE_STATE_EXP_HANDSHAKE))
-        return;
-
-    WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
-    if(status)
+    if(status && !WIIMOTE_IS_SET(wm,WIIMOTE_STATE_EXP_HANDSHAKE))
     {
-        val = 0x04;
-        wiiuse_write_data_cb(wm, WM_EXP_MOTION_PLUS_ENABLE, &val, 1, wiiuse_motion_plus_check);
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+
+        val = (status == 1) ? 0x04 : 0x05;
+        wiiuse_write_data_cb(wm, WM_EXP_MOTION_PLUS_ENABLE, &val, 1, wiiuse_motion_plus_handshake);
     }
     else
     {
@@ -145,7 +151,7 @@ void motion_plus_disconnected(struct motion_plus_t* mp)
     memset(mp, 0, sizeof(struct motion_plus_t));
 }
 
-void motion_plus_event(struct motion_plus_t* mp, byte* msg)
+void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg)
 {
     /*
      * Pass-through modes interleave data from the gyro
@@ -178,9 +184,9 @@ void motion_plus_event(struct motion_plus_t* mp, byte* msg)
     }
 
     else
-    { // expansion frame
-        // FIXME: Handle pass-through modes
-//        if (mp->mode == WIIUSE_MP_NUNCHUK)
+    {
+        // expansion frame
+        if (exp_type == EXP_MOTION_PLUS_NUNCHUK)
         {
             // ok, this is nunchuck, re-encode it as regular nunchuck packet
 
@@ -205,10 +211,16 @@ void motion_plus_event(struct motion_plus_t* mp, byte* msg)
                              &(mp->nc->gforce));
 
         }
-//        else if (mp->mode == WIIUSE_MP_CLASSIC)
-//        {
-//            WIIUSE_ERROR("Classic controller pass-through is not implemented!\n");
-//        }
+
+        else if (exp_type == EXP_MOTION_PLUS_CLASSIC)
+        {
+            WIIUSE_ERROR("Classic controller pass-through is not implemented!\n");
+        }
+
+        else
+        {
+            WIIUSE_ERROR("Unsupported mode passed to motion_plus_event() !\n");
+        }
     }
 }
 

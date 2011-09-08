@@ -49,70 +49,73 @@
  *	with this data.
  */
 void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
-	if (!wm)	return;
+    if (!wm)	return;
 
-	switch (wm->handshake_state) {
-		case 0:
-		{
-			/* send request to wiimote for accelerometer calibration */
-			byte* buf;
+    switch (wm->handshake_state) {
+        case 0:
+        {
+            /* send request to wiimote for accelerometer calibration */
+            byte* buf;
 
-			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
-			wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
+            WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
+            wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
 
-			buf = (byte*)malloc(sizeof(byte) * 8);
-			wiiuse_read_data_cb(wm, wiiuse_handshake, buf, WM_MEM_OFFSET_CALIBRATION, 7);
-			wm->handshake_state++;
+            buf = (byte*)malloc(sizeof(byte) * 8);
+            wiiuse_read_data_cb(wm, wiiuse_handshake, buf, WM_MEM_OFFSET_CALIBRATION, 7);
+            wm->handshake_state++;
 
-			wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
+            wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
 
-			break;
-		}
-		case 1:
-		{
-			struct read_req_t* req = wm->read_req;
-			struct accel_t* accel = &wm->accel_calib;
+            break;
+        }
 
-			/* received read data */
-			accel->cal_zero.x = req->buf[0];
-			accel->cal_zero.y = req->buf[1];
-			accel->cal_zero.z = req->buf[2];
+        case 1:
+        {
+            struct read_req_t* req = wm->read_req;
+            struct accel_t* accel = &wm->accel_calib;
 
-			accel->cal_g.x = req->buf[4] - accel->cal_zero.x;
-			accel->cal_g.y = req->buf[5] - accel->cal_zero.y;
-			accel->cal_g.z = req->buf[6] - accel->cal_zero.z;
+            /* received read data */
+            accel->cal_zero.x = req->buf[0];
+            accel->cal_zero.y = req->buf[1];
+            accel->cal_zero.z = req->buf[2];
 
-			/* done with the buffer */
-			free(req->buf);
+            accel->cal_g.x = req->buf[4] - accel->cal_zero.x;
+            accel->cal_g.y = req->buf[5] - accel->cal_zero.y;
+            accel->cal_g.z = req->buf[6] - accel->cal_zero.z;
 
-			/* handshake is done */
-			WIIUSE_DEBUG("Handshake finished. Calibration: Idle: X=%x Y=%x Z=%x\t+1g: X=%x Y=%x Z=%x",
-					accel->cal_zero.x, accel->cal_zero.y, accel->cal_zero.z,
-					accel->cal_g.x, accel->cal_g.y, accel->cal_g.z);
+            /* done with the buffer */
+            free(req->buf);
 
+            /* handshake is done */
+            WIIUSE_DEBUG("Handshake finished. Calibration: Idle: X=%x Y=%x Z=%x\t+1g: X=%x Y=%x Z=%x",
+                    accel->cal_zero.x, accel->cal_zero.y, accel->cal_zero.z,
+                    accel->cal_g.x, accel->cal_g.y, accel->cal_g.z);
 
-			/* request the status of the wiimote to see if there is an expansion */
-			wiiuse_status(wm);
+            wiiuse_set_motion_plus(wm, 0);
 
-			WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
-			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE);
-			wm->handshake_state++;
+            /* request the status of the wiimote to check for any expansion */
+            wiiuse_status(wm);
+            WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
+            WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE);
+            wm->handshake_state++;
 
-			/* now enable IR if it was set before the handshake completed */
-			if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR)) {
-				WIIUSE_DEBUG("Handshake finished, enabling IR.");
-				WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
-				wiiuse_set_ir(wm, 1);
-			}
+            /* now enable IR if it was set before the handshake completed */
+            if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR)) {
+                WIIUSE_DEBUG("Handshake finished, enabling IR.");
+                WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
+                wiiuse_set_ir(wm, 1);
+            }
 
-			wm->event = WIIUSE_CONNECT;
-			wiiuse_status(wm);
+            wm->event = WIIUSE_CONNECT;
+            wm->expansion_state = 0;
+            wiiuse_status(wm);
 
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
+    }
 }
