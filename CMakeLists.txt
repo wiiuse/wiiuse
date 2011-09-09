@@ -16,6 +16,7 @@ message(STATUS "Configuring WiiUse version ${CPACK_PACKAGE_VERSION}")
 
 option(BUILD_EXAMPLE "Should we build the example app?" YES)
 option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
+option(BUILD_WIIUSE_SHARED_LIB "Should we build as a shared library (dll/so)?" YES)
 option(INSTALL_EXAMPLES "Should we install the example apps?" YES)
 
 option(CPACK_MONOLITHIC_INSTALL "Only produce a single component installer, rather than multi-component." NO)
@@ -30,6 +31,13 @@ include(UseBackportedModules)
 include(DoxygenTargets)
 
 add_definitions(-DWIIUSE_COMPILE_LIB)
+
+if(BUILD_WIIUSE_SHARED_LIB)
+	set(WIIUSE_LIB_TYPE SHARED)
+else()
+	set(WIIUSE_LIB_TYPE STATIC)
+	add_definitions(-DWIIUSE_STATIC)
+endif()
 
 if(NOT WIN32 AND NOT APPLE)
 	set(LINUX YES)
