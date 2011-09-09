@@ -43,12 +43,13 @@
 #include <string.h>                     // for memcpy, memset
 
 static int g_banner = 0;
+static const char g_wiiuse_version_string[] = WIIUSE_VERSION;
 
 /**
  *	@brief Returns the version of the library.
  */
 const char* wiiuse_version() {
-	return WIIUSE_VERSION;
+	return g_wiiuse_version_string;
 }
 
 /**
