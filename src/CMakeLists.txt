@@ -34,7 +34,9 @@ if(MSVC)
 	list(APPEND API wiiuse_msvcstdint.h)
 endif()
 
-add_library(wiiuse SHARED ${SOURCES} ${API})
+add_definitions(-DWIIUSE_COMPILE_LIB)
+
+add_library(wiiuse ${WIIUSE_LIB_TYPE} ${SOURCES} ${API})
 
 if(WIN32)
 	target_link_libraries(wiiuse ws2_32 setupapi ${WINHID_LIBRARIES})

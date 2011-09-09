@@ -19,6 +19,11 @@ Added:
 	by and included with RPythonic http://code.google.com/p/rpythonic/
 	Thanks to hartsantler for this feature.
 
+- Ability to build as a static library - must define WIIUSE_STATIC in
+	client app as well as choosing the appropriate option when building
+	WiiUse. The default is still a shared library (dll/so). Merged from
+	paulburton and added to build system.
+
 Fixed:
 
 - Properly disable rumbling when told to. Thanks to Jeff Baker from

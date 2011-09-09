@@ -727,8 +727,13 @@ typedef enum wiiuse_loglevel {
  *****************************************/
 
 #ifdef WIIUSE_WIN32
-	#define WIIUSE_EXPORT_DECL __declspec(dllexport)
-	#define WIIUSE_IMPORT_DECL __declspec(dllimport)
+	#ifdef WIIUSE_STATIC
+		#define WIIUSE_EXPORT_DECL
+		#define WIIUSE_IMPORT_DECL
+	#else
+		#define WIIUSE_EXPORT_DECL __declspec(dllexport)
+		#define WIIUSE_IMPORT_DECL __declspec(dllimport)
+	#endif
 #else
 	#define WIIUSE_EXPORT_DECL
 	#define WIIUSE_IMPORT_DECL
