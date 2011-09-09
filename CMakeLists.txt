@@ -11,6 +11,10 @@ project(WiiUse)
 # Set up options
 ###
 
+if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	set(SUBPROJECT YES)
+endif()
+
 include("./ParseVersion.cmake")
 message(STATUS "Configuring WiiUse version ${CPACK_PACKAGE_VERSION}")
 
@@ -57,64 +61,75 @@ endif()
 # The lib is in the "src" subdirectory
 add_subdirectory(src)
 
-# Example apps
-if(BUILD_EXAMPLE)
-    add_subdirectory(example)
+if(NOT SUBPROJECT)
+	# Example apps
+	if(BUILD_EXAMPLE)
+		add_subdirectory(example)
+	endif()
+
+	if(BUILD_EXAMPLE_SDL)
+		add_subdirectory(example-sdl)
+	endif()
 endif()
 
-if(BUILD_EXAMPLE_SDL)
-    add_subdirectory(example-sdl)
+if(SUBPROJECT)
+	set(WIIUSE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" PARENT_SCOPE)
+	set(WIIUSE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" PARENT_SCOPE)
+	set(WIIUSE_LIBRARY wiiuse PARENT_SCOPE)
+	set(WIIUSE_LIBRARIES wiiuse PARENT_SCOPE)
+	set(WIIUSE_FOUND ON PARENT_SCOPE)
 endif()
 
-
+if(NOT SUBPROJECT)
 ###
 # Set packaging options (for CPack)
 ###
 
-if(WIN32)
-	set(DOC_DIR .)
-else()
-	set(DOC_DIR share/doc/wiiuse)
+	if(WIN32)
+		set(DOC_DIR .)
+	else()
+		set(DOC_DIR share/doc/wiiuse)
+	endif()
+
+	# Documentation
+	add_doxygen(Doxyfile
+		INSTALL_DESTINATION ${DOC_DIR}
+		INSTALL_COMPONENT docs
+		NO_PDF)
+
+	install(FILES
+		CHANGELOG.mkd
+		LICENSE
+		README.mkd
+		DESTINATION ${DOC_DIR} COMPONENT docs)
+
+	if(INSTALL_EXAMPLES)
+		install(FILES example/example.c
+			DESTINATION ${DOC_DIR}/example COMPONENT examples)
+		install(FILES example-sdl/sdl.c
+			DESTINATION ${DOC_DIR}/example-sdl COMPONENT examples)
+	endif()
+
+	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+	set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.mkd")
+
+	include(GetCompilerInfoString)
+	get_compiler_info_string(_compiler)
+
+	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${_compiler}")
+
+	# Include the packaging system now that we have it all set up
+	include(CPack)
+
+	cpack_add_component(docs HIDDEN)
+
+	cpack_add_component(development
+		DISPLAY_NAME "Development Files")
+
+	cpack_add_component(examples
+		DISPLAY_NAME "Examples")
+
+	cpack_add_component(runtime
+		DISPLAY_NAME "Runtime Library"
+		REQUIRED)
 endif()
-
-# Documentation
-add_doxygen(Doxyfile
-	INSTALL_DESTINATION ${DOC_DIR}
-	INSTALL_COMPONENT docs
-	NO_PDF)
-
-install(FILES
-	CHANGELOG.mkd
-	LICENSE
-	README.mkd
-	DESTINATION ${DOC_DIR} COMPONENT docs)
-
-if(INSTALL_EXAMPLES)
-	install(FILES example/example.c
-		DESTINATION ${DOC_DIR}/example COMPONENT examples)
-	install(FILES example-sdl/sdl.c
-		DESTINATION ${DOC_DIR}/example-sdl COMPONENT examples)
-endif()
-
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.mkd")
-
-include(GetCompilerInfoString)
-get_compiler_info_string(_compiler)
-
-set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${_compiler}")
-
-# Include the packaging system now that we have it all set up
-include(CPack)
-
-cpack_add_component(docs HIDDEN)
-
-cpack_add_component(development
-	DISPLAY_NAME "Development Files")
-
-cpack_add_component(examples
-	DISPLAY_NAME "Examples")
-
-cpack_add_component(runtime
-	DISPLAY_NAME "Runtime Library"
-	REQUIRED)
