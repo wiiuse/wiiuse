@@ -34,6 +34,8 @@ if(MSVC)
 	list(APPEND API wiiuse_msvcstdint.h)
 endif()
 
+add_definitions(-DWIIUSE_COMPILE_LIB)
+
 add_library(wiiuse ${WIIUSE_LIB_TYPE} ${SOURCES} ${API})
 
 if(WIN32)

@@ -30,8 +30,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(UseBackportedModules)
 include(DoxygenTargets)
 
-add_definitions(-DWIIUSE_COMPILE_LIB)
-
 if(BUILD_WIIUSE_SHARED_LIB)
 	set(WIIUSE_LIB_TYPE SHARED)
 else()
