@@ -609,6 +609,10 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
     int exp_changed = 0;
     struct data_req_t* req = wm->data_req;
 
+    // initial handshake is not finished yet, ignore this
+    if(WIIMOTE_IS_SET(wm, WIIMOTE_STATE_HANDSHAKE))
+        return;
+
     /*
      *    An event occured.
      *    This event can be overwritten by a more specific
@@ -727,38 +731,27 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
      *    We need to send a WIIMOTE_CMD_REPORT_TYPE packet to
      *    reenable other incoming reports.
      */
-
-    if (exp_changed)
+    if (exp_changed && WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR))
     {
-        if (exp_changed && WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR))
-        {
-            /*
-             *  Since the expansion status changed IR needs to
-             *  be reset for the new IR report mode.
-             */
-            WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
-            wiiuse_set_ir(wm, 1);
-        } else {
-            wiiuse_set_report_type(wm);
-            return;
-        }
-
-        /* handling new Tx for changed exp */
-        if(!req) return;
-        if(!(req->state==REQ_SENT)) return;
-
-        wm->data_req = req->next;
-
-        req->state = REQ_DONE;
-        //if(req->cb!=NULL) req->cb(wm,msg,6);
-
-        free(req);
-        wiiuse_send_next_pending_write_request(wm);
-
-    } else
-    {
+        /*
+         *  Since the expansion status changed IR needs to
+         *  be reset for the new IR report mode.
+         */
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
+        wiiuse_set_ir(wm, 1);
+    } else {
         wiiuse_set_report_type(wm);
+        return;
     }
+
+    /* handling new Tx for changed exp */
+    if(!req) return;
+    if(!(req->state==REQ_SENT)) return;
+    wm->data_req = req->next;
+    req->state = REQ_DONE;
+    //if(req->cb!=NULL) req->cb(wm,msg,6);
+    free(req);
+    wiiuse_send_next_pending_write_request(wm);
 }
 
 
@@ -808,7 +801,79 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
  */
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
     int id;
+    byte val = 0;
+    byte buf = 0x00;
+    byte* handshake_buf;
 
+#ifndef OLD_EXP_HANDSHAKE
+    switch(wm->expansion_state) {
+        /* These two initialization writes disable the encryption */
+        case 0:
+            wm->expansion_state = 1;
+            /* increase the timeout until the handshake completes */
+#ifdef WIIUSE_WIN32
+            WIIUSE_DEBUG("write 0x55 - Setting timeout to expansion %i ms.", wm->exp_timeout);
+            wm->timeout = wm->exp_timeout;
+#endif
+            buf = 0x55;
+            wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &buf, 1, handshake_expansion);
+            break;
+        case 1:
+            wm->expansion_state = 2;
+            /* increase the timeout until the handshake completes */
+#ifdef WIIUSE_WIN32
+            WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
+            wm->timeout = wm->exp_timeout;
+#endif
+            val = 0x00;
+            wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE2, &buf, 1, handshake_expansion);
+            break;
+        case 2:
+            wm->expansion_state = 3;
+            /* get the calibration data */
+            if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
+                disable_expansion(wm);
+            handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
+            wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
+
+            /* tell the wiimote to send expansion data */
+            WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
+            break;
+        case 3:
+            if(!data || !len) return;
+            id = from_big_endian_uint32_t(data + 220);
+            switch(id) {
+                case EXP_ID_CODE_NUNCHUK:
+                    if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len))
+                        wm->event = WIIUSE_NUNCHUK_INSERTED;
+                    break;
+                case EXP_ID_CODE_CLASSIC_CONTROLLER:
+                    if (classic_ctrl_handshake(wm, &wm->exp.classic, data, len))
+                        wm->event = WIIUSE_CLASSIC_CTRL_INSERTED;
+                    break;
+                case EXP_ID_CODE_GUITAR:
+                    if (guitar_hero_3_handshake(wm, &wm->exp.gh3, data, len))
+                        wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;
+                    break;
+                case EXP_ID_CODE_MOTION_PLUS:
+                case EXP_ID_CODE_MOTION_PLUS_CLASSIC:
+                case EXP_ID_CODE_MOTION_PLUS_NUNCHUK:
+                    //wiiuse_motion_plus_handshake(wm, data, len);
+                    wm->event = WIIUSE_MOTION_PLUS_ACTIVATED;
+                    break;
+                default:
+                    WIIUSE_WARNING("Unknown expansion type. Code: 0x%x", id);
+                    break;
+            }
+            free(data);
+            WIIMOTE_DISABLE_STATE(wm,WIIMOTE_STATE_EXP_HANDSHAKE);
+            WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
+            wiiuse_set_ir_mode(wm);
+            wiiuse_status(wm);
+            break;
+    }
+
+#else
     if (!data) {
         byte* handshake_buf;
         byte buf = 0x00;
@@ -879,6 +944,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
     }
 
     free(data);
+#endif
 }
 
 

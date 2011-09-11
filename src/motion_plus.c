@@ -1,30 +1,30 @@
 /*
- *	wiiuse
+ *    wiiuse
  *
- *	Written By:
- *		Michal Wiedenbauer	< shagkur >
- *		Dave Murphy			< WinterMute >
- *		Hector Martin		< marcan >
- * 		Radu Andries		<admiral0>
+ *    Written By:
+ *        Michal Wiedenbauer    < shagkur >
+ *        Dave Murphy            < WinterMute >
+ *        Hector Martin        < marcan >
+ *         Radu Andries        <admiral0>
  *
- *	Copyright 2009
+ *    Copyright 2009
  *
- *	This file is part of wiiuse and fWIIne.
+ *    This file is part of wiiuse and fWIIne.
  *
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 3 of the License, or
- *	(at your option) any later version.
+ *    This program is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 3 of the License, or
+ *    (at your option) any later version.
  *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *	$Header$
+ *    $Header$
  *
  */
 
@@ -53,6 +53,7 @@ void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short
     {
         WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
         WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP); // tell wiimote to include exp. data in reports
 
         val = from_big_endian_uint32_t(data + 2);
 
@@ -103,13 +104,10 @@ void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short
             wm->exp.mp.ext_initialized = 0;
 
             wiiuse_set_ir_mode(wm);
-
-
-
+            wiiuse_set_report_type(wm);
         }
     }
 }
-
 
 
 static void wiiuse_set_motion_plus_clear2(struct wiimote_t *wm,byte *data,unsigned short len)
@@ -171,10 +169,15 @@ void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg)
         mp->raw_gyro.y = ((msg[3] & 0xFC) << 6) | msg[0];
 
         // First calibration
-        if ((mp->raw_gyro.r > 5000) && (mp->raw_gyro.p > 5000) && (mp->raw_gyro.y > 5000) &&
-            !(mp->cal_gyro.r)
-            && !(mp->cal_gyro.p)
-            && !(mp->cal_gyro.y))
+        if ((mp->raw_gyro.r > 5000) &&
+                        (mp->raw_gyro.p > 5000) &&
+                        (mp->raw_gyro.y > 5000) &&
+                        (mp->raw_gyro.r < 0x3fff) &&
+                        (mp->raw_gyro.p < 0x3fff) &&
+                        (mp->raw_gyro.y < 0x3fff) &&
+                        !(mp->cal_gyro.r) &&
+                        !(mp->cal_gyro.p) &&
+                        !(mp->cal_gyro.y))
         {
             wiiuse_calibrate_motion_plus(mp);
         }

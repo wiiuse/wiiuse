@@ -35,6 +35,23 @@
 #include <stdlib.h>                     // for free, malloc
 
 
+static void wiiuse_disable_motion_plus2(struct wiimote_t *wm,byte *data,unsigned short len)
+{
+    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
+    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+    wiiuse_set_ir_mode(wm);
+
+    wm->handshake_state++;
+    wiiuse_handshake(wm, NULL, 0);
+
+}
+
+static void wiiuse_disable_motion_plus1(struct wiimote_t *wm,byte *data,unsigned short len)
+{
+    byte val = 0x00;
+    wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus2);
+}
+
  /**
  *    @brief Get initialization data from the wiimote.
  *
@@ -91,11 +108,16 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
                     accel->cal_zero.x, accel->cal_zero.y, accel->cal_zero.z,
                     accel->cal_g.x, accel->cal_g.y, accel->cal_g.z);
 
-//            wiiuse_set_motion_plus(wm, 0);
-            wiiuse_status(wm);
+            // M+ off
+            byte val = 0x55;
+            wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus1);
 
+            break;
+        }
+
+        case 2:
+        {
             /* request the status of the wiimote to check for any expansion */
-            wiiuse_status(wm);
             WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
             WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE);
             wm->handshake_state++;
@@ -108,8 +130,8 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
             }
 
             wm->event = WIIUSE_CONNECT;
-            wiiuse_status(wm);
 
+            wiiuse_status(wm);
             break;
         }
 
@@ -119,3 +141,4 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
         }
     }
 }
+
