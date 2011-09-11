@@ -50,11 +50,11 @@ set_property(TARGET
 	PUBLIC_HEADER
 	${API})
 
-set_property(TARGET
-	wiiuse
-	PROPERTY
-	COMPILE_DEFINITIONS_DEBUG
-	WITH_WIIUSE_DEBUG)
+#set_property(TARGET
+#	wiiuse
+#	PROPERTY
+#	COMPILE_DEFINITIONS_DEBUG
+#	WITH_WIIUSE_DEBUG)
 
 install(TARGETS
 	wiiuse
