@@ -31,6 +31,7 @@
  *    @brief Handles device I/O (non-OS specific).
  */
 #include "io.h"
+#include "ir.h"
 
 #include <stdlib.h>                     // for free, malloc
 
@@ -90,6 +91,7 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
         {
             struct read_req_t* req = wm->read_req;
             struct accel_t* accel = &wm->accel_calib;
+            byte val;
 
             /* received read data */
             accel->cal_zero.x = req->buf[0];
@@ -109,7 +111,7 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
                     accel->cal_g.x, accel->cal_g.y, accel->cal_g.z);
 
             // M+ off
-            byte val = 0x55;
+            val = 0x55;
             wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus1);
 
             break;
