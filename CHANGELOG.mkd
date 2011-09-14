@@ -34,6 +34,9 @@ Fixed:
 
 - Builds properly now on mingw (both cross-compile and native).
 
+- Improved reliability on Windows when running an app twice without dis-connecting
+	the Wiimote (came as a part of the MotionPlus support.)
+
 Changed:
 
 - Improved header includes using feedback from (include-what-you-use)[iwyu]
