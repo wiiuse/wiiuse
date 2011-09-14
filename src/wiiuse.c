@@ -148,7 +148,6 @@ struct wiimote_t** wiiuse_init(int wiimotes) {
 
 		wm[i]->exp.type = EXP_NONE;
 		wm[i]->expansion_state = 0;
-		wm[i]->expansion_dattempts = 0;
 
 		wiiuse_set_aspect_ratio(wm[i], WIIUSE_ASPECT_4_3);
 		wiiuse_set_ir_position(wm[i], WIIUSE_IR_ABOVE);

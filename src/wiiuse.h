@@ -534,7 +534,6 @@ typedef struct guitar_hero_3_t {
  */
 typedef struct motion_plus_t
 {
-    int ext_initialized;                /**< is the pass-through device initialized? */
     byte ext;                           /**< is there a device on the pass-through port? */
 
 	struct ang3s_t raw_gyro;            /**< current raw gyroscope data */
@@ -715,7 +714,6 @@ typedef struct wiimote_t {
 
 	WCONST byte handshake_state;			/**< the state of the connection handshake	*/
 	WCONST byte expansion_state;            /**< the state of the expansion handshake    */
-	WCONST byte expansion_dattempts;        /**< how many times did we wait already     */
 	WCONST struct data_req_t* data_req;		/**< list of data read requests				*/
 
 	WCONST struct read_req_t* read_req;		/**< list of data read requests				*/

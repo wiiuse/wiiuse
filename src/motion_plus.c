@@ -101,7 +101,6 @@ void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short
 			wm->exp.nunchuk.flags = &wm->flags;
 
 			wm->exp.mp.ext = 0;
-			wm->exp.mp.ext_initialized = 0;
 
 			wiiuse_set_ir_mode(wm);
 			wiiuse_set_report_type(wm);
