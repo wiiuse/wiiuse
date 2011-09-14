@@ -883,7 +883,7 @@ static int state_changed(struct wiimote_t* wm) {
 		CROSS_THRESH_XYZ(wm->lstate.accel, wm->accel, wm->accel_threshold);
 
 		/* orientation */
- 		CROSS_THRESH(wm->lstate.orient, wm->orient, wm->orient_threshold);
+		CROSS_THRESH(wm->lstate.orient, wm->orient, wm->orient_threshold);
 	}
 
 	/* expansion */
