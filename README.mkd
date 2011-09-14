@@ -55,6 +55,7 @@ Additional Contributors:
 - hartsantler <http://code.google.com/p/rpythonic/>
 - admiral0 and fwiine project <http://sourceforge.net/projects/fwiine/files/wiiuse/0.13/>
 - Jeff Baker/Inv3rsion, LLC. <http://www.inv3rsion.com/>
+- Jan Ciger - Reviatech SAS <jan.ciger@reviatech.com>
 
 
 License
