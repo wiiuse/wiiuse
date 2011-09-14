@@ -45,7 +45,10 @@ extern "C" {
 /** @{ */
 void motion_plus_disconnected(struct motion_plus_t* mp);
 
-void motion_plus_event(struct motion_plus_t* mp, byte* msg);
+void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg);
+
+void wiiuse_motion_plus_handshake(struct wiimote_t *wm, byte *data,unsigned short len);
+
 /** @} */
 
 #ifdef __cplusplus
