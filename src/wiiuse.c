@@ -595,7 +595,7 @@ int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte *data, by
 	req->len = len;
 	memcpy(req->data,data,req->len);
 	req->state = REQ_READY;
-	req->addr = addr;//BIG_ENDIAN_LONG(addr);
+	req->addr = addr;/* BIG_ENDIAN_LONG(addr); */
 	req->next = NULL;
 	/* add this to the request list */
 	if (!wm->data_req) {

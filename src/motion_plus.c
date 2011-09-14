@@ -30,10 +30,10 @@
 
 #include "motion_plus.h"
 
-#include "events.h"                     // for disable_expansion
-#include "ir.h"                         // for wiiuse_set_ir_mode
+#include "events.h"                     /* for disable_expansion */
+#include "ir.h"                         /* for wiiuse_set_ir_mode */
 
-#include <string.h>                     // for memset
+#include <string.h>                     /* for memset */
 
 void wiiuse_motion_plus_check(struct wiimote_t *wm,byte *data,unsigned short len)
 {
@@ -104,10 +104,10 @@ void motion_plus_disconnected(struct motion_plus_t* mp)
 
 void motion_plus_event(struct motion_plus_t* mp, byte* msg)
 {
-	mp->rx = ((msg[5] & 0xFC) << 6) | msg[2]; // Pitch
-	mp->ry = ((msg[4] & 0xFC) << 6) | msg[1]; // Roll
-	mp->rz = ((msg[3] & 0xFC) << 6) | msg[0]; // Yaw
+	mp->rx = ((msg[5] & 0xFC) << 6) | msg[2]; /* Pitch */
+	mp->ry = ((msg[4] & 0xFC) << 6) | msg[1]; /* Roll */
+	mp->rz = ((msg[3] & 0xFC) << 6) | msg[0]; /* Yaw */
 
 	mp->ext = msg[4] & 0x1;
-	mp->status = (msg[3] & 0x3) | ((msg[4] & 0x2) << 1); // roll, yaw, pitch
+	mp->status = (msg[3] & 0x3) | ((msg[4] & 0x2) << 1); /* roll, yaw, pitch */
 }
