@@ -32,8 +32,8 @@
 
 #include "events.h"                     /* for disable_expansion */
 #include "ir.h"                         /* for wiiuse_set_ir_mode */
-#include "nunchuk.h"
-#include "dynamics.h"
+#include "nunchuk.h"                    /* for nunchuk_pressed_buttons */
+#include "dynamics.h"                   /* for calc_joystick_state, etc */
 
 #include <string.h>                     /* for memset */
 #include <math.h>                       /* for fabs */
