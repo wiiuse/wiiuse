@@ -31,7 +31,7 @@
  *	@brief Handles device I/O (non-OS specific).
  */
 #include "io.h"
-#include "ir.h"
+#include "ir.h"                         /* for wiiuse_set_ir_mode */
 
 #include <stdlib.h>                     /* for free, malloc */
 
