@@ -657,6 +657,71 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	}
 	#endif
 
+
+#if 0
+	switch(wm->expansion_state)
+	{
+		case 0: // regular expansion detection
+		{
+			if(attachment && wm->exp.type != EXP_NONE)
+			{
+				wm->expansion_dattempts = 0;
+				wm->expansion_state++;
+			}
+
+			else
+			{
+				// give it another chance still
+				if(wm->expansion_dattempts < 10)
+				{
+					wm->expansion_dattempts++;
+					wiiuse_status(wm);
+					return;
+				}
+
+				// likely no attachment, give up and try M+
+				else {
+					wm->expansion_dattempts = 0;
+					wiiuse_set_motion_plus(wm, WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP) ? 2 : 1);
+					wm->expansion_state++;
+				}
+			}
+
+			break;
+		}
+
+		case 1: // try to init Motion+
+		{
+			if(attachment && wm->exp.type != EXP_NONE)
+			{
+				wm->expansion_dattempts = 0;
+				wm->expansion_state++;
+			}
+
+			else
+			{
+				// give it another chance still
+				if(wm->expansion_dattempts < 10)
+				{
+					wm->expansion_dattempts++;
+					wiiuse_status(wm);
+					return;
+				}
+
+				else {
+					// give up and move on
+					wm->expansion_state++;
+				}
+			}
+			break;
+		}
+
+		default:
+			break;
+	}
+
+#endif
+
 	/*
 	 *	From now on the remote will only send status packets.
 	 *	We need to send a WIIMOTE_CMD_REPORT_TYPE packet to
@@ -690,7 +755,9 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 		wiiuse_send_next_pending_write_request(wm);
 
 	} else
+	{
 		wiiuse_set_report_type(wm);
+	}
 }
 
 
@@ -713,6 +780,11 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
 			break;
 		case EXP_WII_BOARD:
 			wii_board_event(&wm->exp.wb, msg);
+			break;
+		case EXP_MOTION_PLUS:
+		case EXP_MOTION_PLUS_CLASSIC:
+		case EXP_MOTION_PLUS_NUNCHUK:
+			motion_plus_event(&wm->exp.mp, wm->exp.type, msg);
 			break;
 		default:
 			break;
@@ -789,6 +861,15 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 				wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
 			break;
 		}
+
+		case EXP_ID_CODE_MOTION_PLUS:
+		case EXP_ID_CODE_MOTION_PLUS_CLASSIC:
+		case EXP_ID_CODE_MOTION_PLUS_NUNCHUK:
+			//wiiuse_motion_plus_handshake(wm, data, len);
+			wm->event = WIIUSE_MOTION_PLUS_ACTIVATED;
+			break;
+
+
 		default:
 		{
 			WIIUSE_WARNING("Unknown expansion type. Code: 0x%x", id);
@@ -832,6 +913,12 @@ void disable_expansion(struct wiimote_t* wm) {
 		case EXP_WII_BOARD:
 			wii_board_disconnected(&wm->exp.wb);
 			wm->event = WIIUSE_WII_BOARD_CTRL_REMOVED;
+			break;
+		case EXP_MOTION_PLUS:
+		case EXP_MOTION_PLUS_CLASSIC:
+		case EXP_MOTION_PLUS_NUNCHUK:
+			motion_plus_disconnected(&wm->exp.mp);
+			wm->event = WIIUSE_MOTION_PLUS_REMOVED;
 			break;
 		default:
 			break;

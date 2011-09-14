@@ -714,7 +714,8 @@ typedef struct wiimote_t {
 	WCONST int flags;						/**< options flag							*/
 
 	WCONST byte handshake_state;			/**< the state of the connection handshake	*/
-	WCONST unsigned char expansion_state;			/**< the state of the expansion handshake	*/
+	WCONST byte expansion_state;            /**< the state of the expansion handshake    */
+	WCONST byte expansion_dattempts;        /**< how many times did we wait already     */
 	WCONST struct data_req_t* data_req;		/**< list of data read requests				*/
 
 	WCONST struct read_req_t* read_req;		/**< list of data read requests				*/

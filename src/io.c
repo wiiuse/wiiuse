@@ -91,7 +91,8 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 					accel->cal_zero.x, accel->cal_zero.y, accel->cal_zero.z,
 					accel->cal_g.x, accel->cal_g.y, accel->cal_g.z);
 
-			wiiuse_set_motion_plus(wm, 0);
+			/*wiiuse_set_motion_plus(wm, 0);*/
+			wiiuse_status(wm);
 
 			/* request the status of the wiimote to check for any expansion */
 			wiiuse_status(wm);
@@ -107,7 +108,6 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 			}
 
 			wm->event = WIIUSE_CONNECT;
-			wm->expansion_state = 0;
 			wiiuse_status(wm);
 
 			break;
