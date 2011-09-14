@@ -135,6 +135,7 @@
 #define WM_EXP_MEM_ENABLE2			0x04A400FB
 #define WM_EXP_MEM_CALIBR			0x04A40020
 #define WM_EXP_MOTION_PLUS_ENABLE   		0x04A600FE
+#define WM_EXP_MOTION_PLUS_INIT     0x04A600F0
 #define WM_REG_IR				0x04B00030
 #define WM_REG_IR_BLOCK1			0x04B00000
 #define WM_REG_IR_BLOCK2			0x04B0001A
@@ -197,8 +198,10 @@
 #define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
 #define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
 #define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
-#define WIIMOTE_STATE_EXP_HANDSHAKE         0x40000 /* actual M+ connection exists but no handshake yet */
-#define WIIMOTE_STATE_EXP_FAILED            0x80000 /* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_EXP_HANDSHAKE        0x10000 /* actual M+ connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_EXTERN           0x20000 /* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_EXP_FAILED           0x40000 /* actual M+ connection exists but handshake failed */
+
 
 
 #define WIIMOTE_INIT_STATES					(WIIMOTE_STATE_IR_SENS_LVL3)

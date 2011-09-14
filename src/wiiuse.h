@@ -534,6 +534,7 @@ typedef struct guitar_hero_3_t {
  */
 typedef struct motion_plus_t
 {
+	int ext_initialized;                /* is the pass-through device initialized? */
 	unsigned char ext;
 
 	struct ang3s_t raw_gyro;            /**< current raw gyroscope data */
