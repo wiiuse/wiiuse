@@ -167,11 +167,17 @@
  */
 
 /* encrypted expansion id codes (located at 0x04A400FC) */
-#define EXP_ID_CODE_NUNCHUK					0x9A1EFEFE
-#define EXP_ID_CODE_WII_BOARD				0xA4200402
-#define EXP_ID_CODE_CLASSIC_CONTROLLER		0x9A1EFDFD
-#define EXP_ID_CODE_GUITAR					0x9A1EFDFB
-#define EXP_ID_CODE_MOTION_PLUS				0xa4200405
+/* #define EXP_ID_CODE_NUNCHUK                    0x9A1EFEFE */
+/* #define EXP_ID_CODE_WII_BOARD                0xA4200402 */
+/* #define EXP_ID_CODE_CLASSIC_CONTROLLER        0x9A1EFDFD */
+/* #define EXP_ID_CODE_GUITAR                    0x9A1EFDFB */
+
+/* decrypted expansion id codes (located at 0x04A400FC) */
+#define EXP_ID_CODE_NUNCHUK                 0xA4200000
+#define EXP_ID_CODE_WII_BOARD               0xA4200402
+#define EXP_ID_CODE_CLASSIC_CONTROLLER      0xA4200101
+#define EXP_ID_CODE_GUITAR                  0xA4200103
+#define EXP_ID_CODE_MOTION_PLUS             0xa4200405
 #define EXP_ID_CODE_MOTION_PLUS_NUNCHUK     0xA4200505 /** Motion Plus ID in Nunchuck passthrough mode */
 #define EXP_ID_CODE_MOTION_PLUS_CLASSIC     0xA4200705 /** Motion Plus ID in Classic control. passthrough */
 

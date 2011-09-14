@@ -53,6 +53,7 @@ void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short
 	{
 		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
 		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP); /* tell wiimote to include exp. data in reports */
 
 		val = from_big_endian_uint32_t(data + 2);
 
@@ -103,6 +104,7 @@ void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short
 			wm->exp.mp.ext_initialized = 0;
 
 			wiiuse_set_ir_mode(wm);
+			wiiuse_set_report_type(wm);
 		}
 	}
 }
@@ -129,7 +131,7 @@ void wiiuse_set_motion_plus(struct wiimote_t *wm, int status)
 	{
 		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
 		val = (status == 1) ? 0x04 : 0x05;
-		wiiuse_write_data_cb(wm, WM_EXP_MOTION_PLUS_ENABLE, &val, 1, wiiuse_motion_plus_check);
+		wiiuse_write_data_cb(wm, WM_EXP_MOTION_PLUS_ENABLE, &val, 1, wiiuse_motion_plus_handshake);
 	}
 	else
 	{
@@ -165,10 +167,15 @@ void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg)
 		mp->raw_gyro.y = ((msg[3] & 0xFC) << 6) | msg[0];
 
 		/* First calibration */
-		if ((mp->raw_gyro.r > 5000) && (mp->raw_gyro.p > 5000) && (mp->raw_gyro.y > 5000) &&
-			!(mp->cal_gyro.r)
-			&& !(mp->cal_gyro.p)
-			&& !(mp->cal_gyro.y))
+		if ((mp->raw_gyro.r > 5000) &&
+						(mp->raw_gyro.p > 5000) &&
+						(mp->raw_gyro.y > 5000) &&
+						(mp->raw_gyro.r < 0x3fff) &&
+						(mp->raw_gyro.p < 0x3fff) &&
+						(mp->raw_gyro.y < 0x3fff) &&
+						!(mp->cal_gyro.r) &&
+						!(mp->cal_gyro.p) &&
+						!(mp->cal_gyro.y))
 		{
 			wiiuse_calibrate_motion_plus(mp);
 		}
