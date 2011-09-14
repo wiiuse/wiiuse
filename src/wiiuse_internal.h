@@ -171,6 +171,8 @@
 #define EXP_ID_CODE_CLASSIC_CONTROLLER		0x9A1EFDFD
 #define EXP_ID_CODE_GUITAR					0x9A1EFDFB
 #define EXP_ID_CODE_MOTION_PLUS				0xa4200405
+#define EXP_ID_CODE_MOTION_PLUS_NUNCHUK     0xA4200505 /** Motion Plus ID in Nunchuck passthrough mode */
+#define EXP_ID_CODE_MOTION_PLUS_CLASSIC     0xA4200705 /** Motion Plus ID in Classic control. passthrough */
 
 #define EXP_HANDSHAKE_LEN					224
 
@@ -184,8 +186,6 @@
 #define WIIMOTE_STATE_DEV_FOUND				0x0001
 #define WIIMOTE_STATE_HANDSHAKE				0x0002	/* actual connection exists but no handshake yet */
 #define WIIMOTE_STATE_HANDSHAKE_COMPLETE	0x0004	/* actual connection exists but no handshake yet */
-#define WIIMOTE_STATE_EXP_HANDSHAKE				0x00020	/* actual connection exists but no handshake yet */
-#define WIIMOTE_STATE_EXP_FAILED				0x00040	/* actual connection exists but no handshake yet */
 #define WIIMOTE_STATE_CONNECTED				0x0008
 #define WIIMOTE_STATE_RUMBLE				0x0010
 #define WIIMOTE_STATE_ACC					0x0020
@@ -197,6 +197,9 @@
 #define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
 #define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
 #define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
+#define WIIMOTE_STATE_EXP_HANDSHAKE         0x40000 /* actual M+ connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_FAILED            0x80000 /* actual M+ connection exists but handshake failed */
+
 
 #define WIIMOTE_INIT_STATES					(WIIMOTE_STATE_IR_SENS_LVL3)
 

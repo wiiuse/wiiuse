@@ -198,6 +198,8 @@
 #define EXP_GUITAR_HERO_3				3
 #define EXP_WII_BOARD					4
 #define EXP_MOTION_PLUS					5
+#define EXP_MOTION_PLUS_NUNCHUK         6     /* Motion+ in nunchuk pass-through mode */
+#define EXP_MOTION_PLUS_CLASSIC         7     /* Motion+ in classic ctr. pass-through mode */
 /** @} */
 
 /** @brief IR correction types */
@@ -322,6 +324,21 @@ struct read_req_t {
 	struct read_req_t* next;	/**< next read request in the queue								*/
 };
 
+/**
+ *  @struct ang3s_t
+ *  @brief RPY short angles.
+ */
+typedef struct ang3s_t {
+	short r, p, y;
+} ang3s_t;
+
+/**
+ *  @struct ang3f_t
+ *  @brief RPY float angles.
+ */
+typedef struct ang3f_t {
+	float r, p, y;
+} ang3f_t;
 
 /**
  *	@brief Unsigned x,y byte vector.
@@ -517,9 +534,17 @@ typedef struct guitar_hero_3_t {
  */
 typedef struct motion_plus_t
 {
-	short rx, ry, rz;
-	unsigned char status;
 	unsigned char ext;
+
+	struct ang3s_t raw_gyro;            /**< current raw gyroscope data */
+	struct ang3s_t cal_gyro;            /**< calibration raw gyroscope data */
+	struct ang3f_t angle_rate_gyro;     /**< current gyro angle rate */
+	struct orient_t orient;             /**< current orientation on each axis using Motion Plus gyroscopes */
+	byte acc_mode;                      /**< Fast/slow rotation mode for roll, pitch and yaw (0 if rotating fast, 1 if slow or still) */
+	int raw_gyro_threshold;             /**< threshold for gyroscopes to generate an event */
+
+	struct nunchuk_t *nc;               /* pointers to nunchuk & classic in pass-through-mode */
+	struct classic_ctrl_t *classic;
 } motion_plus_t;
 
 /**
@@ -568,12 +593,13 @@ typedef struct wii_board_t {
 typedef struct expansion_t {
 	int type;						/**< type of expansion attached				*/
 
+	struct motion_plus_t mp;
+
 	union {
 		struct nunchuk_t nunchuk;
 		struct classic_ctrl_t classic;
 		struct guitar_hero_3_t gh3;
 		struct wii_board_t wb;
-		struct motion_plus_t mp;
 	};
 } expansion_t;
 
@@ -637,6 +663,7 @@ typedef enum WIIUSE_EVENT_TYPE {
 	WIIUSE_DISCONNECT,
 	WIIUSE_UNEXPECTED_DISCONNECT,
 	WIIUSE_READ_DATA,
+	WIIUSE_WRITE_DATA,
 	WIIUSE_NUNCHUK_INSERTED,
 	WIIUSE_NUNCHUK_REMOVED,
 	WIIUSE_CLASSIC_CTRL_INSERTED,
