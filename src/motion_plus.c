@@ -88,9 +88,9 @@ void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short
 			WIIUSE_DEBUG("Motion plus connected");
 
 			/* Init gyroscopes */
-			wm->exp.mp.cal_gyro.r = 0;
-			wm->exp.mp.cal_gyro.p = 0;
-			wm->exp.mp.cal_gyro.y = 0;
+			wm->exp.mp.cal_gyro.roll = 0;
+			wm->exp.mp.cal_gyro.pitch = 0;
+			wm->exp.mp.cal_gyro.yaw = 0;
 			wm->exp.mp.orient.roll = 0.0;
 			wm->exp.mp.orient.pitch = 0.0;
 			wm->exp.mp.orient.yaw = 0.0;
@@ -162,20 +162,20 @@ void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg)
 		/* Check if the gyroscope is in fast or slow mode (0 if rotating fast, 1 if slow or still) */
 		mp->acc_mode = ((msg[4] & 0x2) << 1) | ((msg[3] & 0x1) << 1) | ((msg[3] & 0x2) >> 1);
 
-		mp->raw_gyro.r = ((msg[4] & 0xFC) << 6) | msg[1];
-		mp->raw_gyro.p = ((msg[5] & 0xFC) << 6) | msg[2];
-		mp->raw_gyro.y = ((msg[3] & 0xFC) << 6) | msg[0];
+		mp->raw_gyro.roll = ((msg[4] & 0xFC) << 6) | msg[1];
+		mp->raw_gyro.pitch = ((msg[5] & 0xFC) << 6) | msg[2];
+		mp->raw_gyro.yaw = ((msg[3] & 0xFC) << 6) | msg[0];
 
 		/* First calibration */
-		if ((mp->raw_gyro.r > 5000) &&
-						(mp->raw_gyro.p > 5000) &&
-						(mp->raw_gyro.y > 5000) &&
-						(mp->raw_gyro.r < 0x3fff) &&
-						(mp->raw_gyro.p < 0x3fff) &&
-						(mp->raw_gyro.y < 0x3fff) &&
-						!(mp->cal_gyro.r) &&
-						!(mp->cal_gyro.p) &&
-						!(mp->cal_gyro.y))
+		if ((mp->raw_gyro.roll > 5000) &&
+						(mp->raw_gyro.pitch > 5000) &&
+						(mp->raw_gyro.yaw > 5000) &&
+						(mp->raw_gyro.roll < 0x3fff) &&
+						(mp->raw_gyro.pitch < 0x3fff) &&
+						(mp->raw_gyro.yaw < 0x3fff) &&
+						!(mp->cal_gyro.roll) &&
+						!(mp->cal_gyro.pitch) &&
+						!(mp->cal_gyro.yaw))
 		{
 			wiiuse_calibrate_motion_plus(mp);
 		}
@@ -235,9 +235,9 @@ void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg)
  */
 void wiiuse_calibrate_motion_plus(struct motion_plus_t *mp)
 {
-	mp->cal_gyro.r = mp->raw_gyro.r;
-	mp->cal_gyro.p = mp->raw_gyro.p;
-	mp->cal_gyro.y = mp->raw_gyro.y;
+	mp->cal_gyro.roll = mp->raw_gyro.roll;
+	mp->cal_gyro.pitch = mp->raw_gyro.pitch;
+	mp->cal_gyro.yaw = mp->raw_gyro.yaw;
 	mp->orient.roll = 0.0;
 	mp->orient.pitch = 0.0;
 	mp->orient.yaw = 0.0;
@@ -249,9 +249,9 @@ static void calculate_gyro_rates(struct motion_plus_t* mp)
 	float tmp_roll, tmp_pitch, tmp_yaw;
 
 	/* We consider calibration data */
-	tmp_r = mp->raw_gyro.r - mp->cal_gyro.r;
-	tmp_p = mp->raw_gyro.p - mp->cal_gyro.p;
-	tmp_y = mp->raw_gyro.y - mp->cal_gyro.y;
+	tmp_r = mp->raw_gyro.roll - mp->cal_gyro.roll;
+	tmp_p = mp->raw_gyro.pitch - mp->cal_gyro.pitch;
+	tmp_y = mp->raw_gyro.yaw - mp->cal_gyro.yaw;
 
 	/* We convert to degree/sec according to fast/slow mode */
 	if (mp->acc_mode & 0x04)
@@ -277,7 +277,7 @@ static void calculate_gyro_rates(struct motion_plus_t* mp)
 	if (fabs(tmp_yaw) < 0.5)
 		tmp_yaw = 0.0;
 
-	mp->angle_rate_gyro.r = tmp_roll;
-	mp->angle_rate_gyro.p = tmp_pitch;
-	mp->angle_rate_gyro.y = tmp_yaw;
+	mp->angle_rate_gyro.roll = tmp_roll;
+	mp->angle_rate_gyro.pitch = tmp_pitch;
+	mp->angle_rate_gyro.yaw = tmp_yaw;
 }

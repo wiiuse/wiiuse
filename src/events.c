@@ -740,7 +740,6 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 	byte buf = 0x00;
 	byte* handshake_buf;
 
-#ifndef OLD_EXP_HANDSHAKE
 	switch(wm->expansion_state) {
 		/* These two initialization writes disable the encryption */
 		case 0:
@@ -807,79 +806,6 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			wiiuse_status(wm);
 			break;
 	}
-
-#else
-	if (!data) {
-		byte* handshake_buf;
-		byte buf = 0x00;
-
-		if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
-			disable_expansion(wm);
-
-		/* increase the timeout until the handshake completes */
-		#ifdef WIIUSE_WIN32
-		WIIUSE_DEBUG("Setting timeout to expansion %i ms.", wm->exp_timeout);
-		wm->timeout = wm->exp_timeout;
-		#endif
-
-		wiiuse_write_data(wm, WM_EXP_MEM_ENABLE, &buf, 1);
-
-		/* get the calibration data */
-		handshake_buf = (byte *)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
-		wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
-
-		/* tell the wiimote to send expansion data */
-		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
-
-		return;
-	}
-
-	id = from_big_endian_uint32_t(data + 220);
-
-	/* call the corresponding handshake function for this expansion */
-	switch (id) {
-		case EXP_ID_CODE_NUNCHUK:
-		{
-			if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len))
-				wm->event = WIIUSE_NUNCHUK_INSERTED;
-			break;
-		}
-		case EXP_ID_CODE_CLASSIC_CONTROLLER:
-		{
-			if (classic_ctrl_handshake(wm, &wm->exp.classic, data, len))
-				wm->event = WIIUSE_CLASSIC_CTRL_INSERTED;
-			break;
-		}
-		case EXP_ID_CODE_GUITAR:
-		{
-			if (guitar_hero_3_handshake(wm, &wm->exp.gh3, data, len))
-				wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;
-			break;
-		}
-		case EXP_ID_CODE_WII_BOARD:
-		{
-			if (wii_board_handshake(wm, &wm->exp.wb, data, len))
-				wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
-			break;
-		}
-
-		case EXP_ID_CODE_MOTION_PLUS:
-		case EXP_ID_CODE_MOTION_PLUS_CLASSIC:
-		case EXP_ID_CODE_MOTION_PLUS_NUNCHUK:
-			/* wiiuse_motion_plus_handshake(wm, data, len); */
-			wm->event = WIIUSE_MOTION_PLUS_ACTIVATED;
-			break;
-
-
-		default:
-		{
-			WIIUSE_WARNING("Unknown expansion type. Code: 0x%x", id);
-			break;
-		}
-	}
-
-	free(data);
-#endif
 }
 
 
@@ -984,9 +910,9 @@ static void save_state(struct wiimote_t* wm) {
 		case EXP_MOTION_PLUS_CLASSIC:
 		case EXP_MOTION_PLUS_NUNCHUK:
 		{
-			wm->lstate.drx = wm->exp.mp.raw_gyro.p;
-			wm->lstate.dry = wm->exp.mp.raw_gyro.r;
-			wm->lstate.drz = wm->exp.mp.raw_gyro.y;
+			wm->lstate.drx = wm->exp.mp.raw_gyro.pitch;
+			wm->lstate.dry = wm->exp.mp.raw_gyro.roll;
+			wm->lstate.drz = wm->exp.mp.raw_gyro.yaw;
 
 			if(wm->exp.type == EXP_MOTION_PLUS_CLASSIC)
 			{
@@ -1115,9 +1041,9 @@ static int state_changed(struct wiimote_t* wm) {
 		case EXP_MOTION_PLUS_CLASSIC:
 		case EXP_MOTION_PLUS_NUNCHUK:
 		{
-			STATE_CHANGED(wm->lstate.drx, wm->exp.mp.raw_gyro.p);
-			STATE_CHANGED(wm->lstate.dry, wm->exp.mp.raw_gyro.r);
-			STATE_CHANGED(wm->lstate.drz, wm->exp.mp.raw_gyro.y);
+			STATE_CHANGED(wm->lstate.drx, wm->exp.mp.raw_gyro.pitch);
+			STATE_CHANGED(wm->lstate.dry, wm->exp.mp.raw_gyro.roll);
+			STATE_CHANGED(wm->lstate.drz, wm->exp.mp.raw_gyro.yaw);
 
 			if(wm->exp.type == EXP_MOTION_PLUS_CLASSIC)
 			{

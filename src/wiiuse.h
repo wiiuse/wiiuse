@@ -326,18 +326,18 @@ struct read_req_t {
 
 /**
  *  @struct ang3s_t
- *  @brief RPY short angles.
+ *  @brief Roll/Pitch/Yaw short angles.
  */
 typedef struct ang3s_t {
-	short r, p, y;
+    int16_t roll, pitch, yaw;
 } ang3s_t;
 
 /**
  *  @struct ang3f_t
- *  @brief RPY float angles.
+ *  @brief Roll/Pitch/Yaw float angles.
  */
 typedef struct ang3f_t {
-	float r, p, y;
+    float roll, pitch, yaw;
 } ang3f_t;
 
 /**
@@ -534,8 +534,8 @@ typedef struct guitar_hero_3_t {
  */
 typedef struct motion_plus_t
 {
-	int ext_initialized;                /* is the pass-through device initialized? */
-	unsigned char ext;
+    int ext_initialized;                /**< is the pass-through device initialized? */
+    byte ext;                           /**< is there a device on the pass-through port? */
 
 	struct ang3s_t raw_gyro;            /**< current raw gyroscope data */
 	struct ang3s_t cal_gyro;            /**< calibration raw gyroscope data */
@@ -544,7 +544,7 @@ typedef struct motion_plus_t
 	byte acc_mode;                      /**< Fast/slow rotation mode for roll, pitch and yaw (0 if rotating fast, 1 if slow or still) */
 	int raw_gyro_threshold;             /**< threshold for gyroscopes to generate an event */
 
-	struct nunchuk_t *nc;               /* pointers to nunchuk & classic in pass-through-mode */
+    struct nunchuk_t *nc;               /**< pointers to nunchuk & classic in pass-through-mode */
 	struct classic_ctrl_t *classic;
 } motion_plus_t;
 
