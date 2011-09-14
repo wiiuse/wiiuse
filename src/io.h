@@ -60,4 +60,4 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len);
 }
 #endif
 
-#endif // CONNECT_H_INCLUDED
+#endif /* CONNECT_H_INCLUDED */

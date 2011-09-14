@@ -63,4 +63,4 @@ void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg);
 }
 #endif
 
-#endif // GUITAR_HERO_3_H_INCLUDED
+#endif /* GUITAR_HERO_3_H_INCLUDED */

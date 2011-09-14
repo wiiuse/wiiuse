@@ -42,7 +42,7 @@
 
 #define WIIMOTE_PI			3.14159265f
 
-//#define WITH_WIIUSE_DEBUG
+/* #define WITH_WIIUSE_DEBUG */
 
 extern FILE* logtarget[];
 
@@ -89,4 +89,4 @@ extern FILE* logtarget[];
 
 /** @} */
 
-#endif // DEFINITIONS_H_INCLUDED
+#endif /* DEFINITIONS_H_INCLUDED */

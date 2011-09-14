@@ -63,7 +63,7 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	HIDD_ATTRIBUTES	attr;
 	int found = 0;
 
-	(void) timeout; // unused
+	(void) timeout; /* unused */
 
 	device_data.cbSize = sizeof(device_data);
 	index = 0;

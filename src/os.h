@@ -49,4 +49,4 @@
 	#pragma warning(disable:4217)
 #endif
 
-#endif // OS_H_INCLUDED
+#endif /* OS_H_INCLUDED */

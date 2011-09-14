@@ -33,11 +33,11 @@
 
 #include "guitar_hero_3.h"
 
-#include "dynamics.h"                   // for calc_joystick_state
-#include "events.h"                     // for handshake_expansion
+#include "dynamics.h"                   /* for calc_joystick_state */
+#include "events.h"                     /* for handshake_expansion */
 
-#include <stdlib.h>                     // for malloc
-#include <string.h>                     // for memset
+#include <stdlib.h>                     /* for malloc */
+#include <string.h>                     /* for memset */
 
 static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now);
 

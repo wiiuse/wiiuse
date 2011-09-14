@@ -389,7 +389,7 @@ WIIUSE_DECLARE_BUFFERING_OPS(uint32_t)
 
 #undef WIIUSE_DECLARE_BUFFERING_OPS
 
-#endif // not in doxygen
+#endif /* not in doxygen */
 
 #ifdef __cplusplus
 }

@@ -56,4 +56,4 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len);
 void disable_expansion(struct wiimote_t* wm);
 /** @} */
 
-#endif // EVENTS_H_INCLUDED
+#endif /* EVENTS_H_INCLUDED */

@@ -32,7 +32,7 @@
  */
 #include "io.h"
 
-#include <stdlib.h>                     // for free, malloc
+#include <stdlib.h>                     /* for free, malloc */
 
 
  /**

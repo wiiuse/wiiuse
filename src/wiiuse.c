@@ -36,11 +36,11 @@
  */
 
 #include "wiiuse_internal.h"
-#include "io.h"                         // for wiiuse_handshake, etc
+#include "io.h"                         /* for wiiuse_handshake, etc */
 
-#include <stdio.h>                      // for printf, FILE
-#include <stdlib.h>                     // for malloc, free
-#include <string.h>                     // for memcpy, memset
+#include <stdio.h>                      /* for printf, FILE */
+#include <stdlib.h>                     /* for malloc, free */
+#include <string.h>                     /* for memcpy, memset */
 
 static int g_banner = 0;
 static const char g_wiiuse_version_string[] = WIIUSE_VERSION;

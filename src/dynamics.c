@@ -37,8 +37,8 @@
 
 #include "dynamics.h"
 
-#include <math.h>                       // for atan2f, atanf, sqrt
-#include <stdlib.h>                     // for abs
+#include <math.h>                       /* for atan2f, atanf, sqrt */
+#include <stdlib.h>                     /* for abs */
 
 
 /**

@@ -32,11 +32,11 @@
  */
 
 #include "classic.h"
-#include "dynamics.h"                   // for calc_joystick_state
-#include "events.h"                     // for handshake_expansion
+#include "dynamics.h"                   /* for calc_joystick_state */
+#include "events.h"                     /* for handshake_expansion */
 
-#include <stdlib.h>                     // for malloc
-#include <string.h>                     // for memset
+#include <stdlib.h>                     /* for malloc */
+#include <string.h>                     /* for memset */
 
 static void classic_ctrl_pressed_buttons(struct classic_ctrl_t* cc, short now);
 

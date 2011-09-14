@@ -33,7 +33,7 @@
 
 #include "ir.h"
 
-#include <math.h>                       // for atanf, cos, sin, sqrt
+#include <math.h>                       /* for atanf, cos, sin, sqrt */
 
 static int get_ir_sens(struct wiimote_t* wm, const byte** block1, const byte** block2);
 static void interpret_ir_data(struct wiimote_t* wm);
@@ -82,7 +82,7 @@ void wiiuse_set_ir(struct wiimote_t* wm, int status) {
 		if(status) {
 			WIIUSE_DEBUG("Tried to enable IR, will wait until handshake finishes.");
 			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_IR);
-		} // else ignoring request to turn off, since it's turned off by default
+		} /* else ignoring request to turn off, since it's turned off by default */
 		return;
 	}
 
@@ -429,7 +429,7 @@ static void interpret_ir_data(struct wiimote_t* wm) {
 						wm->ir.ay = wm->ir.y;
 
 						/*	can't calculate yaw because we don't have the distance */
-						//wm->orient.yaw = calc_yaw(&wm->ir);
+						/* wm->orient.yaw = calc_yaw(&wm->ir); */
 
 						ir_convert_to_vres(&wm->ir.x, &wm->ir.y, wm->ir.aspect, wm->ir.vres[0], wm->ir.vres[1]);
 						break;

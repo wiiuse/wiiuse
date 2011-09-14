@@ -34,8 +34,8 @@
 
 #include "wiiboard.h"
 
-#include <stdio.h>                      // for printf
-#include <string.h>                     // for memset
+#include <stdio.h>                      /* for printf */
+#include <string.h>                     /* for memset */
 
 /**
  *	@brief Handle the handshake data from the wiiboard.

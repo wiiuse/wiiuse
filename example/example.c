@@ -34,13 +34,13 @@
  *	This file is an example of how to use the wiiuse library.
  */
 
-#include <stdio.h>                      // for printf
+#include <stdio.h>                      /* for printf */
 
 #ifndef WIN32
-	#include <unistd.h>                     // for usleep
+	#include <unistd.h>                     /* for usleep */
 #endif
 
-#include "wiiuse.h"                     // for wiimote_t, classic_ctrl_t, etc
+#include "wiiuse.h"                     /* for wiimote_t, classic_ctrl_t, etc */
 
 
 #define MAX_WIIMOTES				4
@@ -187,8 +187,8 @@ void handle_event(struct wiimote_t* wm) {
 		float x = ((wb->tr + wb->br) / total) * 2 - 1;
 		float y = ((wb->tl + wb->tr) / total) * 2 - 1;
 		printf("Weight: %f kg @ (%f, %f)\n", total, x, y);
-		//printf("Interpolated weight: TL:%f  TR:%f  BL:%f  BR:%f\n", wb->tl, wb->tr, wb->bl, wb->br);
-		//printf("Raw: TL:%d  TR:%d  BL:%d  BR:%d\n", wb->rtl, wb->rtr, wb->rbl, wb->rbr);
+		/* printf("Interpolated weight: TL:%f  TR:%f  BL:%f  BR:%f\n", wb->tl, wb->tr, wb->bl, wb->br); */
+		/* printf("Raw: TL:%d  TR:%d  BL:%d  BR:%d\n", wb->rtl, wb->rtr, wb->rbl, wb->rbr); */
 	}
 }
 
@@ -353,7 +353,7 @@ int main(int argc, char** argv) {
 	 *	if any expansions are plugged into the wiimote or
 	 *	what LEDs are lit.
 	 */
-	//wiiuse_status(wiimotes[0]);
+	/* wiiuse_status(wiimotes[0]); */
 
 	/*
 	 *	This is the main loop
@@ -406,8 +406,8 @@ int main(int argc, char** argv) {
 						 *	threshold values.  By default they are the same
 						 *	as the wiimote.
 						 */
-						 //wiiuse_set_nunchuk_orient_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 90.0f);
-						 //wiiuse_set_nunchuk_accel_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 100);
+						 /* wiiuse_set_nunchuk_orient_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 90.0f); */
+						 /* wiiuse_set_nunchuk_accel_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 100); */
 						printf("Nunchuk inserted.\n");
 						break;
 

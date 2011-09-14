@@ -104,7 +104,7 @@
 	#include <stdint.h>
 #endif
 
-#include <stdio.h>                      // for FILE
+#include <stdio.h>                      /* for FILE */
 
 /** @defgroup publicapi External API */
 /** @{ */

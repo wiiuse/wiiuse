@@ -53,4 +53,4 @@ void classic_ctrl_event(struct classic_ctrl_t* cc, byte* msg);
 }
 #endif
 
-#endif // CLASSIC_H_INCLUDED
+#endif /* CLASSIC_H_INCLUDED */

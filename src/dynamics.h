@@ -57,4 +57,4 @@ void apply_smoothing(struct accel_t* ac, struct orient_t* orient, int type);
 }
 #endif
 
-#endif // DYNAMICS_H_INCLUDED
+#endif /* DYNAMICS_H_INCLUDED */

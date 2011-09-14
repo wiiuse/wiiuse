@@ -37,24 +37,24 @@
 #include "wiiuse_internal.h"
 #include "events.h"
 
-#include "classic.h"                    // for classic_ctrl_disconnected, etc
-#include "dynamics.h"                   // for calculate_gforce, etc
-#include "guitar_hero_3.h"              // for guitar_hero_3_disconnected, etc
-#include "ir.h"                         // for calculate_basic_ir, etc
-#include "nunchuk.h"                    // for nunchuk_disconnected, etc
-#include "wiiboard.h"                   // for wii_board_disconnected, etc
-#include "io.h"                         // for wiiuse_io_read on Windows, etc
+#include "classic.h"                    /* for classic_ctrl_disconnected, etc */
+#include "dynamics.h"                   /* for calculate_gforce, etc */
+#include "guitar_hero_3.h"              /* for guitar_hero_3_disconnected, etc */
+#include "ir.h"                         /* for calculate_basic_ir, etc */
+#include "nunchuk.h"                    /* for nunchuk_disconnected, etc */
+#include "wiiboard.h"                   /* for wii_board_disconnected, etc */
+#include "io.h"                         /* for wiiuse_io_read on Windows, etc */
 
 #ifndef WIIUSE_WIN32
-	#include <sys/time.h>                   // for timeval
-	#include <sys/select.h>                 // for select, fd_set
-	#include <unistd.h>                     // for read
+	#include <sys/time.h>                   /* for timeval */
+	#include <sys/select.h>                 /* for select, fd_set */
+	#include <unistd.h>                     /* for read */
 #endif
 
-#include <errno.h>                      // for errno
-#include <stdio.h>                      // for printf, perror
-#include <stdlib.h>                     // for free, malloc
-#include <string.h>                     // for memcpy, memset
+#include <errno.h>                      /* for errno */
+#include <stdio.h>                      /* for printf, perror */
+#include <stdlib.h>                     /* for free, malloc */
+#include <string.h>                     /* for memcpy, memset */
 
 static void idle_cycle(struct wiimote_t* wm);
 static void clear_dirty_reads(struct wiimote_t* wm);

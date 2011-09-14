@@ -23,24 +23,24 @@
 
 #include <wiiuse.h>
 
-#include <SDL.h>                        // for SDL_Init, SDL_Quit
-#include <SDL_error.h>                  // for SDL_GetError
-#include <SDL_events.h>                 // for SDL_Event, SDL_PollEvent, etc
-#include <SDL_video.h>                  // for SDL_GL_SetAttribute, etc
+#include <SDL.h>                        /* for SDL_Init, SDL_Quit */
+#include <SDL_error.h>                  /* for SDL_GetError */
+#include <SDL_events.h>                 /* for SDL_Event, SDL_PollEvent, etc */
+#include <SDL_video.h>                  /* for SDL_GL_SetAttribute, etc */
 
-#include <GL/gl.h>                      // for glVertex3f, GLfloat, etc
-#include <GL/glu.h>                     // for gluLookAt, gluOrtho2D, etc
-#include <GL/glut.h>                    // for glutSolidTeapot
+#include <GL/gl.h>                      /* for glVertex3f, GLfloat, etc */
+#include <GL/glu.h>                     /* for gluLookAt, gluOrtho2D, etc */
+#include <GL/glut.h>                    /* for glutSolidTeapot */
 
 #ifndef WIIUSE_WIN32
-	#include <sys/time.h>                   // for timeval, gettimeofday
-	#include <time.h>                       // for time
-	#include <unistd.h>                     // for usleep
+	#include <sys/time.h>                   /* for timeval, gettimeofday */
+	#include <time.h>                       /* for time */
+	#include <unistd.h>                     /* for usleep */
 #else
 	#include <windows.h>
 #endif
 
-#include <stdio.h>                      // for printf
+#include <stdio.h>                      /* for printf */
 
 #define PI 3.14159265358979323846
 #define PI_DIV_180 0.017453292519943296
@@ -326,7 +326,7 @@ int WINAPI WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int found, connected;
 	int wm;
 
-	//printf("wiiuse version = %s\n", wiiuse_version());
+	/* printf("wiiuse version = %s\n", wiiuse_version()); */
 
 	wiimotes =  wiiuse_init(MAX_WIIMOTES);
 	found = wiiuse_find(wiimotes, MAX_WIIMOTES, 5);

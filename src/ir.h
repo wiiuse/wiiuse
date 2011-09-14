@@ -56,6 +56,6 @@ float calc_yaw(struct ir_t* ir);
 }
 #endif
 
-#endif // IR_H_INCLUDED
+#endif /* IR_H_INCLUDED */
 
 

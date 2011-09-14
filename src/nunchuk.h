@@ -54,4 +54,4 @@ void nunchuk_event(struct nunchuk_t* nc, byte* msg);
 }
 #endif
 
-#endif // NUNCHUK_H_INCLUDED
+#endif /* NUNCHUK_H_INCLUDED */

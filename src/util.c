@@ -40,7 +40,7 @@ void wiiuse_millisleep(int durationMilliseconds) {
 
 #else /* not win32 - assuming posix */
 
-#include <unistd.h>                     // for usleep
+#include <unistd.h>                     /* for usleep */
 
 void wiiuse_millisleep(int durationMilliseconds) {
 	usleep(durationMilliseconds * 1000);
