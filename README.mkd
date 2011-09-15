@@ -172,6 +172,12 @@ Known Issues
 On Windows using more than one wiimote (usually more than two wiimotes)
 may cause significant latency.
 
+If you are going to use Motion+, make sure to call wiiuse_poll or wiiuse_update
+in a loop for some 10-15 seconds before enabling it. Ideally you should be checking 
+the status of any expansion (nunchuk) you may have connected as well. 
+Otherwise the extra expansion may not initialize correctly - the initialization 
+and calibration takes some time. 
+
 Acknowledgements by Michael Laforest
 ------------------------------------
 <http://wiibrew.org/>
