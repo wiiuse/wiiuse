@@ -122,6 +122,13 @@ static void wiiuse_set_motion_plus_clear1(struct wiimote_t *wm,byte *data,unsign
 	wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_set_motion_plus_clear2);
 }
 
+/**
+ *      @brief Enable/disable Motion+ expansion
+ *
+ *      @param wm        Pointer to the wiimote with Motion+ 
+ *      @param status    0 - off, 1 - on, standalone, 2 - nunchuk pass-through
+ *
+ */
 void wiiuse_set_motion_plus(struct wiimote_t *wm, int status)
 {
 	byte val;
