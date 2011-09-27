@@ -129,10 +129,14 @@
 /* offsets in wiimote memory */
 #define WM_MEM_OFFSET_CALIBRATION	0x16
 #define WM_EXP_MEM_BASE				0x04A40000
+#define WM_EXP_ID				0x04A400FA
 #define WM_EXP_MEM_ENABLE			0x04A40040
+#define WM_EXP_MEM_ENABLE1			0x04A400F0
+#define WM_EXP_MEM_ENABLE2			0x04A400FB
 #define WM_EXP_MEM_CALIBR			0x04A40020
-
-#define WM_REG_IR					0x04B00030
+#define WM_EXP_MOTION_PLUS_ENABLE   		0x04A600FE
+#define WM_EXP_MOTION_PLUS_INIT     0x04A600F0
+#define WM_REG_IR				0x04B00030
 #define WM_REG_IR_BLOCK1			0x04B00000
 #define WM_REG_IR_BLOCK2			0x04B0001A
 #define WM_REG_IR_MODENUM			0x04B00033
@@ -162,11 +166,14 @@
  *	Expansion stuff
  */
 
-/* encrypted expansion id codes (located at 0x04A400FC) */
-#define EXP_ID_CODE_NUNCHUK					0x9A1EFEFE
-#define EXP_ID_CODE_WII_BOARD				0xA4200402
-#define EXP_ID_CODE_CLASSIC_CONTROLLER		0x9A1EFDFD
-#define EXP_ID_CODE_GUITAR					0x9A1EFDFB
+/* decrypted expansion id codes (located at 0x04A400FC) */
+#define EXP_ID_CODE_NUNCHUK                 0xA4200000
+#define EXP_ID_CODE_WII_BOARD               0xA4200402
+#define EXP_ID_CODE_CLASSIC_CONTROLLER      0xA4200101
+#define EXP_ID_CODE_GUITAR                  0xA4200103
+#define EXP_ID_CODE_MOTION_PLUS             0xa4200405
+#define EXP_ID_CODE_MOTION_PLUS_NUNCHUK     0xA4200505 /** Motion Plus ID in Nunchuck passthrough mode */
+#define EXP_ID_CODE_MOTION_PLUS_CLASSIC     0xA4200705 /** Motion Plus ID in Classic control. passthrough */
 
 #define EXP_HANDSHAKE_LEN					224
 
@@ -191,6 +198,11 @@
 #define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
 #define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
 #define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
+#define WIIMOTE_STATE_EXP_HANDSHAKE        0x10000 /* actual M+ connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_EXTERN           0x20000 /* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_EXP_FAILED           0x40000 /* actual M+ connection exists but handshake failed */
+
+
 
 #define WIIMOTE_INIT_STATES					(WIIMOTE_STATE_IR_SENS_LVL3)
 
@@ -254,8 +266,10 @@ void wiiuse_millisleep(int durationMilliseconds);
 
 int wiiuse_set_report_type(struct wiimote_t* wm);
 void wiiuse_send_next_pending_read_request(struct wiimote_t* wm);
+void wiiuse_send_next_pending_write_request(struct wiimote_t* wm);
 int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len);
 int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int offset, uint16_t len);
+int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte* data, byte len, wiiuse_write_cb write_cb);
 
 
 #ifdef WIIUSE_DOXYGEN_PARSING

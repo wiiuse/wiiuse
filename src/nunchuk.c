@@ -39,9 +39,6 @@
 #include <stdlib.h>                     /* for malloc */
 #include <string.h>                     /* for memset */
 
-
-static void nunchuk_pressed_buttons(struct nunchuk_t* nc, byte now);
-
 /**
  *	@brief Handle the handshake data from the nunchuk.
  *
@@ -164,7 +161,7 @@ void nunchuk_event(struct nunchuk_t* nc, byte* msg) {
  *	@param nc		Pointer to a nunchuk_t structure.
  *	@param msg		The message byte specified in the event packet.
  */
-static void nunchuk_pressed_buttons(struct nunchuk_t* nc, byte now) {
+void nunchuk_pressed_buttons(struct nunchuk_t* nc, byte now) {
 	/* message is inverted (0 is active, 1 is inactive) */
 	now = ~now & NUNCHUK_BUTTON_ALL;
 

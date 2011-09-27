@@ -57,6 +57,17 @@ static const byte WM_IR_BLOCK2_LEVEL4[] = "\x35\x03";
 static const byte WM_IR_BLOCK1_LEVEL5[] = "\x07\x00\x00\x71\x01\x00\x72\x00\x20";
 static const byte WM_IR_BLOCK2_LEVEL5[] = "\x1f\x03";
 
+void wiiuse_set_ir_mode(struct wiimote_t *wm)
+{
+	byte buf = 0x00;
+
+	if(!wm) return;
+	if(!WIIMOTE_IS_SET(wm,WIIMOTE_STATE_IR)) return;
+
+	if(WIIMOTE_IS_SET(wm,WIIMOTE_STATE_EXP)) buf = WM_IR_TYPE_BASIC;
+	else buf = WM_IR_TYPE_EXTENDED;
+	wiiuse_write_data(wm,WM_REG_IR_MODENUM, &buf, 1);
+}
 /**
  *	@brief	Set if the wiimote should track IR targets.
  *

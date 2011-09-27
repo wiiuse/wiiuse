@@ -53,7 +53,9 @@ Additional Contributors:
 - Karl Semich <https://github.com/xloem>
 - Johannes Zarl <johannes.zarl@jku.at>
 - hartsantler <http://code.google.com/p/rpythonic/>
+- admiral0 and fwiine project <http://sourceforge.net/projects/fwiine/files/wiiuse/0.13/>
 - Jeff Baker/Inv3rsion, LLC. <http://www.inv3rsion.com/>
+- Jan Ciger - Reviatech SAS <jan.ciger@reviatech.com>
 
 
 License
@@ -169,6 +171,12 @@ Known Issues
 
 On Windows using more than one wiimote (usually more than two wiimotes)
 may cause significant latency.
+
+If you are going to use Motion+, make sure to call wiiuse_poll or wiiuse_update
+in a loop for some 10-15 seconds before enabling it. Ideally you should be checking 
+the status of any expansion (nunchuk) you may have connected as well. 
+Otherwise the extra expansion may not initialize correctly - the initialization 
+and calibration takes some time. 
 
 Acknowledgements by Michael Laforest
 ------------------------------------

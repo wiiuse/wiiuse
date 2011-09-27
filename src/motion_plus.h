@@ -2,12 +2,14 @@
  *	wiiuse
  *
  *	Written By:
- *		Michael Laforest	< para >
- *		Email: < thepara (--AT--) g m a i l [--DOT--] com >
+ *		Michal Wiedenbauer	< shagkur >
+ *		Dave Murphy			< WinterMute >
+ *		Hector Martin		< marcan >
+ * 		Radu Andries		<admiral0>
  *
- *	Copyright 2006-2007
+ *	Copyright 2009
  *
- *	This file is part of wiiuse.
+ *	This file is part of wiiuse and fWIIne.
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -25,14 +27,13 @@
  *	$Header$
  *
  */
-
-/**
+ /**
  *	@file
- *	@brief Nunchuk expansion device.
+ *	@brief Motion plus extension
  */
 
-#ifndef NUNCHUK_H_INCLUDED
-#define NUNCHUK_H_INCLUDED
+#ifndef MOTION_PLUS_H_INCLUDED
+#define MOTION_PLUS_H_INCLUDED
 
 #include "wiiuse_internal.h"
 
@@ -40,20 +41,18 @@
 extern "C" {
 #endif
 
-
-/** @defgroup internal_nunchuk Internal: Nunchuk */
+/** @defgroup internal_mp Internal: MotionPlus */
 /** @{ */
-int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, unsigned short len);
+void motion_plus_disconnected(struct motion_plus_t* mp);
 
-void nunchuk_disconnected(struct nunchuk_t* nc);
+void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg);
 
-void nunchuk_event(struct nunchuk_t* nc, byte* msg);
+void wiiuse_motion_plus_handshake(struct wiimote_t *wm, byte *data,unsigned short len);
 
-void nunchuk_pressed_buttons(struct nunchuk_t* nc, byte now);
 /** @} */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* NUNCHUK_H_INCLUDED */
+#endif
