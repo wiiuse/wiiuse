@@ -23,8 +23,9 @@ Added:
 	client app as well as choosing the appropriate option when building
 	WiiUse. The default is still a shared library (dll/so). Merged from
 	paulburton and added to build system.
-- Initial MotionPlus support, merged from fwiine - thanks to admiral0 for
-	the pull request.
+- Initial MotionPlus support. Thanks to admiral0 for the initial pull
+	request merging from fwiine, and to Jan Ciger Reviatech SAS for building
+	on it with fwiine and WiiC code as well as additional code.
 
 Fixed:
 
@@ -32,6 +33,9 @@ Fixed:
 	(Inv3rsion, LLC.)(http://www.inv3rsion.com/)
 
 - Builds properly now on mingw (both cross-compile and native).
+
+- Improved reliability on Windows when running an app twice without dis-connecting
+	the Wiimote (came as a part of the MotionPlus support.)
 
 Changed:
 
