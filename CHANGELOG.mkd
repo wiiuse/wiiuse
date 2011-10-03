@@ -23,9 +23,11 @@ Added:
 	client app as well as choosing the appropriate option when building
 	WiiUse. The default is still a shared library (dll/so). Merged from
 	paulburton and added to build system.
+
 - Initial MotionPlus support. Thanks to admiral0 for the initial pull
 	request merging from fwiine, and to Jan Ciger Reviatech SAS for building
-	on it with fwiine and WiiC code as well as additional code.
+	on it with fwiine and WiiC code as well as additional code. Try it out
+	in the example by pressing 1 to start and 2 to stop.
 
 Fixed:
 
