@@ -96,6 +96,22 @@ void handle_event(struct wiimote_t* wm) {
 	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN))
 		wiiuse_set_ir(wm, 0);
 
+    /*
+     * Motion+ support
+     */
+    if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_ONE))
+    {
+        if(WIIUSE_USING_EXP(wm))
+            wiiuse_set_motion_plus(wm, 2); // nunchuck pass-through
+        else
+            wiiuse_set_motion_plus(wm, 1); // standalone
+    }
+
+    if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_TWO))
+    {
+        wiiuse_set_motion_plus(wm, 0); // off
+    }
+
 	/* if the accelerometer is turned on then print angles */
 	if (WIIUSE_USING_ACC(wm)) {
 		printf("wiimote roll  = %f [%f]\n", wm->orient.roll, wm->orient.a_roll);
@@ -124,7 +140,7 @@ void handle_event(struct wiimote_t* wm) {
 	}
 
 	/* show events specific to supported expansions */
-	if (wm->exp.type == EXP_NUNCHUK) {
+	if (wm->exp.type == EXP_NUNCHUK || wm->exp.type == EXP_MOTION_PLUS_NUNCHUK) {
 		/* nunchuk */
 		struct nunchuk_t* nc = (nunchuk_t*)&wm->exp.nunchuk;
 
@@ -190,8 +206,16 @@ void handle_event(struct wiimote_t* wm) {
 		/* printf("Interpolated weight: TL:%f  TR:%f  BL:%f  BR:%f\n", wb->tl, wb->tr, wb->bl, wb->br); */
 		/* printf("Raw: TL:%d  TR:%d  BL:%d  BR:%d\n", wb->rtl, wb->rtr, wb->rbl, wb->rbr); */
 	}
-}
 
+    if(wm->exp.type == EXP_MOTION_PLUS ||
+                wm->exp.type == EXP_MOTION_PLUS_NUNCHUK)
+        {
+            printf("Motion+ angular rates (deg/sec): pitch:%03.2f roll:%03.2f yaw:%03.2f\n",
+                   wm->exp.mp.angle_rate_gyro.pitch,
+                   wm->exp.mp.angle_rate_gyro.roll,
+                   wm->exp.mp.angle_rate_gyro.yaw);
+        }
+    }
 
 /**
  *	@brief Callback that handles a read event.
@@ -425,10 +449,15 @@ int main(int argc, char** argv) {
 						printf("Guitar Hero 3 controller inserted.\n");
 						break;
 
+        		    case WIIUSE_MOTION_PLUS_ACTIVATED:
+		            	printf("Motion+ was activated\n");
+            			break;
+
 					case WIIUSE_NUNCHUK_REMOVED:
 					case WIIUSE_CLASSIC_CTRL_REMOVED:
 					case WIIUSE_GUITAR_HERO_3_CTRL_REMOVED:
 					case WIIUSE_WII_BOARD_CTRL_REMOVED:
+                    case WIIUSE_MOTION_PLUS_REMOVED:
 						/* some expansion was removed */
 						handle_ctrl_status(wiimotes[i]);
 						printf("An expansion was removed.\n");
