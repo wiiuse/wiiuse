@@ -9,6 +9,12 @@
  *
  *	This file is part of wiiuse.
  *
+ *	Mac device classes based on wiic_internal.h from WiiC, written By:
+ *		Gabriele Randelli	
+ *		Email: < randelli (--AT--) dis [--DOT--] uniroma1 [--DOT--] it >
+ *
+ *	Copyright 2010
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 3 of the License, or
