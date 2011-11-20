@@ -59,7 +59,6 @@
 
 static void idle_cycle(struct wiimote_t* wm);
 static void clear_dirty_reads(struct wiimote_t* wm);
-static void propagate_event(struct wiimote_t* wm, byte event, byte* msg);
 static void event_data_read(struct wiimote_t* wm, byte* msg);
 static void event_data_write(struct wiimote_t *wm, byte *msg);
 static void event_status(struct wiimote_t* wm, byte* msg);
@@ -305,7 +304,7 @@ static void clear_dirty_reads(struct wiimote_t* wm) {
  *
  *	Pass the event to the registered event callback.
  */
-static void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
+void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 	save_state(wm);
 
 	switch (event) {
