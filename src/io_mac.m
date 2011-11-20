@@ -33,9 +33,7 @@
 #ifdef __APPLE__
 
 #import "io_mac.h"
-
-// Used just to retrieve max num of wiimotes in handler functions
-static int max_num_wiimotes = 0;
+#import "events.h"
 
 @implementation WiiSearch
 
@@ -141,7 +139,7 @@ static int max_num_wiimotes = 0;
 	[inquiry release];
 	inquiry = nil;
 	
-	WIIUSE_DEBUG(@"Discovery closed");
+	WIIUSE_DEBUG("Discovery closed");
 	return ret;
 }
 
@@ -586,7 +584,7 @@ int wiiuse_connect(struct wiimote_t** wm, int wiimotes)
 	for (; i < wiimotes; ++i) {
 		if(!(wm[i])) {
 			WIIUSE_ERROR("Trying to connect more Wiimotes than initialized");
-			return;
+			return 0;
 		}
 		
 		if (!WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_DEV_FOUND))
@@ -764,6 +762,29 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len)
     [pool drain];
 
 	return (error == kIOReturnSuccess ? len : 0);
+}
+
+void wiiuse_init_platform_fields(struct wiimote_t* wm)
+{
+	wm->device = nil;
+	wm->address = nil;
+	wm->inputCh = nil;
+	wm->outputCh = 0;
+	wm->disconnectionRef = nil;
+	wm->connectionHandler = NULL;
+	memset (wm->bdaddr_str,'\0',18);
+}
+
+void wiiuse_cleanup_platform_fields(struct wiimote_t* wm)
+{
+	/* TODO isn't this already done in wiiuse_disconnect ? */
+	wm->device = nil;
+	wm->address = nil;
+	wm->inputCh = nil;
+	wm->outputCh = 0;
+	wm->disconnectionRef = nil;
+	wm->connectionHandler = NULL;
+	memset (wm->bdaddr_str,'\0',18);	
 }
 
 #endif 
