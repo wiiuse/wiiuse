@@ -76,6 +76,9 @@
 	#elif defined(__linux)
 		#define WIIUSE_PLATFORM
 		#define WIIUSE_BLUEZ
+	#elif defined(__APPLE__)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_MAC
 	#else
 		#error "Platform not yet supported!"
 	#endif
@@ -88,6 +91,11 @@
 #ifdef WIIUSE_BLUEZ
 	/* nix */
 	#include <bluetooth/bluetooth.h>
+#endif
+#ifdef WIIUSE_MAC
+	/* mac */
+	#include <CoreFoundation/CoreFoundation.h>		/*CFRunLoops and CFNumberRef in Bluetooth classes*/
+	#include <IOBluetooth/IOBluetoothUserLib.h>		/*IOBluetoothDeviceRef and IOBluetoothL2CAPChannelRef*/
 #endif
 
 #ifndef WCONST
@@ -703,6 +711,17 @@ typedef struct wiimote_t {
 		WCONST int timeout;					/**< read timeout							*/
 		WCONST byte normal_timeout;			/**< normal timeout							*/
 		WCONST byte exp_timeout;			/**< timeout for expansion handshake		*/
+	/** @} */
+	#endif
+	
+	#ifdef WIIUSE_MAC
+	/** @name Mac OS X-specific members */
+	/** @{ */	
+		IOBluetoothDeviceRef btd;			/**< Bluetooth device						*/
+		IOBluetoothL2CAPChannelRef ichan;	/**< Bluetooth input channel				*/
+		IOBluetoothL2CAPChannelRef cchan;	/**< Bluetooth control channel				*/
+		WCONST char input[MAX_PAYLOAD];		/**< Input buffer							*/
+		WCONST int inputlen;				/**< Input length							*/
 	/** @} */
 	#endif
 

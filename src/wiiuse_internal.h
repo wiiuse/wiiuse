@@ -51,6 +51,9 @@
 	#elif defined(__linux)
 		#define WIIUSE_PLATFORM
 		#define WIIUSE_BLUEZ
+	#elif defined(__APPLE__)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_MAC
 	#else
 		#error "Platform not yet supported!"
 	#endif
@@ -61,7 +64,14 @@
 #endif
 #ifdef WIIUSE_BLUEZ
 	#include <arpa/inet.h>				/* htons() */
-	#include <bluetooth/bluetooth.h>
+	#ifndef __APPLE__
+		#include <bluetooth/bluetooth.h>
+	#endif
+#endif
+#ifdef WIIUSE_MAC
+	/* mac */
+	#include <CoreFoundation/CoreFoundation.h>		/*CFRunLoops and CFNumberRef in Bluetooth classes*/
+	#include <IOBluetooth/IOBluetoothUserLib.h>		/*IOBluetoothDeviceRef and IOBluetoothL2CAPChannelRef*/
 #endif
 
 #include "definitions.h"
