@@ -127,9 +127,33 @@
 #define WM_BT_OUTPUT				0x02
 
 /* Identify the wiimote device by its class */
-#define WM_DEV_CLASS_0				0x04
-#define WM_DEV_CLASS_1				0x25
-#define WM_DEV_CLASS_2				0x00
+
+/* (Explanation and mac classes taken from WiiC)
+ * The different codes wrt. to Linux
+ * is a bit hard to explain.
+ * Looking at Bluetooth CoD format, we have 24 bits.
+ * In wiic Linux they are stored in three fields,
+ * each one 8bit long. The result number is
+ * 0x002504. However, MacOS Bluetooth does
+ * not store them in such a way, rather it uses
+ * the concept of major service, major class,
+ * and minor class, that are respectivelly
+ * 11bit, 5bit, and 6bit long. Hence, the 
+ * numbers are different.
+ * The Wiimote CoD Bluetooth division is the following:
+ * 00000000001 00101 000001 00 (major service - major class - minor class - format type)
+ * This can also be seen in the WiiC Linux way:
+ * 00000000 00100101 00000100 
+ */
+#ifdef WIIUSE_MAC
+	#define WM_DEV_MINOR_CLASS				0x01
+	#define WM_DEV_MAJOR_CLASS				0x05
+	#define WM_DEV_MAJOR_SERVICE			0x01
+#else
+	#define WM_DEV_CLASS_0				0x04
+	#define WM_DEV_CLASS_1				0x25
+	#define WM_DEV_CLASS_2				0x00
+#endif
 #define WM_VENDOR_ID				0x057E
 #define WM_PRODUCT_ID				0x0306
 

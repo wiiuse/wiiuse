@@ -46,7 +46,7 @@
 #import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
 #import <IOBluetooth/objc/IOBluetoothL2CAPChannel.h>
 
-#import "wiic_internal.h"
+#import "wiiuse_internal.h"
 #import "io.h"
 
 @interface WiiSearch : NSObject

@@ -696,7 +696,6 @@ typedef struct wiimote_t {
 	/** @name Linux-specific (BlueZ) members */
 	/** @{ */
 		WCONST bdaddr_t bdaddr;				/**< bt address								*/
-		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST int out_sock;				/**< output socket							*/
 		WCONST int in_sock;					/**< input socket 							*/
 	/** @} */
@@ -717,11 +716,19 @@ typedef struct wiimote_t {
 	#ifdef WIIUSE_MAC
 	/** @name Mac OS X-specific members */
 	/** @{ */	
-		IOBluetoothDeviceRef btd;			/**< Bluetooth device						*/
-		IOBluetoothL2CAPChannelRef ichan;	/**< Bluetooth input channel				*/
-		IOBluetoothL2CAPChannelRef cchan;	/**< Bluetooth control channel				*/
-		WCONST char input[MAX_PAYLOAD];		/**< Input buffer							*/
-		WCONST int inputlen;				/**< Input length							*/
+		WCONST IOBluetoothDeviceRef device;    	/**  Device reference object                */
+		WCONST CFStringRef address;            	/**  MacOS-like device address string       */
+		WCONST IOBluetoothL2CAPChannelRef inputCh;		/**  Input L2CAP channel					*/	
+		WCONST IOBluetoothL2CAPChannelRef outputCh;	/**  Output L2CAP channel					*/
+		WCONST IOBluetoothUserNotificationRef disconnectionRef;	/**  Disconnection Notification Reference **/
+		WCONST void* connectionHandler; /** Wiimote connection handler for MACOSX **/	
+	/** @} */
+	#endif
+
+	#if defined(WIIUSE_BLUEZ) || defined(WIIUSE_MAC)
+	/** @name Linux (BlueZ) and Mac OS X shared members */
+	/** @{ */
+		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 	/** @} */
 	#endif
 
