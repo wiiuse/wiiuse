@@ -56,6 +56,8 @@ Additional Contributors:
 - admiral0 and fwiine project <http://sourceforge.net/projects/fwiine/files/wiiuse/0.13/>
 - Jeff Baker/Inv3rsion, LLC. <http://www.inv3rsion.com/>
 - Jan Ciger - Reviatech SAS <jan.ciger@reviatech.com>
+- Gabriele Randelli and the WiiC project <http://wiic.sourceforge.net/>
+- Juan Sebastian Casallas <https://github.com/jscasallas/wiiuse>
 
 
 License
@@ -102,6 +104,11 @@ Wiiuse currently operates on both Linux and Windows. You will need:
 - If compiling, Microsoft Windows Driver Development Kit (DDK)
 
 
+### For Mac: ###
+
+- Mac OS X 10.2 or newer (to have the Mac OS X Bluetooth protocol stack)
+
+
 ### For either platform: ###
 
 - If compiling, [CMake](http://cmake.org) is needed to generate a makefile/project
@@ -111,7 +118,9 @@ Compiling
 ---------
 You need SDL and OpenGL installed to compile the (optional) SDL example.
 
-### Linux: ###
+### Linux & Mac: ###
+
+	$ mkdir build
 
 	$ cd build
 
@@ -176,7 +185,11 @@ If you are going to use Motion+, make sure to call wiiuse_poll or wiiuse_update
 in a loop for some 10-15 seconds before enabling it. Ideally you should be checking 
 the status of any expansion (nunchuk) you may have connected as well. 
 Otherwise the extra expansion may not initialize correctly - the initialization 
-and calibration takes some time. 
+and calibration takes some time.
+
+On Mac OS X you may not be able to connect to the device. If that happens open the
+Bluetooth Preferences, select the Nintendo device on the list and remove it (by clicking
+on the minus sign). Close the Preference Pane and try again.
 
 Acknowledgements by Michael Laforest
 ------------------------------------
@@ -263,9 +276,11 @@ greatly appreciated.
 
 - [WiiC](http://wiic.sourceforge.net/)
 
-	- Dramatically changed, C++ API added
+	- Dramatically changed, C++ API added.
 
-	- MotionPlus support added
+	- MotionPlus support added.
+ 
+	- Added Mac support. 
 
 - DolphinEmu PPA: used to have a WiiUse 0.13
 
