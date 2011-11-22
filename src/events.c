@@ -167,7 +167,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 				idle_cycle(wm[i]);
 			}
 		}
-	#elif defined(WIIUSE_WIN)
+	#elif defined(WIIUSE_WIN32)
 		/*
 		 *	Windows
 		 */
