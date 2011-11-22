@@ -9,6 +9,12 @@
  *
  *	This file is part of wiiuse.
  *
+ *	Mac device classes based on wiic_internal.h from WiiC, written By:
+ *		Gabriele Randelli	
+ *		Email: < randelli (--AT--) dis [--DOT--] uniroma1 [--DOT--] it >
+ *
+ *	Copyright 2010
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 3 of the License, or
@@ -51,6 +57,9 @@
 	#elif defined(__linux)
 		#define WIIUSE_PLATFORM
 		#define WIIUSE_BLUEZ
+	#elif defined(__APPLE__)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_MAC
 	#else
 		#error "Platform not yet supported!"
 	#endif
@@ -61,7 +70,14 @@
 #endif
 #ifdef WIIUSE_BLUEZ
 	#include <arpa/inet.h>				/* htons() */
-	#include <bluetooth/bluetooth.h>
+	#ifndef __APPLE__
+		#include <bluetooth/bluetooth.h>
+	#endif
+#endif
+#ifdef WIIUSE_MAC
+	/* mac */
+	#include <CoreFoundation/CoreFoundation.h>		/*CFRunLoops and CFNumberRef in Bluetooth classes*/
+	#include <IOBluetooth/IOBluetoothUserLib.h>		/*IOBluetoothDeviceRef and IOBluetoothL2CAPChannelRef*/
 #endif
 
 #include "definitions.h"
@@ -117,9 +133,33 @@
 #define WM_BT_OUTPUT				0x02
 
 /* Identify the wiimote device by its class */
-#define WM_DEV_CLASS_0				0x04
-#define WM_DEV_CLASS_1				0x25
-#define WM_DEV_CLASS_2				0x00
+
+/* (Explanation and mac classes taken from WiiC)
+ * The different codes wrt. to Linux
+ * is a bit hard to explain.
+ * Looking at Bluetooth CoD format, we have 24 bits.
+ * In wiic Linux they are stored in three fields,
+ * each one 8bit long. The result number is
+ * 0x002504. However, MacOS Bluetooth does
+ * not store them in such a way, rather it uses
+ * the concept of major service, major class,
+ * and minor class, that are respectivelly
+ * 11bit, 5bit, and 6bit long. Hence, the 
+ * numbers are different.
+ * The Wiimote CoD Bluetooth division is the following:
+ * 00000000001 00101 000001 00 (major service - major class - minor class - format type)
+ * This can also be seen in the WiiC Linux way:
+ * 00000000 00100101 00000100 
+ */
+#ifdef WIIUSE_MAC
+	#define WM_DEV_MINOR_CLASS				0x01
+	#define WM_DEV_MAJOR_CLASS				0x05
+	#define WM_DEV_MAJOR_SERVICE			0x01
+#else
+	#define WM_DEV_CLASS_0				0x04
+	#define WM_DEV_CLASS_1				0x25
+	#define WM_DEV_CLASS_2				0x00
+#endif
 #define WM_VENDOR_ID				0x057E
 #define WM_PRODUCT_ID				0x0306
 

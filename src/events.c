@@ -59,7 +59,6 @@
 
 static void idle_cycle(struct wiimote_t* wm);
 static void clear_dirty_reads(struct wiimote_t* wm);
-static void propagate_event(struct wiimote_t* wm, byte event, byte* msg);
 static void event_data_read(struct wiimote_t* wm, byte* msg);
 static void event_data_write(struct wiimote_t *wm, byte *msg);
 static void event_status(struct wiimote_t* wm, byte* msg);
@@ -168,7 +167,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 				idle_cycle(wm[i]);
 			}
 		}
-	#else
+	#elif defined(WIIUSE_WIN32)
 		/*
 		 *	Windows
 		 */
@@ -190,6 +189,29 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 				idle_cycle(wm[i]);
 			}
 		}
+	#elif defined(WIIUSE_MAC)
+		/*
+		 *	Mac
+		 */
+		int i;
+		
+		if (!wm) return 0;
+		
+		for (i = 0; i < wiimotes; ++i) {
+			wm[i]->event = WIIUSE_NONE;
+			
+			if (wiiuse_io_read(wm[i])) {
+				/* propagate the event, messages should be read as in linux, starting from the second element */
+				propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
+				evnt += (wm[i]->event != WIIUSE_NONE);
+				
+				/* clear out the event buffer */
+				/*memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));*/
+			} else {
+				idle_cycle(wm[i]);
+			}
+		}
+	
 	#endif
 
 	return evnt;
@@ -282,7 +304,7 @@ static void clear_dirty_reads(struct wiimote_t* wm) {
  *
  *	Pass the event to the registered event callback.
  */
-static void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
+void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 	save_state(wm);
 
 	switch (event) {

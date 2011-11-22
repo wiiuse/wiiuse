@@ -350,11 +350,25 @@ int main(int argc, char** argv) {
 	/*
 	 *	Now set the LEDs and rumble for a second so it's easy
 	 *	to tell which wiimotes are connected (just like the wii does).
+	 *  Use a switch to light only connected wiimotes
 	 */
-	wiiuse_set_leds(wiimotes[0], WIIMOTE_LED_1);
-	wiiuse_set_leds(wiimotes[1], WIIMOTE_LED_2);
-	wiiuse_set_leds(wiimotes[2], WIIMOTE_LED_3);
-	wiiuse_set_leds(wiimotes[3], WIIMOTE_LED_4);
+	switch (connected) {
+		case 4:
+			wiiuse_set_leds(wiimotes[3], WIIMOTE_LED_4);
+		case 3:
+			wiiuse_set_leds(wiimotes[2], WIIMOTE_LED_3);
+		case 2:
+			wiiuse_set_leds(wiimotes[1], WIIMOTE_LED_2);
+		case 1:
+			wiiuse_set_leds(wiimotes[0], WIIMOTE_LED_1);
+		default:
+			break;
+	}
+	
+	/*
+	 * It doesn't really matter if we make them all rumble and there is 
+	 * only one connected, in that case all the pointers of the array converge
+	 */
 	wiiuse_rumble(wiimotes[0], 1);
 	wiiuse_rumble(wiimotes[1], 1);
 
