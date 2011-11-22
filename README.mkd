@@ -1,16 +1,15 @@
 WiiUse README
 =============
 
-Fork, located at <http://github.com/rpavlik/wiiuse>
+Semi-Official Fork, located at <http://github.com/rpavlik/wiiuse>
+
+Issue/bug tracker: <https://github.com/rpavlik/wiiuse/issues>
+
+Mailing list: <wiiuse@librelist.com> - just email to subscribe. See
+<http://librelist.com/browser/wiiuse/> for archives and
+<http://librelist.com/> for more information.
 
 Changelog: <https://github.com/rpavlik/wiiuse/blob/master/CHANGELOG.mkd>
-
-Original project:
-
-- <http://wiiuse.net/>
-- <http://wiiuse.sourceforge.net/>
-- <http://sourceforge.net/projects/wiiuse/>
-
 
 About
 -----
@@ -279,3 +278,10 @@ greatly appreciated.
 Other Links
 -----------
 - Thread about MotionPlus: <http://forum.wiibrew.org/read.php?11,32585,32922>
+
+Original project:
+
+- <http://wiiuse.net/>
+- <http://wiiuse.sourceforge.net/>
+- <http://sourceforge.net/projects/wiiuse/>
+
