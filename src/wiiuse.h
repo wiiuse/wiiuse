@@ -76,6 +76,9 @@
 	#elif defined(__linux)
 		#define WIIUSE_PLATFORM
 		#define WIIUSE_BLUEZ
+	#elif defined(__APPLE__)
+		#define WIIUSE_PLATFORM
+		#define WIIUSE_MAC
 	#else
 		#error "Platform not yet supported!"
 	#endif
@@ -88,6 +91,11 @@
 #ifdef WIIUSE_BLUEZ
 	/* nix */
 	#include <bluetooth/bluetooth.h>
+#endif
+#ifdef WIIUSE_MAC
+	/* mac */
+	#include <CoreFoundation/CoreFoundation.h>		/*CFRunLoops and CFNumberRef in Bluetooth classes*/
+	#include <IOBluetooth/IOBluetoothUserLib.h>		/*IOBluetoothDeviceRef and IOBluetoothL2CAPChannelRef*/
 #endif
 
 #ifndef WCONST
@@ -688,7 +696,6 @@ typedef struct wiimote_t {
 	/** @name Linux-specific (BlueZ) members */
 	/** @{ */
 		WCONST bdaddr_t bdaddr;				/**< bt address								*/
-		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST int out_sock;				/**< output socket							*/
 		WCONST int in_sock;					/**< input socket 							*/
 	/** @} */
@@ -703,6 +710,25 @@ typedef struct wiimote_t {
 		WCONST int timeout;					/**< read timeout							*/
 		WCONST byte normal_timeout;			/**< normal timeout							*/
 		WCONST byte exp_timeout;			/**< timeout for expansion handshake		*/
+	/** @} */
+	#endif
+	
+	#ifdef WIIUSE_MAC
+	/** @name Mac OS X-specific members */
+	/** @{ */	
+		WCONST IOBluetoothDeviceRef device;    	/**  Device reference object                */
+		WCONST CFStringRef address;            	/**  MacOS-like device address string       */
+		WCONST IOBluetoothL2CAPChannelRef inputCh;		/**  Input L2CAP channel					*/	
+		WCONST IOBluetoothL2CAPChannelRef outputCh;	/**  Output L2CAP channel					*/
+		WCONST IOBluetoothUserNotificationRef disconnectionRef;	/**  Disconnection Notification Reference **/
+		WCONST void* connectionHandler; /** Wiimote connection handler for MACOSX **/	
+	/** @} */
+	#endif
+
+	#if defined(WIIUSE_BLUEZ) || defined(WIIUSE_MAC)
+	/** @name Linux (BlueZ) and Mac OS X shared members */
+	/** @{ */
+		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 	/** @} */
 	#endif
 
