@@ -1,13 +1,13 @@
 /*
  *	io_mac.h
  *
- *	Written By:
+ *	This file is based on io_mac.h from WiiC, written By:
  *		Gabriele Randelli	
  *		Email: < randelli (--AT--) dis [--DOT--] uniroma1 [--DOT--] it >
  *
  *	Copyright 2010
  *
- *	This file is part of wiiC.
+ *	This file is part of wiiuse.
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
