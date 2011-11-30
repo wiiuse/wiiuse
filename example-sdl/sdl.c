@@ -28,9 +28,16 @@
 #include <SDL_events.h>                 /* for SDL_Event, SDL_PollEvent, etc */
 #include <SDL_video.h>                  /* for SDL_GL_SetAttribute, etc */
 
-#include <GL/gl.h>                      /* for glVertex3f, GLfloat, etc */
-#include <GL/glu.h>                     /* for gluLookAt, gluOrtho2D, etc */
-#include <GL/glut.h>                    /* for glutSolidTeapot */
+#ifndef WIIUSE_MAC
+	#include <GL/gl.h>                      /* for glVertex3f, GLfloat, etc */
+	#include <GL/glu.h>                     /* for gluLookAt, gluOrtho2D, etc */
+	#include <GL/glut.h>                    /* for glutSolidTeapot */
+#else
+	/* Mac doesn't use the same folders for OpenGL/GLUT includes */
+	#include <OpenGL/gl.h>                  /* for glVertex3f, GLfloat, etc */
+	#include <OpenGL/glu.h>                 /* for gluLookAt, gluOrtho2D, etc */
+	#include <GLUT/GLUT.h>                  /* for glutSolidTeapot */
+#endif
 
 #ifndef WIIUSE_WIN32
 	#include <sys/time.h>                   /* for timeval, gettimeofday */
