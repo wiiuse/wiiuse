@@ -206,7 +206,7 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 				evnt += (wm[i]->event != WIIUSE_NONE);
 				
 				/* clear out the event buffer */
-				/*memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));*/
+				memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
 			} else {
 				idle_cycle(wm[i]);
 			}
