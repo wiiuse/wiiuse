@@ -267,14 +267,26 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 }
 
 
-int wiiuse_io_read(struct wiimote_t* wm) {
-	/* not used */
-	return 0;
+int wiiuse_io_read(struct wiimote_t* wm, byte* buf, int len) {
+    int rc;
+
+    rc = read(wm->in_sock, buf, len);
+
+    if(rc <= 0)
+        wiiuse_disconnected(wm);
+
+    return rc;
 }
 
 
 int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
-	return write(wm->out_sock, buf, len);
+    int rc;
+    rc = write(wm->out_sock, buf, len);
+
+    if(rc < 0)
+        wiiuse_disconnected(wm);
+
+    return rc;
 }
 
 void wiiuse_init_platform_fields(struct wiimote_t* wm) {
