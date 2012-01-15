@@ -803,20 +803,29 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 					if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len))
 						wm->event = WIIUSE_NUNCHUK_INSERTED;
 					break;
+
 				case EXP_ID_CODE_CLASSIC_CONTROLLER:
 					if (classic_ctrl_handshake(wm, &wm->exp.classic, data, len))
 						wm->event = WIIUSE_CLASSIC_CTRL_INSERTED;
 					break;
+
 				case EXP_ID_CODE_GUITAR:
 					if (guitar_hero_3_handshake(wm, &wm->exp.gh3, data, len))
 						wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;
 					break;
+
 				case EXP_ID_CODE_MOTION_PLUS:
 				case EXP_ID_CODE_MOTION_PLUS_CLASSIC:
 				case EXP_ID_CODE_MOTION_PLUS_NUNCHUK:
 					/* wiiuse_motion_plus_handshake(wm, data, len); */
 					wm->event = WIIUSE_MOTION_PLUS_ACTIVATED;
 					break;
+
+                case EXP_ID_CODE_WII_BOARD:
+                    if(wii_board_handshake(wm, &wm->exp.wb, data, len))
+                        wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
+                    break;
+
 				default:
 					WIIUSE_WARNING("Unknown expansion type. Code: 0x%x", id);
 					break;
