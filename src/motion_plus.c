@@ -30,6 +30,7 @@
 
 #include "motion_plus.h"
 
+#include "wiiuse_internal.h"            /* for endian conversions */
 #include "events.h"                     /* for disable_expansion */
 #include "ir.h"                         /* for wiiuse_set_ir_mode */
 #include "nunchuk.h"                    /* for nunchuk_pressed_buttons */
@@ -41,6 +42,68 @@
 static void wiiuse_calibrate_motion_plus(struct motion_plus_t *mp);
 static void calculate_gyro_rates(struct motion_plus_t* mp);
 
+
+void wiiuse_probe_motion_plus(struct wiimote_t *wm)
+{
+    byte buf[32];
+    unsigned id;
+
+    wiiuse_read(wm, 0, WM_EXP_MOTION_PLUS_IDENT, 6, buf);
+
+    /* check error code */
+    if(buf[4] & 0x0f)
+    {
+        WIIUSE_DEBUG("No Motion+ available, stopping probe.");
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_MPLUS_PRESENT);
+        return;
+    }
+
+    /* decode the id*/
+    id = from_big_endian_uint32_t(buf + 2);
+
+    if(id != EXP_ID_CODE_INACTIVE_MOTION_PLUS &&
+                    id != EXP_ID_CODE_NLA_MOTION_PLUS &&
+                    id != EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK &&
+                    id != EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC)
+    {
+        /* we have read something weird */
+        WIIUSE_DEBUG("Motion+ ID doesn't match, probably not connected.");
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_MPLUS_PRESENT);
+        return;
+    }
+
+    WIIUSE_DEBUG("Detected inactive Motion+!");
+    WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_MPLUS_PRESENT);
+
+    /* init M+ */
+    buf[0] = 0x55;
+    wiiuse_write_data(wm, WM_EXP_MOTION_PLUS_INIT, buf, 1);
+
+    /* Init whatever is hanging on the pass-through port */
+    buf[0] = 0x55;
+    wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, buf, 1);
+
+    buf[0] = 0x00;
+    wiiuse_write_data(wm, WM_EXP_MEM_ENABLE2, buf, 1);
+
+    /* Init gyroscope data */
+    wm->exp.mp.cal_gyro.roll = 0;
+    wm->exp.mp.cal_gyro.pitch = 0;
+    wm->exp.mp.cal_gyro.yaw = 0;
+    wm->exp.mp.orient.roll = 0.0;
+    wm->exp.mp.orient.pitch = 0.0;
+    wm->exp.mp.orient.yaw = 0.0;
+    wm->exp.mp.raw_gyro_threshold = 10;
+
+    wm->exp.mp.nc = &(wm->exp.nunchuk);
+    wm->exp.mp.classic = &(wm->exp.classic);
+    wm->exp.nunchuk.flags = &wm->flags;
+
+    wm->exp.mp.ext = 0;
+
+    wiiuse_set_ir_mode(wm);
+    wiiuse_set_report_type(wm);
+}
 
 void wiiuse_motion_plus_handshake(struct wiimote_t *wm,byte *data,unsigned short len)
 {
@@ -133,7 +196,11 @@ void wiiuse_set_motion_plus(struct wiimote_t *wm, int status)
 {
 	byte val;
 
-	if(status && !WIIMOTE_IS_SET(wm,WIIMOTE_STATE_EXP_HANDSHAKE))
+    if(!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_MPLUS_PRESENT) ||
+                    WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP_HANDSHAKE))
+        return;
+
+    if(status)
 	{
 		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
 		val = (status == 1) ? 0x04 : 0x05;

@@ -52,7 +52,10 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len);
 void wiiuse_init_platform_fields(struct wiimote_t* wm);
 void wiiuse_cleanup_platform_fields(struct wiimote_t* wm);
 
-int wiiuse_io_read(struct wiimote_t* wm);
+void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *data);
+void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data);
+
+int wiiuse_io_read(struct wiimote_t* wm, byte* buf, int len);
 int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len);
 /** @} */
 
