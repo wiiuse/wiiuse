@@ -30,7 +30,7 @@
 
 #include "motion_plus.h"
 
-#include "wiiuse_internal.h"            /* for endian conversions */
+#include "io.h"                         /* for wiiuse_read */
 #include "events.h"                     /* for disable_expansion */
 #include "ir.h"                         /* for wiiuse_set_ir_mode */
 #include "nunchuk.h"                    /* for nunchuk_pressed_buttons */
