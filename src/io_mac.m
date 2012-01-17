@@ -755,8 +755,40 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len)
 
 	IOBluetoothL2CAPChannel* channel = [IOBluetoothL2CAPChannel withL2CAPChannelRef:wm->outputCh];
     IOReturn error = [channel writeSync:buf length:length];
-	if (error != kIOReturnSuccess) 
-		WIIUSE_ERROR("Unable to write over the output channel (id %i).", wm->unid);		
+
+	if (error != kIOReturnSuccess)
+    {
+		WIIUSE_ERROR("Unable to write over the output channel (id %i).", wm->unid);
+        WIIUSE_INFO("Attempting to reopen the output channel (id %i).", wm->unid);
+
+        IOReturn error = [channel closeChannel];
+        if (error != kIOReturnSuccess)
+            WIIUSE_ERROR("Unable to close the output channel (id %i).", wm->unid);
+        [channel setDelegate:nil];
+        usleep(10000);
+		[channel release];
+		wm->outputCh = 0;
+
+        WiiConnect* connect = (WiiConnect*)(wm->connectionHandler);
+
+        IOBluetoothDevice* device = [IOBluetoothDevice withDeviceRef:wm->device];
+        channel = [connect openL2CAPChannelWithPSM:WM_OUTPUT_CHANNEL device:device delegate:connect];
+        if (!channel) {
+            WIIUSE_ERROR("Unable to open L2CAP output channel (id %i).", wm->unid);
+            [device closeConnection];
+            return kIOReturnNotOpen;
+        }
+        wm->outputCh = [[channel retain] getL2CAPChannelRef];
+        usleep(20000);
+
+        WIIUSE_INFO("Attempting to write again through the output channel (id %i).", wm->unid);
+        error = [channel writeSync:buf length:length];
+        if (error != kIOReturnSuccess)
+        {
+            WIIUSE_ERROR("Unable to write again over the output channel (id %i).", wm->unid);
+        }
+    }
+
     usleep(10000);
 	
     [pool drain];
