@@ -29,6 +29,8 @@ Added:
 	on it with fwiine and WiiC code as well as additional code. Try it out
 	in the example by pressing 1 to start and 2 to stop.
 
+- Full Mac support using Apple's native Bluetooth stack, based on [wiic](http://wiic.sourceforge.net/).
+
 Fixed:
 
 - Properly disable rumbling when told to. Thanks to Jeff Baker from

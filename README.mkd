@@ -194,11 +194,6 @@ If that happens open the Bluetooth Preferences, select the Nintendo device on th
 list and remove it (by clicking on the minus sign). Close the Preference Pane and
 try again.
 
-If you get the following error on runtime when connecting to your wiimote:
-`Unable to write over the output channel`,
-you probably won't be able to read IR or accelerometer data, or make the wiimote vibrate.
-Relaunching your application and connecting again should solve this issue.
-
 Acknowledgements by Michael Laforest
 ------------------------------------
 <http://wiibrew.org/>
