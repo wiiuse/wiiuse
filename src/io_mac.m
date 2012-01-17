@@ -663,7 +663,7 @@ int wiiuse_load(struct wiimote_t** wm)
 }
 
 // Defined in io.h
-int wiiuse_io_read(struct wiimote_t* wm) 
+int wiiuse_io_read(struct wiimote_t* wm, byte* buf, int len)
 {
     if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_CONNECTED))
             return 0;
@@ -723,12 +723,12 @@ int wiiuse_io_read(struct wiimote_t* wm)
 		return 0;
 	}
 
-	// Forward to WiiC
-	if(length < sizeof(wm->event_buf)) 
-		memcpy(wm->event_buf,buffer,length);
+	// Forward to the parameter buffer
+	if(length <= len)
+		memcpy(buf,buffer,length);
 	else {
 		WIIUSE_DEBUG("Received data are more than the buffer.... strange! (id %i)", wm->unid);
-		memcpy(wm->event_buf,buffer,sizeof(wm->event_buf));
+		memcpy(buf,buffer,len);
 	}
 
 	// Release the consumed message

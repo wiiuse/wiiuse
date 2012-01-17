@@ -205,8 +205,8 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 		
 		for (i = 0; i < wiimotes; ++i) {
 			wm[i]->event = WIIUSE_NONE;
-			
-			if (wiiuse_io_read(wm[i])) {
+
+			if (wiiuse_io_read(wm[i],wm[i]->event_buf,sizeof(wm[i]->event_buf))) {
 				/* propagate the event, messages should be read as in linux, starting from the second element */
 				propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
 				evnt += (wm[i]->event != WIIUSE_NONE);
@@ -214,6 +214,9 @@ int wiiuse_poll(struct wiimote_t** wm, int wiimotes) {
 				/* clear out the event buffer */
 				memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
 			} else {
+                /* send out any waiting writes */
+                wiiuse_send_next_pending_write_request(wm[i]);
+
 				idle_cycle(wm[i]);
 			}
 		}
