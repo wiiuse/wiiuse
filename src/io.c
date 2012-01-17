@@ -69,7 +69,7 @@ void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *data)
 {
     for(;;)
     {
-        if(wiiuse_io_read(wm, data, 32) > 0)
+        if(wiiuse_io_read(wm, data, MAX_PAYLOAD) > 0)
             if(data[1] == report)
                 break;
     }
@@ -91,7 +91,7 @@ void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *data)
 void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data)
 {
     byte pkt[8];
-    byte buf[32];
+    byte buf[MAX_PAYLOAD];
     unsigned n_full_reports;
     unsigned last_report;
     byte *output;
@@ -154,7 +154,7 @@ void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned shor
 void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len)
 {
     /* send request to wiimote for accelerometer calibration */
-    byte buf[32];
+    byte buf[MAX_PAYLOAD];
     byte report_type;
 
     /* step 0 - Reset wiimote */

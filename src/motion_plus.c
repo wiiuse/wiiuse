@@ -45,7 +45,7 @@ static void calculate_gyro_rates(struct motion_plus_t* mp);
 
 void wiiuse_probe_motion_plus(struct wiimote_t *wm)
 {
-    byte buf[32];
+    byte buf[MAX_PAYLOAD];
     unsigned id;
 
     wiiuse_read(wm, 0, WM_EXP_MOTION_PLUS_IDENT, 6, buf);
