@@ -49,6 +49,8 @@ void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg);
 
 void wiiuse_motion_plus_handshake(struct wiimote_t *wm, byte *data,unsigned short len);
 
+void wiiuse_probe_motion_plus(struct wiimote_t *wm);
+
 /** @} */
 
 #ifdef __cplusplus
