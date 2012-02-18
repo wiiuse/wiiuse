@@ -147,7 +147,7 @@ void calc_joystick_state(struct joystick_t* js, float x, float y) {
 	 *	Then the range from the min to the center and the center to the max
 	 *	may be different.
 	 *	Because of this, depending on if the current x or y value is greater
-	 *	or less than the assoicated axis center value, it needs to be interpolated
+	 *	or less than the associated axis center value, it needs to be interpolated
 	 *	between the center and the minimum or maxmimum rather than between
 	 *	the minimum and maximum.
 	 *
