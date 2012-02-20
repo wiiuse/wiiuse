@@ -370,7 +370,7 @@ int main(int argc, char** argv) {
 	/*
 	 *	Maybe I'm interested in the battery power of the 0th
 	 *	wiimote.  This should be WIIMOTE_ID_1 but to be sure
-	 *	you can get the wiimote assoicated with WIIMOTE_ID_1
+	 *	you can get the wiimote associated with WIIMOTE_ID_1
 	 *	using the wiiuse_get_by_id() function.
 	 *
 	 *	A status request will return other things too, like
@@ -400,12 +400,12 @@ int main(int argc, char** argv) {
 			for (; i < MAX_WIIMOTES; ++i) {
 				switch (wiimotes[i]->event) {
 					case WIIUSE_EVENT:
-						/* a generic event occured */
+						/* a generic event occurred */
 						handle_event(wiimotes[i]);
 						break;
 
 					case WIIUSE_STATUS:
-						/* a status event occured */
+						/* a status event occurred */
 						handle_ctrl_status(wiimotes[i]);
 						break;
 
