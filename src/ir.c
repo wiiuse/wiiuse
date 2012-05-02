@@ -459,10 +459,10 @@ static void interpret_ir_data(struct wiimote_t* wm) {
 
 						if (dot[i].order == 1)
 							/* visible is the left dot - estimate where the right is */
-							ox = dot[i].x + wm->ir.distance;
+							ox = (int32_t)(dot[i].x + wm->ir.distance);
 						else if (dot[i].order == 2)
 							/* visible is the right dot - estimate where the left is */
-							ox = dot[i].x - wm->ir.distance;
+							ox = (int32_t)(dot[i].x - wm->ir.distance);
 
 						x = ((signed int)dot[i].x + ox) / 2;
 						y = dot[i].y;
@@ -570,8 +570,8 @@ static void fix_rotated_ir_dots(struct ir_dot_t* dot, float ang) {
 		return;
 	}
 
-	s = sin(DEGREE_TO_RAD(ang));
-	c = cos(DEGREE_TO_RAD(ang));
+	s = sinf(DEGREE_TO_RAD(ang));
+	c = cosf(DEGREE_TO_RAD(ang));
 
 	/*
 	 *	[ cos(theta)  -sin(theta) ][ ir->rx ]
@@ -585,8 +585,8 @@ static void fix_rotated_ir_dots(struct ir_dot_t* dot, float ang) {
 		x = dot[i].rx - (1024/2);
 		y = dot[i].ry - (768/2);
 
-		dot[i].x = (c * x) + (-s * y);
-		dot[i].y = (s * x) + (c * y);
+		dot[i].x = (uint32_t)((c * x) + (-s * y));
+		dot[i].y = (uint32_t)((s * x) + (c * y));
 
 		dot[i].x += (1024/2);
 		dot[i].y += (768/2);
@@ -673,7 +673,7 @@ static float ir_distance(struct ir_dot_t* dot) {
 	xd = dot[i2].x - dot[i1].x;
 	yd = dot[i2].y - dot[i1].y;
 
-	return sqrt(xd*xd + yd*yd);
+	return sqrtf(xd*xd + yd*yd);
 }
 
 
@@ -738,8 +738,8 @@ static void ir_convert_to_vres(int* x, int* y, enum aspect_t aspect, int vx, int
 	*x -= ((1024-xs)/2);
 	*y -= ((768-ys)/2);
 
-	*x = (*x / (float)xs) * vx;
-	*y = (*y / (float)ys) * vy;
+	*x = (int)((*x / (float)xs) * vx);
+	*y = (int)((*y / (float)ys) * vy);
 }
 
 
@@ -751,7 +751,7 @@ static void ir_convert_to_vres(int* x, int* y, enum aspect_t aspect, int vx, int
 float calc_yaw(struct ir_t* ir) {
 	float x;
 
-	x = ir->ax - 512;
+	x = (float)(ir->ax - 512);
 	x = x * (ir->z / 1024.0f);
 
 	return RAD_TO_DEGREE( atanf(x / ir->z) );

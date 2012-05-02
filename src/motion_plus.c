@@ -261,27 +261,27 @@ static void calculate_gyro_rates(struct motion_plus_t* mp)
 
 	/* We convert to degree/sec according to fast/slow mode */
 	if (mp->acc_mode & 0x04)
-		tmp_roll = tmp_r / 20.0;
+		tmp_roll = (float)tmp_r / 20.0f;
 	else
-		tmp_roll = tmp_r / 4.0;
+		tmp_roll = (float)tmp_r / 4.0f;
 
 	if (mp->acc_mode & 0x02)
-		tmp_pitch = tmp_p / 20.0;
+		tmp_pitch = (float)tmp_p / 20.0f;
 	else
-		tmp_pitch = tmp_p / 4.0;
+		tmp_pitch = (float)tmp_p / 4.0f;
 
 	if (mp->acc_mode & 0x01)
-		tmp_yaw = tmp_y / 20.0;
+		tmp_yaw = (float)tmp_y / 20.0f;
 	else
-		tmp_yaw = tmp_y / 4.0;
+		tmp_yaw = (float)tmp_y / 4.0f;
 
 	/* Simple filtering */
-	if (fabs(tmp_roll) < 0.5)
-		tmp_roll = 0.0;
-	if (fabs(tmp_pitch) < 0.5)
-		tmp_pitch = 0.0;
-	if (fabs(tmp_yaw) < 0.5)
-		tmp_yaw = 0.0;
+	if (fabs(tmp_roll) < 0.5f)
+		tmp_roll = 0.0f;
+	if (fabs(tmp_pitch) < 0.5f)
+		tmp_pitch = 0.0f;
+	if (fabs(tmp_yaw) < 0.5f)
+		tmp_yaw = 0.0f;
 
 	mp->angle_rate_gyro.roll = tmp_roll;
 	mp->angle_rate_gyro.pitch = tmp_pitch;

@@ -157,8 +157,8 @@ void classic_ctrl_event(struct classic_ctrl_t* cc, byte* msg) {
 	rx = ((msg[0] & 0xC0) >> 3) | ((msg[1] & 0xC0) >> 5) | ((msg[2] & 0x80) >> 7);
 	ry = (msg[2] & 0x1F);
 
-	calc_joystick_state(&cc->ljs, lx, ly);
-	calc_joystick_state(&cc->rjs, rx, ry);
+	calc_joystick_state(&cc->ljs, (float)lx, (float)ly);
+	calc_joystick_state(&cc->rjs, (float)rx, (float)ry);
 }
 
 

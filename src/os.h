@@ -40,13 +40,12 @@
 #define OS_H_INCLUDED
 
 #ifdef _MSC_VER
+	#include <float.h>
 	/* windows with visual c */
-	#define isnan(x)		_isnan(x)
-	#define isinf(x)		!_finite(x)
+	#define isnan(x)		(_isnan(x))
+	#define isinf(x)		(!_finite(x))
 	/* disable warnings I don't care about */
-	#pragma warning(disable:4244)		/* possible loss of data conversion	*/
-	#pragma warning(disable:4273)		/* inconsistent dll linkage			*/
-	#pragma warning(disable:4217)
+	/*#pragma warning(disable:4273)	*/	/* inconsistent dll linkage			*/
 #endif
 
 #endif /* OS_H_INCLUDED */
