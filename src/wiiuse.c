@@ -657,7 +657,7 @@ void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
  *	This function should replace any write()s directly to the wiimote device.
  */
 int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
-	byte buf[32];		/* no payload is better than this */
+	byte buf[MAX_PAYLOAD];		/* no payload is better than this */
 	int rumble = 0;
 
 	#ifdef WIIUSE_WIN32
