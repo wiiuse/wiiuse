@@ -92,6 +92,7 @@
 
 #ifdef WIIUSE_WIN32
 	/* windows */
+	#define WIN32_LEAN_AND_MEAN 1
 	#include <windows.h>
 #endif
 #ifdef WIIUSE_BLUEZ
