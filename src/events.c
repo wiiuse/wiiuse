@@ -772,10 +772,12 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
  *	a handshake with the expansion.
  */
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
+	WIIUSE_DEBUG("handshake_expansion with state %d", wm->expansion_state);
 	int id;
 	byte val = 0;
 	byte buf = 0x00;
 	byte* handshake_buf;
+	int gotIt = 0;
 
 	switch(wm->expansion_state) {
 		/* These two initialization writes disable the encryption */
@@ -811,22 +813,41 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
 			break;
 		case 3:
-			if(!data || !len) return;
+			if(!data || !len) {
+				WIIUSE_DEBUG("no expansion data - might not a real device");
+			//	wm->expansion_state = 0;
+/*
+							WIIMOTE_DISABLE_STATE(wm,WIIMOTE_STATE_EXP_HANDSHAKE);
+			wiiuse_set_ir_mode(wm);
+			wiiuse_status(wm);
+*/
+
+				return;
+			}
 			id = from_big_endian_uint32_t(data + 220);
 			switch(id) {
 				case EXP_ID_CODE_NUNCHUK:
-					if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len))
+					WIIUSE_DEBUG("possibly a nunchuk");
+					if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len)) {
 						wm->event = WIIUSE_NUNCHUK_INSERTED;
+					WIIUSE_DEBUG("yep, a nunchuk");
+						gotIt = 1;
+					}
+					
 					break;
 
 				case EXP_ID_CODE_CLASSIC_CONTROLLER:
-					if (classic_ctrl_handshake(wm, &wm->exp.classic, data, len))
+					if (classic_ctrl_handshake(wm, &wm->exp.classic, data, len)) {
 						wm->event = WIIUSE_CLASSIC_CTRL_INSERTED;
+						gotIt = 1;		
+					}
 					break;
 
 				case EXP_ID_CODE_GUITAR:
-					if (guitar_hero_3_handshake(wm, &wm->exp.gh3, data, len))
-						wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;
+					if (guitar_hero_3_handshake(wm, &wm->exp.gh3, data, len)) {
+						wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;	
+						gotIt = 1;		
+					}
 					break;
 
 				case EXP_ID_CODE_MOTION_PLUS:
@@ -834,11 +855,14 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 				case EXP_ID_CODE_MOTION_PLUS_NUNCHUK:
 					/* wiiuse_motion_plus_handshake(wm, data, len); */
 					wm->event = WIIUSE_MOTION_PLUS_ACTIVATED;
+					gotIt = 1;
 					break;
 
                 case EXP_ID_CODE_WII_BOARD:
-                    if(wii_board_handshake(wm, &wm->exp.wb, data, len))
+                    if(wii_board_handshake(wm, &wm->exp.wb, data, len)) {
                         wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
+						gotIt = 1;
+}
                     break;
 
 				default:
@@ -847,7 +871,12 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			}
 			free(data);
 			WIIMOTE_DISABLE_STATE(wm,WIIMOTE_STATE_EXP_HANDSHAKE);
-			WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
+			if (gotIt) {
+				WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
+			} else {
+				WIIUSE_WARNING("Could not handshake with expansion id: 0x%x", id);
+			}
+
 			wiiuse_set_ir_mode(wm);
 			wiiuse_status(wm);
 			break;
@@ -869,7 +898,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 void disable_expansion(struct wiimote_t* wm) {
 	if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
 		return;
-
+	WIIUSE_DEBUG("Disabling expansion");
 	/* tell the assoicated module the expansion was removed */
 	switch (wm->exp.type) {
 		case EXP_NUNCHUK:
