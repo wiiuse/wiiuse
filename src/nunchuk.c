@@ -99,6 +99,9 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	nc->js.max.y = data[offset + 11];
 	nc->js.min.y = data[offset + 12];
 	nc->js.center.y = data[offset + 13];
+	WIIUSE_DEBUG("Nunchuk calibration X: min %x, max %x, center %x Y: min %x, max %x, center %x",
+		nc->js.min.x, nc->js.max.x, nc->js.center.x,
+		nc->js.min.y, nc->js.max.y, nc->js.center.y);
 
 	/* default the thresholds to the same as the wiimote */
 	nc->orient_threshold = wm->orient_threshold;
