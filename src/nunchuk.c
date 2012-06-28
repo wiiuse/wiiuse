@@ -50,8 +50,6 @@
  */
 #define HANDSHAKE_BYTES_USED 14
 int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, unsigned short len) {
-	int i;
-
 	nc->btns = 0;
 	nc->btns_held = 0;
 	nc->btns_released = 0;
@@ -132,7 +130,6 @@ void nunchuk_disconnected(struct nunchuk_t* nc) {
  *	@param msg		The message specified in the event packet.
  */
 void nunchuk_event(struct nunchuk_t* nc, byte* msg) {
-	int i;
 
 	/* get button states */
 	nunchuk_pressed_buttons(nc, msg[5]);

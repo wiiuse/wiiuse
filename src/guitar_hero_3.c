@@ -51,7 +51,6 @@ static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
 int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, byte* data, unsigned short len) {
-	int i;
 
 	/*
 	 *	The good fellows that made the Guitar Hero 3 controller

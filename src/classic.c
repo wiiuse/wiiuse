@@ -51,7 +51,6 @@ static void classic_ctrl_pressed_buttons(struct classic_ctrl_t* cc, short now);
  */
 #define HANDSHAKE_BYTES_USED 12
 int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte* data, unsigned short len) {
-	int i;
 
 	cc->btns = 0;
 	cc->btns_held = 0;
