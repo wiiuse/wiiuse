@@ -65,10 +65,6 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 	gh3->btns_released = 0;
 	gh3->whammy_bar = 0.0f;
 
-	/* decrypt data */
-	for (i = 0; i < len; ++i)
-		data[i] = (data[i] ^ 0x17) + 0x17;
-
 	if (data[offset] == 0xFF) {
 		/*
 		 *	Sometimes the data returned here is not correct.

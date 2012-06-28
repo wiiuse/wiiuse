@@ -59,10 +59,6 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 	cc->r_shoulder = 0;
 	cc->l_shoulder = 0;
 
-	/* decrypt data */
-	for (i = 0; i < len; ++i)
-		data[i] = (data[i] ^ 0x17) + 0x17;
-
 	if (data[offset] == 0xFF) {
 		/*
 		 *	Sometimes the data returned here is not correct.
