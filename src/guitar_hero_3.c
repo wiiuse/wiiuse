@@ -52,7 +52,6 @@ static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now
  */
 int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, byte* data, unsigned short len) {
 	int i;
-	int offset = 0;
 
 	/*
 	 *	The good fellows that made the Guitar Hero 3 controller
@@ -65,7 +64,11 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 	gh3->btns_released = 0;
 	gh3->whammy_bar = 0.0f;
 
-	if (data[offset] == 0xFF) {
+	/*
+	TODO: If we're not using anything from calibration data, why are we
+	even bothering here?
+	*/
+	if (data[0] == 0xFF) {
 		/*
 		 *	Sometimes the data returned here is not correct.
 		 *	This might happen because the wiimote is lagging
@@ -76,7 +79,7 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 		 *	but since the next 16 bytes are the same, just use
 		 *	those.
 		 */
-		if (data[offset + 16] == 0xFF) {
+		if (data[16] == 0xFF) {
 			/* get the calibration data */
 			byte* handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 
@@ -85,7 +88,7 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 
 			return 0;
 		} else
-			offset += 16;
+			data += 16;
 	}
 
 	/* joystick stuff */
