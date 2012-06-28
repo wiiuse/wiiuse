@@ -130,6 +130,18 @@ void calculate_gforce(struct accel_t* ac, struct vec3b_t* accel, struct gforce_t
 	gforce->z = ((float)accel->z - (float)ac->cal_zero.z) / zg;
 }
 
+static float applyCalibration(float inval, float minval, float maxval, float centerval) {
+	float ret;
+	/* We don't use the exact ranges but the ranges + 1 in case we get bad calibration data - avoid div0 */
+	if (inval == centerval) {
+		ret = 0;
+	} else if (inval < centerval) {
+		ret = (inval - centerval) / (centerval - minval + 1);
+	} else {
+		ret = (inval - centerval) / (maxval - centerval + 1);
+	}
+	return ret;
+}
 
 /**
  *	@brief Calculate the angle and magnitude of a joystick.
@@ -157,20 +169,8 @@ void calc_joystick_state(struct joystick_t* js, float x, float y) {
 	 *	The range is therefore -1 to 1, 0 being the exact center rather than
 	 *	the middle of min and max.
 	 */
-	if (x == js->center.x)
-		rx = 0;
-	else if (x >= js->center.x)
-		rx = ((float)(x - js->center.x) / (float)(js->max.x - js->center.x));
-	else
-		rx = ((float)(x - js->min.x) / (float)(js->center.x - js->min.x)) - 1.0f;
-
-	if (y == js->center.y)
-		ry = 0;
-	else if (y >= js->center.y)
-		ry = ((float)(y - js->center.y) / (float)(js->max.y - js->center.y));
-	else
-		ry = ((float)(y - js->min.y) / (float)(js->center.y - js->min.y)) - 1.0f;
-
+	rx = applyCalibration(x, js->min.x, js->max.x, js->center.x);
+	ry = applyCalibration(y, js->min.y, js->max.y, js->center.y);
 	/* calculate the joystick angle and magnitude */
 	ang = RAD_TO_DEGREE(atanf(ry / rx));
 	ang -= 90.0f;
