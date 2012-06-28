@@ -791,10 +791,9 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
 				disable_expansion(wm);
 			handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
-			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
-
 			/* tell the wiimote to send expansion data */
 			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
+			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 			break;
 		case 3:
 			if(!data || !len) {
