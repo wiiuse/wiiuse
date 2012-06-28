@@ -49,6 +49,7 @@ static void classic_ctrl_pressed_buttons(struct classic_ctrl_t* cc, short now);
  *
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
+#define HANDSHAKE_BYTES_USED 12
 int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte* data, unsigned short len) {
 	int i;
 
@@ -58,7 +59,7 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 	cc->r_shoulder = 0;
 	cc->l_shoulder = 0;
 
-	if (data[0] == 0xFF) {
+	if (data[0] == 0xFF || len < HANDSHAKE_BYTES_USED) {
 		/*
 		 *	Sometimes the data returned here is not correct.
 		 *	This might happen because the wiimote is lagging
@@ -69,7 +70,7 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 		 *	but since the next 16 bytes are the same, just use
 		 *	those.
 		 */
-		if (data[16] == 0xFF) {
+		if (len < 17 || len < HANDSHAKE_BYTES_USED + 16 || data[16] == 0xFF) {
 			/* get the calibration data */
 			byte* handshake_buf = (byte *)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 

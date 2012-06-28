@@ -48,6 +48,7 @@
  *
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
++#define HANDSHAKE_BYTES_USED 14
 int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, unsigned short len) {
 	int i;
 
@@ -60,8 +61,7 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	nc->accel_calib.st_alpha = wm->accel_calib.st_alpha;
 
 	/* decrypt data */
-
-	if (data[0] == 0xFF) {
+	if (data[0] == 0xFF || len < HANDSHAKE_BYTES_USED) {
 		/*
 		 *	Sometimes the data returned here is not correct.
 		 *	This might happen because the wiimote is lagging
@@ -72,7 +72,7 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 		 *	but since the next 16 bytes are the same, just use
 		 *	those.
 		 */
-		if (data[16] == 0xFF) {
+		if (len < 17 || len < HANDSHAKE_BYTES_USED + 16 || data[16] == 0xFF) {
 			/* get the calibration data */
 			byte* handshake_buf = (byte *)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 
