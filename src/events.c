@@ -298,7 +298,7 @@ static void clear_dirty_reads(struct wiimote_t* wm) {
 /**
  *	@brief Analyze the event that occurred on a wiimote.
  *
- *	@param wm		An array of pointers to wiimote_t structures.
+ *	@param wm		Pointer to a wiimote_t structure.
  *	@param event	The event that occurred.
  *	@param msg		The message specified in the event packet.
  *
