@@ -126,12 +126,8 @@ void classic_ctrl_disconnected(struct classic_ctrl_t* cc) {
  *	@param msg		The message specified in the event packet.
  */
 void classic_ctrl_event(struct classic_ctrl_t* cc, byte* msg) {
-	int i, lx, ly, rx, ry;
+	int lx, ly, rx, ry;
 	byte l, r;
-
-	/* decrypt data */
-	for (i = 0; i < 6; ++i)
-		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
 	classic_ctrl_pressed_buttons(cc, from_big_endian_uint16_t(msg + 4));
 
