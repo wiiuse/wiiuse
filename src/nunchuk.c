@@ -60,7 +60,6 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	nc->flags = &wm->flags;
 	nc->accel_calib.st_alpha = wm->accel_calib.st_alpha;
 
-	/* decrypt data */
 	if (data[0] == 0xFF || len < HANDSHAKE_BYTES_USED) {
 		/*
 		 *	Sometimes the data returned here is not correct.
