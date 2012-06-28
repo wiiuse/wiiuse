@@ -50,7 +50,6 @@
  */
 int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, unsigned short len) {
 	int i;
-	int offset = 0;
 
 	nc->btns = 0;
 	nc->btns_held = 0;
@@ -62,7 +61,7 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 
 	/* decrypt data */
 
-	if (data[offset] == 0xFF) {
+	if (data[0] == 0xFF) {
 		/*
 		 *	Sometimes the data returned here is not correct.
 		 *	This might happen because the wiimote is lagging
@@ -73,7 +72,7 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 		 *	but since the next 16 bytes are the same, just use
 		 *	those.
 		 */
-		if (data[offset + 16] == 0xFF) {
+		if (data[16] == 0xFF) {
 			/* get the calibration data */
 			byte* handshake_buf = (byte *)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 
@@ -82,21 +81,21 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 
 			return 0;
 		} else
-			offset += 16;
+			data += 16;
 	}
 
-	nc->accel_calib.cal_zero.x = data[offset + 0];
-	nc->accel_calib.cal_zero.y = data[offset + 1];
-	nc->accel_calib.cal_zero.z = data[offset + 2];
-	nc->accel_calib.cal_g.x = data[offset + 4];
-	nc->accel_calib.cal_g.y = data[offset + 5];
-	nc->accel_calib.cal_g.z = data[offset + 6];
-	nc->js.max.x = data[offset + 8];
-	nc->js.min.x = data[offset + 9];
-	nc->js.center.x = data[offset + 10];
-	nc->js.max.y = data[offset + 11];
-	nc->js.min.y = data[offset + 12];
-	nc->js.center.y = data[offset + 13];
+	nc->accel_calib.cal_zero.x = data[0];
+	nc->accel_calib.cal_zero.y = data[1];
+	nc->accel_calib.cal_zero.z = data[2];
+	nc->accel_calib.cal_g.x = data[4];
+	nc->accel_calib.cal_g.y = data[5];
+	nc->accel_calib.cal_g.z = data[6];
+	nc->js.max.x = data[8];
+	nc->js.min.x = data[9];
+	nc->js.center.x = data[10];
+	nc->js.max.y = data[11];
+	nc->js.min.y = data[12];
+	nc->js.center.y = data[13];
 	WIIUSE_DEBUG("Nunchuk calibration X: min %x, max %x, center %x Y: min %x, max %x, center %x",
 		nc->js.min.x, nc->js.max.x, nc->js.center.x,
 		nc->js.min.y, nc->js.max.y, nc->js.center.y);
