@@ -294,6 +294,24 @@ static void clear_dirty_reads(struct wiimote_t* wm) {
 	}
 }
 
+/**
+ *	@brief Handle accel data in a wiimote message.
+ *
+ *	@param wm		Pointer to a wiimote_t structure.
+ *	@param msg		The message specified in the event packet.
+ */
+static void handle_wm_accel(struct wiimote_t* wm, byte* msg) {
+	wm->accel.x = msg[2];
+	wm->accel.y = msg[3];
+	wm->accel.z = msg[4];
+
+	/* calculate the remote orientation */
+	calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
+
+	/* calculate the gforces on each axis */
+	calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+}
+
 
 /**
  *	@brief Analyze the event that occurred on a wiimote.
@@ -319,15 +337,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			/* calculate the remote orientation */
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-
-			/* calculate the gforces on each axis */
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			break;
 		}
@@ -360,12 +370,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion - expansion */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			handle_expansion(wm, msg+5);
 
@@ -376,12 +381,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion - ir */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			/* ir */
 			calculate_extended_ir(wm, msg+5);
@@ -404,12 +404,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion - ir - expansion */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			handle_expansion(wm, msg+15);
 
