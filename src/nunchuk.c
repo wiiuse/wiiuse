@@ -48,7 +48,7 @@
  *
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
-+#define HANDSHAKE_BYTES_USED 14
+#define HANDSHAKE_BYTES_USED 14
 int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, unsigned short len) {
 	int i;
 
