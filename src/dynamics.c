@@ -172,12 +172,9 @@ void calc_joystick_state(struct joystick_t* js, float x, float y) {
 	rx = applyCalibration(x, js->min.x, js->max.x, js->center.x);
 	ry = applyCalibration(y, js->min.y, js->max.y, js->center.y);
 	/* calculate the joystick angle and magnitude */
-	ang = RAD_TO_DEGREE(atanf(ry / rx));
-	ang -= 90.0f;
-	if (rx < 0.0f)
-		ang -= 180.0f;
-	js->ang = absf(ang);
+	ang = RAD_TO_DEGREE(atan2f(ry, rx));
 	js->mag = (float) sqrt((rx * rx) + (ry * ry));
+	js->ang = ang + 180.0f;
 }
 
 
