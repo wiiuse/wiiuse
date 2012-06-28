@@ -757,6 +757,7 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
  *	a handshake with the expansion.
  */
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
+	WIIUSE_DEBUG("handshake_expansion with state %d", wm->expansion_state);
 	int id;
 	byte val = 0;
 	byte buf = 0x00;
@@ -796,7 +797,10 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
 			break;
 		case 3:
-			if(!data || !len) return;
+			if(!data || !len) {
+				WIIUSE_DEBUG("no handshake data received from expansion");
+				return;
+			}
 			id = from_big_endian_uint32_t(data + 220);
 			switch(id) {
 				case EXP_ID_CODE_NUNCHUK:
@@ -852,6 +856,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
  *	a handshake with the expansion.
  */
 void disable_expansion(struct wiimote_t* wm) {
+	WIIUSE_DEBUG("Disabling expansion");
 	if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
 		return;
 
