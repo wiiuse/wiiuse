@@ -890,6 +890,7 @@ void disable_expansion(struct wiimote_t* wm) {
 
 	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP);
 	wm->exp.type = EXP_NONE;
+	wm->expansion_state = 0;
 }
 
 
