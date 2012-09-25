@@ -61,8 +61,8 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	nc->accel_calib.st_alpha = wm->accel_calib.st_alpha;
 
 	/* decrypt data */
-	for (i = 0; i < len; ++i)
-		data[i] = (data[i] ^ 0x17) + 0x17;
+/*	for (i = 0; i < len; ++i)
+		data[i] = (data[i] ^ 0x17) + 0x17;*/
 
 	if (data[offset] == 0xFF) {
 		/*
@@ -139,8 +139,8 @@ void nunchuk_event(struct nunchuk_t* nc, byte* msg) {
 	int i;
 
 	/* decrypt data */
-	for (i = 0; i < 6; ++i)
-		msg[i] = (msg[i] ^ 0x17) + 0x17;
+/*	for (i = 0; i < 6; ++i)
+		msg[i] = (msg[i] ^ 0x17) + 0x17;*/
 
 	/* get button states */
 	nunchuk_pressed_buttons(nc, msg[5]);
