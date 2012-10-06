@@ -68,11 +68,18 @@
 - (id) initWithMemory:(wiimote**)wiimotes_ maxDevices:(int)maxDevices_ timeout:(int)timeout_ {
 	self = [super init];
 	if(self) {
-		wiimotes = wiimotes_;
-		maxDevices = maxDevices_;
-		timeout = timeout_;
-		
-		_running = NO;
+		if (![IOBluetoothHostController defaultController] ||
+			[IOBluetoothHostController defaultController].powerState == kBluetoothHCIPowerStateOFF)
+		{
+			WIIUSE_DEBUG("Bluetooth hardware not available.");
+			[self release];
+			self = nil;
+		} else {
+			wiimotes = wiimotes_;
+			maxDevices = maxDevices_;
+			timeout = timeout_;
+			_running = NO;
+		}
 	}
 	return self;
 }
