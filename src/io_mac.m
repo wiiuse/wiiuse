@@ -35,12 +35,19 @@
 #import "io_mac.h"
 #import "events.h"
 
+#if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7
+#define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 1
+#else
+#define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 0
+#endif
+
 @implementation WiiSearch
 
 #pragma mark -
 #pragma mark WiiSearch
 - (id) init
 {
+
 	self = [super init];
 	foundWiimotes = 0;
 	isDiscovering = NO;
@@ -149,8 +156,12 @@
 - (void) retrieveWiimoteInfo:(IOBluetoothDevice*) device
 {	
 	// We set the device reference (we must retain it to use it after the search)
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+	wiimotes[foundWiimotes]->device = (IOBluetoothDeviceRef) [device retain];
+#else
 	wiimotes[foundWiimotes]->device = [[device retain] getDeviceRef];
-	wiimotes[foundWiimotes]->address = (CFStringRef)[[device getAddressString] retain];
+#endif
+	wiimotes[foundWiimotes]->address = (CFStringRef) [IOBluetoothNSStringFromDeviceAddress([device getAddress]) retain];
 	
 	// C String (common for Mac and Linux)
 	CFStringGetCString(wiimotes[foundWiimotes]->address,wiimotes[foundWiimotes]->bdaddr_str,18,kCFStringEncodingMacRoman);
@@ -287,7 +298,11 @@
 
 - (IOReturn) connectToWiimote:(wiimote*) wm
 {
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+	IOBluetoothDevice* device = (IOBluetoothDevice*) wm->device;
+#else
 	IOBluetoothDevice* device = [IOBluetoothDevice withDeviceRef:wm->device];
+#endif
 	IOBluetoothL2CAPChannel* outCh = nil;
 	IOBluetoothL2CAPChannel* inCh = nil;
 	
@@ -302,7 +317,11 @@
 		[device closeConnection];
 		return kIOReturnNotOpen;
 	}
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+	wm->outputCh = (IOBluetoothL2CAPChannelRef) [outCh retain];
+#else
 	wm->outputCh = [[outCh retain] getL2CAPChannelRef];
+#endif
 	usleep(20000);
 	
 	inCh = [self openL2CAPChannelWithPSM:WM_INPUT_CHANNEL device:device delegate:self];
@@ -311,7 +330,11 @@
 		[device closeConnection];
 		return kIOReturnNotOpen;
 	}
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+	wm->inputCh = (IOBluetoothL2CAPChannelRef) [inCh retain];
+#else
 	wm->inputCh = [[inCh retain] getL2CAPChannelRef];
+#endif
 	usleep(20000);
 	
 	IOBluetoothUserNotification* disconnectNotification = [device registerForDisconnectNotification:self selector:@selector(disconnected:fromDevice:)];
@@ -471,7 +494,11 @@ void wiiuse_disconnect(struct wiimote_t* wm)
 
 	// Input Channel
 	if(wm->inputCh) {
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+		IOBluetoothL2CAPChannel* inCh = (IOBluetoothL2CAPChannel*) wm->inputCh;
+#else
 		IOBluetoothL2CAPChannel* inCh = [IOBluetoothL2CAPChannel withL2CAPChannelRef:wm->inputCh];
+#endif
 		error = [inCh closeChannel];
 		[inCh setDelegate:nil];
 		if(error != kIOReturnSuccess) 
@@ -484,7 +511,11 @@ void wiiuse_disconnect(struct wiimote_t* wm)
 	
 	// Output Channel
 	if(wm->outputCh) {
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+		IOBluetoothL2CAPChannel* outCh = (IOBluetoothL2CAPChannel*) wm->outputCh;
+#else
 		IOBluetoothL2CAPChannel* outCh = [IOBluetoothL2CAPChannel withL2CAPChannelRef:wm->outputCh];
+#endif
 		error = [outCh closeChannel];
 		[outCh setDelegate:nil];
 		if(error != kIOReturnSuccess) 
@@ -497,7 +528,11 @@ void wiiuse_disconnect(struct wiimote_t* wm)
 	
 	// Device
 	if(wm->device) {
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+		IOBluetoothDevice* device = (IOBluetoothDevice*) wm->device;
+#else
 		IOBluetoothDevice* device = [IOBluetoothDevice withDeviceRef:wm->device];
+#endif
 		error = [device closeConnection];
 
 		if(error != kIOReturnSuccess) 
@@ -651,9 +686,14 @@ int wiiuse_load(struct wiimote_t** wm)
 		NSString* string = [NSString stringWithCString:str encoding:[NSString defaultCStringEncoding]];
 		BluetoothDeviceAddress deviceAddr;
 		IOBluetoothNSStringToDeviceAddress(string, &deviceAddr);
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+		IOBluetoothDevice* device = [IOBluetoothDevice deviceWithAddress:&deviceAddr];
+		wm[i]->device = (IOBluetoothDeviceRef) [device retain];
+#else
 		IOBluetoothDevice* device = [IOBluetoothDevice withAddress:&deviceAddr];
 		wm[i]->device = [[device retain] getDeviceRef];
-		wm[i]->address = (CFStringRef)[[device getAddressString] retain];
+#endif
+		wm[i]->address = (CFStringRef) [IOBluetoothNSStringFromDeviceAddress([device getAddress]) retain];
 		WIIMOTE_ENABLE_STATE(wm[i], WIIMOTE_STATE_DEV_FOUND);
 		WIIUSE_INFO("Loaded Wiimote (%s) [id %i].",CFStringGetCStringPtr(wm[i]->address, kCFStringEncodingMacRoman),wm[i]->unid);
 	}
@@ -753,7 +793,11 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len)
 
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+	IOBluetoothL2CAPChannel* channel = (IOBluetoothL2CAPChannel*) wm->outputCh;
+#else
 	IOBluetoothL2CAPChannel* channel = [IOBluetoothL2CAPChannel withL2CAPChannelRef:wm->outputCh];
+#endif
     IOReturn error = [channel writeSync:buf length:length];
 
 	if (error != kIOReturnSuccess)
@@ -771,14 +815,22 @@ int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len)
 
         WiiConnect* connect = (WiiConnect*)(wm->connectionHandler);
 
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+        IOBluetoothDevice* device = (IOBluetoothDevice*) wm->device;
+#else
         IOBluetoothDevice* device = [IOBluetoothDevice withDeviceRef:wm->device];
+#endif
         channel = [connect openL2CAPChannelWithPSM:WM_OUTPUT_CHANNEL device:device delegate:connect];
         if (!channel) {
             WIIUSE_ERROR("Unable to open L2CAP output channel (id %i).", wm->unid);
             [device closeConnection];
             return kIOReturnNotOpen;
         }
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+        wm->outputCh = (IOBluetoothL2CAPChannelRef) [channel retain];
+#else
         wm->outputCh = [[channel retain] getL2CAPChannelRef];
+#endif
         usleep(20000);
 
         WIIUSE_INFO("Attempting to write again through the output channel (id %i).", wm->unid);
