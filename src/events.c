@@ -801,6 +801,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 				WIIUSE_DEBUG("no handshake data received from expansion");
 				return;
 			}
+			wm->expansion_state = 0;
 			id = from_big_endian_uint32_t(data + 220);
 			switch(id) {
 				case EXP_ID_CODE_NUNCHUK:

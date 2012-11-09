@@ -366,24 +366,38 @@
 - (void) l2capChannelData:(IOBluetoothL2CAPChannel*) channel data:(byte *) data length:(NSUInteger) length 
 {
 	// This is done in case the output channel woke up this handler
-	if(!data) {
-	    [self setReading:NO];
-		length = 0;
+	if(!data || ([channel PSM] == WM_OUTPUT_CHANNEL)) {
 		return;
 	}
+	
+	// log the received data
+	#ifdef WITH_WIIUSE_DEBUG
+	{
+		printf("[DEBUG] (id %i) RECV: (%x) ", _wm->unid, data[0]);
+		int x;
+		for (x = 1; x < length; ++x)
+			printf("%.2x ", data[x]);
+		printf("\n");
+	}
+	#endif
 
 	/* 
 	 * This is called if we are receiving data before completing
 	 * the handshaking, hence before calling wiiuse_poll
 	 */
+	// wiimote handshake
 	if(WIIMOTE_IS_SET(_wm, WIIMOTE_STATE_HANDSHAKE))
+		propagate_event(_wm, data[1], data+2);
+	
+	// expansion handshake
+	if(_wm->expansion_state != 0)
 		propagate_event(_wm, data[1], data+2);
 
 	receivedMsg = [[NSData dataWithBytes:data length:length] retain]; 
 	msgLength = length;
 	
-    // This is done when a message is successfully received. Stop the main loop after reading
-    [self setReading:NO];
+	// This is done when a message is successfully received. Stop the main loop after reading
+	[self setReading:NO];
 }
 
 - (unsigned int) getMsgLength
