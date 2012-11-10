@@ -39,8 +39,6 @@
 #import "../events.h"
 #import "../os.h"
 
-
-#define BLUETOOTH_VERSION_USE_CURRENT
 #import <IOBluetooth/IOBluetoothUtilities.h>
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
 #import <IOBluetooth/objc/IOBluetoothHostController.h>
@@ -48,7 +46,7 @@
 
 
 #pragma mark -
-#pragma mark find
+#pragma mark WiiuseDeviceInquiry
 
 @interface WiiuseDeviceInquiry : NSObject<IOBluetoothDeviceInquiryDelegate> {
 	wiimote** wiimotes;
@@ -122,6 +120,10 @@
 }
 
 - (NSUInteger) collectResultsOf: (IOBluetoothDeviceInquiry*) inquiry {
+	// stop the inquiry
+	if(![inquiry stop])
+		WIIUSE_ERROR("Unable to stop bluetooth device inquiry.");
+	
 	// read found device information
 	NSArray* devices = [inquiry foundDevices];
 	for(NSUInteger i = 0; i < [devices count]; i++) {
@@ -168,6 +170,8 @@
 	return result;
 }
 
+#pragma mark IOBluetoothDeviceInquiryDelegate
+
 - (void) deviceInquiryDeviceFound:(IOBluetoothDeviceInquiry *) inquiry device:(IOBluetoothDevice *) device {
 	
 	WIIUSE_DEBUG("Found a wiimote");
@@ -175,8 +179,6 @@
 	_foundDevices++;
 	if(_foundDevices >= maxDevices) {
 		// reached maximum number of devices
-		if(![inquiry stop])
-			WIIUSE_ERROR("Unable to stop bluetooth device inquiry.");
 		_inquiryComplete = YES;
 	}
 }
@@ -195,6 +197,9 @@
 }
 
 @end
+
+#pragma mark -
+#pragma mark public interface
 
 int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	int result;
