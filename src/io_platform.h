@@ -31,24 +31,32 @@
  *	@brief Handles device I/O.
  */
 
-#ifndef IO_H_INCLUDED
-#define IO_H_INCLUDED
+#ifndef IO_PLATFORM_H_INCLUDED
+#define IO_PLATFORM_H_INCLUDED
 
 #include "wiiuse_internal.h"
-
-#include "io_platform.h" // declare functions implemented per platform
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** @defgroup internal_io Internal: Device I/O */
+
+/** @defgroup internal_io Internal: Platform-specific Device I/O */
 /** @{ */
-void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len);
+void wiiuse_init_platform_fields(struct wiimote_t* wm);
+void wiiuse_cleanup_platform_fields(struct wiimote_t* wm);
+
+int wiiuse_io_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
+
+int wiiuse_io_connect(struct wiimote_t** wm, int wiimotes);
+void wiiuse_io_disconnect(struct wiimote_t* wm);
+
+int wiiuse_io_read(struct wiimote_t* wm);
+int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len);
 /** @} */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* IO_H_INCLUDED */
+#endif /* IO_PLATFORM_H_INCLUDED */

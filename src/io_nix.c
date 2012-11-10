@@ -47,25 +47,9 @@
 #include <unistd.h>                     /* for close, write */
 #include <errno.h>
 
-static int wiiuse_connect_single(struct wiimote_t* wm, char* address);
+static int wiiuse_io_connect_single(struct wiimote_t* wm, char* address);
 
-/**
- *	@brief Find a wiimote or wiimotes.
- *
- *	@param wm			An array of wiimote_t structures.
- *	@param max_wiimotes	The number of wiimote structures in \a wm.
- *	@param timeout		The number of seconds before the search times out.
- *
- *	@return The number of wiimotes found.
- *
- *	@see wiimote_connect()
- *
- *	This function will only look for wiimote devices.						\n
- *	When a device is found the address in the structures will be set.		\n
- *	You can then call wiimote_connect() to connect to the found				\n
- *	devices.
- */
-int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
+int wiiuse_io_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	int device_id;
 	int device_sock;
 	inquiry_info scan_info_arr[128];
@@ -133,22 +117,10 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 
 
 /**
- *	@brief Connect to a wiimote or wiimotes once an address is known.
- *
- *	@param wm			An array of wiimote_t structures.
- *	@param wiimotes		The number of wiimote structures in \a wm.
- *
- *	@return The number of wiimotes that successfully connected.
- *
- *	@see wiiuse_find()
- *	@see wiiuse_connect_single()
- *	@see wiiuse_disconnect()
- *
- *	Connect to a number of wiimotes when the address is already set
- *	in the wiimote_t structures.  These addresses are normally set
- *	by the wiiuse_find() function, but can also be set manually.
+ *	@see wiiuse_connect()
+ *	@see wiiuse_io_connect_single()
  */
-int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
+int wiiuse_io_connect(struct wiimote_t** wm, int wiimotes) {
 	int connected = 0;
 	int i = 0;
 
@@ -174,7 +146,7 @@ int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
  *
  *	@return 1 on success, 0 on failure
  */
-static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
+static int wiiuse_io_connect_single(struct wiimote_t* wm, char* address) {
 	struct sockaddr_l2 addr;
 	memset(&addr, 0, sizeof (addr));
 
@@ -241,17 +213,7 @@ static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
 	return 1;
 }
 
-
-/**
- *	@brief Disconnect a wiimote.
- *
- *	@param wm		Pointer to a wiimote_t structure.
- *
- *	@see wiiuse_connect()
- *
- *	Note that this will not free the wiimote structure.
- */
-void wiiuse_disconnect(struct wiimote_t* wm) {
+void wiiuse_io_disconnect(struct wiimote_t* wm) {
 	if (!wm || WIIMOTE_IS_CONNECTED(wm))
 		return;
 

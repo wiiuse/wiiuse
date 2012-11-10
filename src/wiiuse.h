@@ -101,8 +101,6 @@
 #endif
 #ifdef WIIUSE_MAC
 	/* mac */
-	#include <CoreFoundation/CoreFoundation.h>		/*CFRunLoops and CFNumberRef in Bluetooth classes*/
-	#include <IOBluetooth/IOBluetoothUserLib.h>		/*IOBluetoothDeviceRef and IOBluetoothL2CAPChannelRef*/
 #endif
 
 #ifndef WCONST
@@ -722,13 +720,7 @@ typedef struct wiimote_t {
 	
 	#ifdef WIIUSE_MAC
 	/** @name Mac OS X-specific members */
-	/** @{ */	
-		WCONST IOBluetoothDeviceRef device;    	/**  Device reference object                */
-		WCONST CFStringRef address;            	/**  MacOS-like device address string       */
-		WCONST IOBluetoothL2CAPChannelRef inputCh;		/**  Input L2CAP channel					*/	
-		WCONST IOBluetoothL2CAPChannelRef outputCh;	/**  Output L2CAP channel					*/
-		WCONST IOBluetoothUserNotificationRef disconnectionRef;	/**  Disconnection Notification Reference **/
-		WCONST void* connectionHandler; /** Wiimote connection handler for MACOSX **/	
+	/** @{ */
 	/** @} */
 	#endif
 
@@ -896,7 +888,7 @@ WIIUSE_EXPORT extern void wiiuse_resync(struct wiimote_t* wm);
 WIIUSE_EXPORT extern void wiiuse_set_timeout(struct wiimote_t** wm, int wiimotes, byte normal_timeout, byte exp_timeout);
 WIIUSE_EXPORT extern void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold);
 
-/* connect.c */
+/* io.c */
 WIIUSE_EXPORT extern int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
 WIIUSE_EXPORT extern int wiiuse_connect(struct wiimote_t** wm, int wiimotes);
 WIIUSE_EXPORT extern void wiiuse_disconnect(struct wiimote_t* wm);

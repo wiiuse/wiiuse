@@ -52,7 +52,7 @@ extern "C" {
 #	endif
 #endif
 
-int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
+int wiiuse_io_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	GUID device_id;
 	HANDLE dev;
 	HDEVINFO device_info;
@@ -146,7 +146,7 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 }
 
 
-int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
+int wiiuse_io_connect(struct wiimote_t** wm, int wiimotes) {
 	int connected = 0;
 	int i = 0;
 
@@ -161,7 +161,7 @@ int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
 }
 
 
-void wiiuse_disconnect(struct wiimote_t* wm) {
+void wiiuse_io_disconnect(struct wiimote_t* wm) {
 	if (!wm || WIIMOTE_IS_CONNECTED(wm))
 		return;
 

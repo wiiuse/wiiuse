@@ -30,10 +30,81 @@
  *	@file
  *	@brief Handles device I/O (non-OS specific).
  */
+
 #include "io.h"
 #include "ir.h"                         /* for wiiuse_set_ir_mode */
 
 #include <stdlib.h>                     /* for free, malloc */
+
+/**
+ *  @brief Find a wiimote or wiimotes.
+ *
+ *  @param wm     An array of wiimote_t structures.
+ *  @param max_wiimotes The number of wiimote structures in \a wm.
+ *  @param timeout    The number of seconds before the search times out.
+ *
+ *  @return The number of wiimotes found.
+ *
+ *  @see wiiuse_connect()
+ *  @see wiiuse_io_find()
+ *
+ *  This function will only look for wiimote devices.           \n
+ *  When a device is found the address in the structures will be set.   \n
+ *  You can then call wiiuse_connect() to connect to the found       \n
+ *  devices.
+ *
+ *  This function only delegates to the platform-specific implementation
+ *  wiiuse_io_find.
+ *
+ *  This function is declared in wiiuse.h
+ */
+int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
+  return wiiuse_io_find(wm, max_wiimotes, timeout);
+}
+
+/**
+ *  @brief Connect to a wiimote or wiimotes once an address is known.
+ *
+ *  @param wm     An array of wiimote_t structures.
+ *  @param wiimotes   The number of wiimote structures in \a wm.
+ *
+ *  @return The number of wiimotes that successfully connected.
+ *
+ *  @see wiiuse_find()
+ *  @see wiiuse_disconnect()
+ *  @see wiiuse_io_connect()
+ *
+ *  Connect to a number of wiimotes when the address is already set
+ *  in the wiimote_t structures.  These addresses are normally set
+ *  by the wiiuse_find() function, but can also be set manually.
+ *
+ *  This function only delegates to the platform-specific implementation
+ *  wiiuse_io_connect.
+ *
+ *  This function is declared in wiiuse.h
+ */
+int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
+  return wiiuse_io_connect(wm, wiimotes);
+}
+
+/**
+ *  @brief Disconnect a wiimote.
+ *
+ *  @param wm   Pointer to a wiimote_t structure.
+ *
+ *  @see wiiuse_connect()
+ *  @see wiiuse_io_disconnect()
+ *
+ *  Note that this will not free the wiimote structure.
+ *
+ *  This function only delegates to the platform-specific implementation
+ *  wiiuse_io_disconnect.
+ *
+ *  This function is declared in wiiuse.h
+ */
+void wiiuse_disconnect(struct wiimote_t* wm) {
+  wiiuse_io_disconnect(wm);
+}
 
 
 static void wiiuse_disable_motion_plus2(struct wiimote_t *wm,byte *data,unsigned short len)

@@ -16,6 +16,7 @@ set(SOURCES
 	motion_plus.h
 	motion_plus.c
 	io.h
+	io_platform.h
 	ir.h
 	nunchuk.h
 	os.h
@@ -29,7 +30,6 @@ if(WIN32)
 	list(APPEND SOURCES io_win.c)
 	set(CMAKE_DEBUG_POSTFIX _debug)
 elseif(APPLE)
-	list(APPEND SOURCES io_mac.h)
 	list(APPEND SOURCES io_mac.m)
 	# make sure we use the gcc for Objective-C files as well so that the
 	# sysroot and deployment target arguments are correctly passed to the compiler
