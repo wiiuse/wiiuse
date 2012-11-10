@@ -101,6 +101,7 @@
 #endif
 #ifdef WIIUSE_MAC
 	/* mac */
+	#include <IOBluetooth/IOBluetoothUserLib.h>
 #endif
 
 #ifndef WCONST
@@ -700,6 +701,7 @@ typedef struct wiimote_t {
 	#ifdef WIIUSE_BLUEZ
 	/** @name Linux-specific (BlueZ) members */
 	/** @{ */
+		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST bdaddr_t bdaddr;				/**< bt address								*/
 		WCONST int out_sock;				/**< output socket							*/
 		WCONST int in_sock;					/**< input socket 							*/
@@ -721,13 +723,7 @@ typedef struct wiimote_t {
 	#ifdef WIIUSE_MAC
 	/** @name Mac OS X-specific members */
 	/** @{ */
-	/** @} */
-	#endif
-
-	#if defined(WIIUSE_BLUEZ) || defined(WIIUSE_MAC)
-	/** @name Linux (BlueZ) and Mac OS X shared members */
-	/** @{ */
-		WCONST char bdaddr_str[18];			/**< readable bt address					*/
+		WCONST IOBluetoothDeviceRef device;	/**  Device reference object                */
 	/** @} */
 	#endif
 
@@ -738,7 +734,7 @@ typedef struct wiimote_t {
 	WCONST int flags;						/**< options flag							*/
 
 	WCONST byte handshake_state;			/**< the state of the connection handshake	*/
-	WCONST byte expansion_state;            /**< the state of the expansion handshake    */
+	WCONST byte expansion_state;            /**< the state of the expansion handshake	*/
 	WCONST struct data_req_t* data_req;		/**< list of data read requests				*/
 
 	WCONST struct read_req_t* read_req;		/**< list of data read requests				*/
