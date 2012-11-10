@@ -131,7 +131,6 @@
 		
 		// save the device in the wiimote structure
 		wiimotes[i]->objc_wm = (void*) [[WiiuseWiimote alloc] initWithPtr:wiimotes[i] device: device];
-		[device retain]; // must retain it for later access through its ref
 		
 		// mark as found
 		WIIMOTE_ENABLE_STATE(wiimotes[i], WIIMOTE_STATE_DEV_FOUND);

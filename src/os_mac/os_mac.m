@@ -53,7 +53,7 @@
 	if(self) {
 		wm = wm_;
 		
-		device = device_;
+		device = [device_ retain];
 		controlChannel = nil;
 		interruptChannel = nil;
 		
@@ -161,9 +161,6 @@
 		
 		// forward event data to C struct
 		memcpy(wm->event_buf, data, sizeof(wm->event_buf));
-		
-		// clear local buffer
-		[firstData release];
 	}
 	[receivedDataLock unlock];
 	
@@ -175,11 +172,11 @@
 	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
 	while (true) {
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init]; // This is used for fast release of NSDate, otherwise it leaks
-		
 		if(![theRL runMode:NSDefaultRunLoopMode beforeDate:timeoutDate]) {
 			WIIUSE_ERROR("Could not start run loop while waiting for read [id %i].", wm->unid);
 			break;
 		}
+		[pool drain];
 		
 		[receivedDataLock lock];
 		NSUInteger count = [receivedData count];
@@ -193,8 +190,6 @@
 			// timeout
 			break;
 		}
-		
-		[pool drain];
 	}
 }
 
@@ -271,9 +266,11 @@
 	}
 	
 	// copy the data into the buffer
+	NSData* newData = [[NSData alloc] initWithBytes:data length:length];
 	[receivedDataLock lock];
-	[receivedData addObject: [[NSData alloc] initWithBytes:data length:length]];
+	[receivedData addObject: newData];
 	[receivedDataLock unlock];
+	[newData release];
 }
 
 @end
