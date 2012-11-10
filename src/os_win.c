@@ -33,6 +33,8 @@
 
 
 #include "io.h"
+#include "events.h"
+#include "os.h"
 
 #ifdef WIIUSE_WIN32
 #include <stdlib.h>
@@ -176,6 +178,30 @@ void wiiuse_os_disconnect(struct wiimote_t* wm) {
 	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
 }
 
+
+int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
+	int i;
+	int evnt = 0;
+
+	if (!wm) return 0;
+
+	for (i = 0; i < wiimotes; ++i) {
+		wm[i]->event = WIIUSE_NONE;
+
+		if (wiiuse_os_read(wm[i])) {
+			/* propagate the event */
+			propagate_event(wm[i], wm[i]->event_buf[0], wm[i]->event_buf+1);
+			evnt += (wm[i]->event != WIIUSE_NONE);
+
+			/* clear out the event buffer */
+			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
+		} else {
+			idle_cycle(wm[i]);
+		}
+	}
+
+	return evnt;
+}
 
 int wiiuse_os_read(struct wiimote_t* wm) {
 	DWORD b, r;

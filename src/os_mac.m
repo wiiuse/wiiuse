@@ -33,7 +33,9 @@
 
 #ifdef __APPLE__
 
-#include "io.h"
+#import "io.h"
+#import "events.h"
+#import "os.h"
 
 #if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7
 #define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 1
@@ -51,23 +53,36 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 }
 
 int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
-  return 0;
+	return 0;
 }
 
 int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
-  return 0;
+	return 0;
 }
 
 void wiiuse_os_disconnect(struct wiimote_t* wm) {
 
 }
 
+int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
+	int i;
+	
+	if (!wm) return 0;
+	
+	for (i = 0; i < wiimotes; ++i) {
+		wm[i]->event = WIIUSE_NONE;
+		idle_cycle(wm[i]);
+	}
+	
+	return 0;
+}
+
 int wiiuse_os_read(struct wiimote_t* wm) {
-  return 0;
+	return 0;
 }
 
 int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
-  return 0;
+	return 0;
 }
 
 #endif // __APPLE__

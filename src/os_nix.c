@@ -32,6 +32,8 @@
  */
 
 #include "io.h"
+#include "events.h"
+#include "os.h"
 
 #ifdef WIIUSE_BLUEZ
 
@@ -228,6 +230,94 @@ void wiiuse_os_disconnect(struct wiimote_t* wm) {
 	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
 }
 
+
+int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
+	int evnt;
+	struct timeval tv;
+	fd_set fds;
+	int r;
+	int i;
+	int highest_fd = -1;
+
+	evnt = 0;
+	if (!wm) return 0;
+
+	/* block select() for 1/2000th of a second */
+	tv.tv_sec = 0;
+	tv.tv_usec = 500;
+
+	FD_ZERO(&fds);
+
+	for (i = 0; i < wiimotes; ++i) {
+		/* only poll it if it is connected */
+		if (WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_CONNECTED)) {
+			FD_SET(wm[i]->in_sock, &fds);
+
+			/* find the highest fd of the connected wiimotes */
+			if (wm[i]->in_sock > highest_fd)
+				highest_fd = wm[i]->in_sock;
+		}
+
+		wm[i]->event = WIIUSE_NONE;
+	}
+
+	if (highest_fd == -1)
+		/* nothing to poll */
+		return 0;
+
+	if (select(highest_fd + 1, &fds, NULL, NULL, &tv) == -1) {
+		WIIUSE_ERROR("Unable to select() the wiimote interrupt socket(s).");
+		perror("Error Details");
+		return 0;
+	}
+
+	/* check each socket for an event */
+	for (i = 0; i < wiimotes; ++i) {
+		/* if this wiimote is not connected, skip it */
+		if (!WIIMOTE_IS_CONNECTED(wm[i]))
+			continue;
+
+		if (FD_ISSET(wm[i]->in_sock, &fds)) {
+			/* clear out the event buffer */
+			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
+
+			/* clear out any old read requests */
+			clear_dirty_reads(wm[i]);
+
+			/* read the pending message into the buffer */
+			r = read(wm[i]->in_sock, wm[i]->event_buf, sizeof(wm[i]->event_buf));
+			if (r == -1) {
+				/* error reading data */
+				WIIUSE_ERROR("Receiving wiimote data (id %i).", wm[i]->unid);
+				perror("Error Details");
+
+				if (errno == ENOTCONN) {
+					/* this can happen if the bluetooth dongle is disconnected */
+					WIIUSE_ERROR("Bluetooth appears to be disconnected.  Wiimote unid %i will be disconnected.", wm[i]->unid);
+					wiiuse_disconnect(wm[i]);
+					wiiuse_disconnected(wm[i]);
+					wm[i]->event = WIIUSE_UNEXPECTED_DISCONNECT;
+				}
+
+				continue;
+			}
+			if (!r) {
+				/* remote disconnect */
+				wiiuse_disconnected(wm[i]);
+				evnt = 1;
+				continue;
+			}
+
+			/* propagate the event */
+			propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
+			evnt += (wm[i]->event != WIIUSE_NONE);
+		} else {
+			idle_cycle(wm[i]);
+		}
+	}
+
+	return evnt;
+}
 
 int wiiuse_os_read(struct wiimote_t* wm) {
 	/* not used */

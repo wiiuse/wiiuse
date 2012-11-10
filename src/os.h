@@ -51,6 +51,7 @@ int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
 int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes);
 void wiiuse_os_disconnect(struct wiimote_t* wm);
 
+int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes);
 int wiiuse_os_read(struct wiimote_t* wm);
 int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len);
 /** @} */
