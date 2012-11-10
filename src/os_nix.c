@@ -131,7 +131,7 @@ int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 			/* if the device address is not set, skip it */
 			continue;
 
-		if (wiiuse_connect_single(wm[i], NULL))
+		if (wiiuse_os_connect_single(wm[i], NULL))
 			++connected;
 	}
 
@@ -144,7 +144,7 @@ int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
  *
  *	@param wm		Pointer to a wiimote_t structure.
  *	@param address	The address of the device to connect to.
- *					If NULL, use the address in the struct set by wiiuse_find().
+ *					If NULL, use the address in the struct set by wiiuse_os_find().
  *
  *	@return 1 on success, 0 on failure
  */
@@ -294,7 +294,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 				if (errno == ENOTCONN) {
 					/* this can happen if the bluetooth dongle is disconnected */
 					WIIUSE_ERROR("Bluetooth appears to be disconnected.  Wiimote unid %i will be disconnected.", wm[i]->unid);
-					wiiuse_disconnect(wm[i]);
+					wiiuse_os_disconnect(wm[i]);
 					wiiuse_disconnected(wm[i]);
 					wm[i]->event = WIIUSE_UNEXPECTED_DISCONNECT;
 				}
