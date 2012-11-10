@@ -50,23 +50,23 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 
 }
 
-int wiiuse_io_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
+int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
   return 0;
 }
 
-int wiiuse_io_connect(struct wiimote_t** wm, int wiimotes) {
+int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
   return 0;
 }
 
-void wiiuse_io_disconnect(struct wiimote_t* wm) {
+void wiiuse_os_disconnect(struct wiimote_t* wm) {
 
 }
 
-int wiiuse_io_read(struct wiimote_t* wm) {
+int wiiuse_os_read(struct wiimote_t* wm) {
   return 0;
 }
 
-int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
+int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
   return 0;
 }
 

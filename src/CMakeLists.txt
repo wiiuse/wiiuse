@@ -10,13 +10,13 @@ set(SOURCES
 	wiiboard.c
 	classic.h
 	definitions.h
+	definitions_os.h
 	dynamics.h
 	events.h
 	guitar_hero_3.h
 	motion_plus.h
 	motion_plus.c
 	io.h
-	io_platform.h
 	ir.h
 	nunchuk.h
 	os.h
@@ -27,15 +27,15 @@ set(API
 	wiiuse.h)
 
 if(WIN32)
-	list(APPEND SOURCES io_win.c)
+	list(APPEND SOURCES os_win.c)
 	set(CMAKE_DEBUG_POSTFIX _debug)
 elseif(APPLE)
-	list(APPEND SOURCES io_mac.m)
+	list(APPEND SOURCES os_mac.m)
 	# make sure we use the gcc for Objective-C files as well so that the
 	# sysroot and deployment target arguments are correctly passed to the compiler
-	SET_SOURCE_FILES_PROPERTIES(io_mac.m PROPERTIES LANGUAGE C)
+	SET_SOURCE_FILES_PROPERTIES(os_mac.m PROPERTIES LANGUAGE C)
 else()
-	list(APPEND SOURCES io_nix.c)
+	list(APPEND SOURCES os_nix.c)
 endif()
 
 if(MSVC)

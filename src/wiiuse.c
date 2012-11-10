@@ -37,6 +37,7 @@
 
 #include "wiiuse_internal.h"
 #include "io.h"                         /* for wiiuse_handshake, etc */
+#include "os.h"							/* for wiiuse_os_* */
 
 #include <stdio.h>                      /* for printf, FILE */
 #include <stdlib.h>                     /* for malloc, free */
@@ -706,9 +707,9 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 	#endif
 
 	#ifndef WIIUSE_WIN32
-		return wiiuse_io_write(wm, buf, len+2);
+		return wiiuse_os_write(wm, buf, len+2);
 	#else
-		return wiiuse_io_write(wm, buf, len+1);
+		return wiiuse_os_write(wm, buf, len+1);
 	#endif
 }
 

@@ -47,9 +47,9 @@
 #include <unistd.h>                     /* for close, write */
 #include <errno.h>
 
-static int wiiuse_io_connect_single(struct wiimote_t* wm, char* address);
+static int wiiuse_os_connect_single(struct wiimote_t* wm, char* address);
 
-int wiiuse_io_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
+int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	int device_id;
 	int device_sock;
 	inquiry_info scan_info_arr[128];
@@ -118,9 +118,9 @@ int wiiuse_io_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 
 /**
  *	@see wiiuse_connect()
- *	@see wiiuse_io_connect_single()
+ *	@see wiiuse_os_connect_single()
  */
-int wiiuse_io_connect(struct wiimote_t** wm, int wiimotes) {
+int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 	int connected = 0;
 	int i = 0;
 
@@ -146,7 +146,7 @@ int wiiuse_io_connect(struct wiimote_t** wm, int wiimotes) {
  *
  *	@return 1 on success, 0 on failure
  */
-static int wiiuse_io_connect_single(struct wiimote_t* wm, char* address) {
+static int wiiuse_os_connect_single(struct wiimote_t* wm, char* address) {
 	struct sockaddr_l2 addr;
 	memset(&addr, 0, sizeof (addr));
 
@@ -213,7 +213,7 @@ static int wiiuse_io_connect_single(struct wiimote_t* wm, char* address) {
 	return 1;
 }
 
-void wiiuse_io_disconnect(struct wiimote_t* wm) {
+void wiiuse_os_disconnect(struct wiimote_t* wm) {
 	if (!wm || WIIMOTE_IS_CONNECTED(wm))
 		return;
 
@@ -229,13 +229,13 @@ void wiiuse_io_disconnect(struct wiimote_t* wm) {
 }
 
 
-int wiiuse_io_read(struct wiimote_t* wm) {
+int wiiuse_os_read(struct wiimote_t* wm) {
 	/* not used */
 	return 0;
 }
 
 
-int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
+int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
 	return write(wm->out_sock, buf, len);
 }
 

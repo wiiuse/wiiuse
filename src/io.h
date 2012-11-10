@@ -36,8 +36,6 @@
 
 #include "wiiuse_internal.h"
 
-#include "io_platform.h" // declare functions implemented per platform
-
 #ifdef __cplusplus
 extern "C" {
 #endif
