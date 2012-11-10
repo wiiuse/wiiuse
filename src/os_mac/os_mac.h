@@ -66,6 +66,8 @@
 - (IOReturn) connect;
 - (void) disconnect;
 
+- (int) writeBuffer: (byte*) buffer length: (NSUInteger) length;
+
 @end
 
 

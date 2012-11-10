@@ -151,7 +151,18 @@ int wiiuse_os_read(struct wiimote_t* wm) {
 }
 
 int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
-	return 0;
+	if(!wm) {
+		WIIUSE_ERROR("Attempting to write to NULL Wiimote");
+		return 0;
+	}
+	
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	
+	WiiuseWiimote* objc_wm = (WiiuseWiimote*) wm->objc_wm;
+	int result = [objc_wm writeBuffer: buf length: (NSUInteger)len];
+	
+	[pool drain];
+	return result;
 }
 
 #pragma mark -
@@ -180,6 +191,8 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 
 @implementation WiiuseWiimote
 
+#pragma mark init, dealloc
+
 - (id) initWithPtr: (wiimote*) wm_ device:(IOBluetoothDevice *)device_ {
 	self = [super init];
 	if(self) {
@@ -206,6 +219,19 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 	[super dealloc];
 }
 
+#pragma mark connect, disconnect
+
+- (BOOL) connectChannel: (IOBluetoothL2CAPChannel**) pChannel PSM: (BluetoothL2CAPPSM) psm {
+	if ([device openL2CAPChannelSync:pChannel withPSM:psm delegate:self] != kIOReturnSuccess) {
+		WIIUSE_ERROR("Unable to open L2CAP channel [id %i].", wm->unid);
+		*pChannel = nil;
+		return NO;
+	} else {
+		[*pChannel retain];
+		return YES;
+	}
+}
+
 - (IOReturn) connect {
 	if(!device) {
 		WIIUSE_ERROR("Missing device.");
@@ -213,14 +239,11 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 	}
 	
 	// open channels
-	if ([device openL2CAPChannelSync:&controlChannel withPSM:WM_OUTPUT_CHANNEL delegate:self] != kIOReturnSuccess) {
-		WIIUSE_ERROR("Unable to open L2CAP control channel [id %i].", wm->unid);
-		[device closeConnection];
+	if(![self connectChannel:&controlChannel PSM:WM_OUTPUT_CHANNEL]) {
+		[self disconnect];
 		return kIOReturnNotOpen;
-	} else if([device openL2CAPChannelSync:&interruptChannel withPSM:WM_INPUT_CHANNEL delegate:self] != kIOReturnSuccess) {
-		WIIUSE_ERROR("Unable to open L2CAP interrupt channel [id %i].", wm->unid);
-		[controlChannel closeChannel];
-		[device closeConnection];
+	} else if(![self connectChannel:&interruptChannel PSM:WM_INPUT_CHANNEL]) {
+		[self disconnect];
 		return kIOReturnNotOpen;
 	}
 	
@@ -228,31 +251,26 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 	disconnectNotification = [device registerForDisconnectNotification:self selector:@selector(disconnected:fromDevice:)];
 	if(!disconnectNotification) {
 		WIIUSE_ERROR("Unable to register disconnection handler [id %i].", wm->unid);
-		[interruptChannel closeChannel];
-		[controlChannel closeChannel];
-		[device closeConnection];
+		[self disconnect];
 		return kIOReturnNotOpen;
 	}
-	
-	// retain channels
-	[controlChannel retain];
-	[interruptChannel retain];
 	
 	return kIOReturnSuccess;
 }
 
-- (void) disconnect {
-	// interrupt channel
-	if([interruptChannel closeChannel] != kIOReturnSuccess)
-		WIIUSE_ERROR("Unable to close interrupt channel [id %i].", wm ? wm->unid : -1);
-	[interruptChannel release];
-	interruptChannel = nil;
+- (void) disconnectChannel: (IOBluetoothL2CAPChannel**) pChannel {
+	if(!pChannel) return;
 	
-	// control channel
-	if([controlChannel closeChannel] != kIOReturnSuccess)
-		WIIUSE_ERROR("Unable to close control channel [id %i].", wm ? wm->unid : -1);
-	[controlChannel release];
-	controlChannel = nil;
+	if([*pChannel closeChannel] != kIOReturnSuccess)
+		WIIUSE_ERROR("Unable to close channel [id %i].", wm ? wm->unid : -1);
+	[*pChannel release];
+	*pChannel = nil;
+}
+
+- (void) disconnect {
+	// channels
+	[self disconnectChannel:&interruptChannel];
+	[self disconnectChannel:&controlChannel];
 	
 	// device
 	if([device closeConnection] != kIOReturnSuccess)
@@ -261,11 +279,38 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 	device = nil;
 }
 
-#pragma mark IOBluetoothL2CAPChannel delegates
-
 - (void) disconnected:(IOBluetoothUserNotification*) notification fromDevice:(IOBluetoothDevice*) device {
 	
 	wiiuse_disconnected(wm);
+}
+
+#pragma mark read, write
+
+- (int) writeBuffer: (byte*) buffer length: (NSUInteger) length {
+	if(controlChannel == nil) {
+		WIIUSE_ERROR("Attempted to write to nil control channel [id %i].", wm->unid);
+		return 0;
+	}
+	
+	IOReturn error = [controlChannel writeSync:buffer length:length];
+	if (error != kIOReturnSuccess) {
+		WIIUSE_ERROR("Error writing to control channel [id %i].", wm->unid);
+		
+		WIIUSE_DEBUG("Attempting to reopen the control channel [id %i].", wm->unid);
+		[self disconnectChannel:&controlChannel];
+		[self connectChannel:&controlChannel PSM:WM_OUTPUT_CHANNEL];
+		if(!controlChannel) {
+			WIIUSE_ERROR("Error reopening the control channel [id %i].", wm->unid);
+			[self disconnect];
+		} else {
+			WIIUSE_DEBUG("Attempting to write again to the control channel [id %i].", wm->unid);
+			error = [controlChannel writeSync:buffer length:length];
+			if (error != kIOReturnSuccess)
+				WIIUSE_ERROR("Unable to write again to the control channel [id %i].", wm->unid);
+		}
+	}
+	
+	return (error == kIOReturnSuccess) ? length : 0;
 }
 
 @end
