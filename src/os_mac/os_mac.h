@@ -42,15 +42,6 @@
 #import "../wiiuse_internal.h"
 
 
-#if 0
-#if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7
-#define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 1
-#else
-#define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 0
-#endif
-#endif
-
-
 @interface WiiuseWiimote : NSObject<IOBluetoothL2CAPChannelDelegate> {
 	wiimote* wm; // reference to the C wiimote struct
 	
@@ -59,6 +50,9 @@
 	IOBluetoothL2CAPChannel* interruptChannel;
 	
 	IOBluetoothUserNotification* disconnectNotification;
+	
+	NSMutableArray* receivedData; // a queue os NSData*
+	NSLock* receivedDataLock;
 }
 
 - (id) initWithPtr: (wiimote*) wm device: (IOBluetoothDevice*) device;
@@ -66,6 +60,7 @@
 - (IOReturn) connect;
 - (void) disconnect;
 
+- (int) read;
 - (int) writeBuffer: (byte*) buffer length: (NSUInteger) length;
 
 @end
