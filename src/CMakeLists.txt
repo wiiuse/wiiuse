@@ -31,6 +31,9 @@ if(WIN32)
 elseif(APPLE)
 	list(APPEND SOURCES io_mac.h)
 	list(APPEND SOURCES io_mac.m)
+	# make sure we use the gcc for Objective-C files as well so that the
+	# sysroot and deployment target arguments are correctly passed to the compiler
+	SET_SOURCE_FILES_PROPERTIES(io_mac.m PROPERTIES LANGUAGE C)
 else()
 	list(APPEND SOURCES io_nix.c)
 endif()
