@@ -723,10 +723,7 @@ typedef struct wiimote_t {
 	#ifdef WIIUSE_MAC
 	/** @name Mac OS X-specific members */
 	/** @{ */
-		WCONST IOBluetoothDeviceRef device;	/**  Device reference						*/
 		WCONST void* objc_wm;				/**  WiiuseWiimote* as opaque pointer       */
-		WCONST IOBluetoothL2CAPChannelRef controlChannel;	/**  control channel reference		*/
-		WCONST IOBluetoothL2CAPChannelRef interruptChannel;	/**  interrupt channel reference	*/
 	/** @} */
 	#endif
 

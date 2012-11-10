@@ -47,7 +47,7 @@
 
 
 #pragma mark -
-#pragma mark connect
+#pragma mark connect, disconnect
 
 /**
  *	@brief Connect to a wiimote with a known address.
@@ -64,7 +64,7 @@ static short wiiuse_os_connect_single(struct wiimote_t* wm) {
 	if(!wm) {
 		WIIUSE_ERROR("No Wiimote given.");
 		return 0;
-	} else if(wm && (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_DEV_FOUND) || wm->device == NULL)) {
+	} else if(wm && (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_DEV_FOUND) || wm->objc_wm == NULL)) {
 		WIIUSE_ERROR("Tried to connect Wiimote without an address.");
 		return 0;
 	} else if(WIIMOTE_IS_CONNECTED(wm)) {
@@ -78,7 +78,7 @@ static short wiiuse_os_connect_single(struct wiimote_t* wm) {
 	short result = 0;
 	
 	// connect
-	WiiuseWiimote* objc_wm = [[WiiuseWiimote alloc] initWithPtr: wm];
+	WiiuseWiimote* objc_wm = (WiiuseWiimote*) wm->objc_wm;
 	if([objc_wm connect] == kIOReturnSuccess) {
 		WIIUSE_INFO("Connected to Wiimote [id %i].", wm->unid);
 		
@@ -93,8 +93,6 @@ static short wiiuse_os_connect_single(struct wiimote_t* wm) {
 		wiiuse_set_report_type(wm);
 		
 		result = 1;
-	} else {
-		[objc_wm release];
 	}
 	
 	[pool drain];
@@ -111,8 +109,8 @@ int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 			break;
 		}
 		
-		if (!WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_DEV_FOUND) || !wm[i]->device) {
-			// If the device is not set, skip it
+		if (!WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_DEV_FOUND) || !wm[i]->objc_wm) {
+			// If the device is not found, skip it
 			continue;
 		}
 		
@@ -123,56 +121,13 @@ int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 	return connected;
 }
 
-#pragma mark disconnect
-
-#define WIIUSE_MAC_CLOSE_CHANNEL(wm, channel) \
-	{ \
-		IOBluetoothL2CAPChannel* channel = WIIUSE_IOBluetoothL2CAPChannelRef_to_IOBluetoothL2CAPChannel((wm)->channel##Channel); \
-		if([channel closeChannel] != kIOReturnSuccess) \
-			WIIUSE_ERROR("Unable to close " #channel " channel [id %i].", (wm)->unid); \
-		[channel release]; \
-		(wm)->channel##Channel = NULL; \
-	}
-
-#define WIIUSE_MAC_CLOSE_DEVICE_CONNECTION(wm) \
-	{ \
-		IOBluetoothDevice* device = WIIUSE_IOBluetoothDeviceRef_to_IOBluetoothDevice((wm)->device); \
-		if([device closeConnection] != kIOReturnSuccess) \
-			WIIUSE_ERROR("Unable to close the device connection [id %i].", (wm)->unid); \
-		[device release]; \
-		(wm)->device = NULL; \
-	}
-
-#define WIIUSE_MAC_DISCONNECT(wm) \
-	{ \
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init]; \
-		WIIUSE_MAC_CLOSE_CHANNEL(wm, interrupt); \
-		WIIUSE_MAC_CLOSE_CHANNEL(wm, control); \
-		WIIUSE_MAC_CLOSE_DEVICE_CONNECTION(wm); \
-		[pool drain]; \
-	}
-
 void wiiuse_os_disconnect(struct wiimote_t* wm) {
-	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
+	if (!wm || !WIIMOTE_IS_CONNECTED(wm) || !wm->objc_wm)
 		return;
 	
-	// disconnect
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	{ \
-		IOBluetoothL2CAPChannel* channel = WIIUSE_IOBluetoothL2CAPChannelRef_to_IOBluetoothL2CAPChannel((wm)->interruptChannel); \
-		if([channel closeChannel] != kIOReturnSuccess) \
-			WIIUSE_ERROR("Unable to close " "interrupt" " channel [id %i].", (wm)->unid); \
-		[channel release]; \
-		(wm)->interruptChannel = NULL; \
-	}
-	WIIUSE_MAC_CLOSE_CHANNEL(wm, control);
-	WIIUSE_MAC_CLOSE_DEVICE_CONNECTION(wm);
+	[((WiiuseWiimote*)wm->objc_wm) disconnect];
 	[pool drain];
-	
-	// clean up C struct
-	wm->event = WIIUSE_NONE;
-	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
-	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
 }
 
 #pragma mark -
@@ -203,25 +158,20 @@ int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
 #pragma mark platform fields
 
 void wiiuse_init_platform_fields(struct wiimote_t* wm) {
-	wm->device = NULL;
 	wm->objc_wm = NULL;
-	wm->controlChannel = NULL;
-	wm->interruptChannel = NULL;
 }
 
 void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
-	// disconnect & release device and channels
-	// Note: this should already have happened, because this function is called
-	// once the device is disconnected. This is just paranoia.
-	WIIUSE_MAC_DISCONNECT(wm);
+	if(!wm) return;
+	WiiuseWiimote* objc_wm = (WiiuseWiimote*) wm->objc_wm;
 	
-	// this is also done on disconnect, so it's even more paranoia.
-	wm->device = NULL;
-	wm->controlChannel = NULL;
-	wm->interruptChannel = NULL;
+	// disconnect
+	// Note: this should already have happened, because this function
+	// is called once the device is disconnected. This is just paranoia.
+	[objc_wm disconnect];
 	
 	// release WiiuseWiimote object
-	[((WiiuseWiimote*) wm->objc_wm) release];
+	[objc_wm release];
 	wm->objc_wm = NULL;
 }
 
@@ -230,10 +180,13 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 
 @implementation WiiuseWiimote
 
-- (id) initWithPtr: (wiimote*) wm_ {
+- (id) initWithPtr: (wiimote*) wm_ device:(IOBluetoothDevice *)device_ {
 	self = [super init];
 	if(self) {
 		wm = wm_;
+		device = device_;
+		controlChannel = nil;
+		interruptChannel = nil;
 		disconnectNotification = nil;
 	}
 	return self;
@@ -242,6 +195,11 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 - (void) dealloc {
 	wm = NULL;
 	
+	[interruptChannel release];
+	[controlChannel release];
+	[device release];
+	
+	[disconnectNotification unregister];
 	[disconnectNotification release];
 	disconnectNotification = nil;
 	
@@ -249,14 +207,12 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 }
 
 - (IOReturn) connect {
-	IOBluetoothDevice* device = WIIUSE_IOBluetoothDeviceRef_to_IOBluetoothDevice(wm->device);
 	if(!device) {
 		WIIUSE_ERROR("Missing device.");
 		return kIOReturnBadArgument;
 	}
 	
 	// open channels
-	IOBluetoothL2CAPChannel* controlChannel = nil, *interruptChannel = nil;
 	if ([device openL2CAPChannelSync:&controlChannel withPSM:WM_OUTPUT_CHANNEL delegate:self] != kIOReturnSuccess) {
 		WIIUSE_ERROR("Unable to open L2CAP control channel [id %i].", wm->unid);
 		[device closeConnection];
@@ -278,12 +234,31 @@ void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 		return kIOReturnNotOpen;
 	}
 	
-	// retain channels, and save them to the C struct
-	[controlChannel retain]; [interruptChannel retain];
-	wm->controlChannel = WIIUSE_IOBluetoothL2CAPChannel_to_IOBluetoothL2CAPChannelRef(controlChannel);
-	wm->interruptChannel = WIIUSE_IOBluetoothL2CAPChannel_to_IOBluetoothL2CAPChannelRef(interruptChannel);
+	// retain channels
+	[controlChannel retain];
+	[interruptChannel retain];
 	
 	return kIOReturnSuccess;
+}
+
+- (void) disconnect {
+	// interrupt channel
+	if([interruptChannel closeChannel] != kIOReturnSuccess)
+		WIIUSE_ERROR("Unable to close interrupt channel [id %i].", wm ? wm->unid : -1);
+	[interruptChannel release];
+	interruptChannel = nil;
+	
+	// control channel
+	if([controlChannel closeChannel] != kIOReturnSuccess)
+		WIIUSE_ERROR("Unable to close control channel [id %i].", wm ? wm->unid : -1);
+	[controlChannel release];
+	controlChannel = nil;
+	
+	// device
+	if([device closeConnection] != kIOReturnSuccess)
+		WIIUSE_ERROR("Unable to close the device connection [id %i].", wm ? wm->unid : -1);
+	[device release];
+	device = nil;
 }
 
 #pragma mark IOBluetoothL2CAPChannel delegates

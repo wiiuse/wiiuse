@@ -130,7 +130,7 @@
 		IOBluetoothDevice* device = [devices objectAtIndex:i];
 		
 		// save the device in the wiimote structure
-		wiimotes[i]->device = WIIUSE_IOBluetoothDevice_to_IOBluetoothDeviceRef(device);
+		wiimotes[i]->objc_wm = (void*) [[WiiuseWiimote alloc] initWithPtr:wiimotes[i] device: device];
 		[device retain]; // must retain it for later access through its ref
 		
 		// mark as found

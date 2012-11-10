@@ -42,57 +42,29 @@
 #import "../wiiuse_internal.h"
 
 
+#if 0
 #if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7
 #define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 1
 #else
 #define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 0
 #endif
-
-
-// WIIUSE_IOBluetoothDevice_to_IOBluetoothDeviceRef
-#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
-#define WIIUSE_IOBluetoothDevice_to_IOBluetoothDeviceRef(device) \
-	((IOBluetoothDeviceRef) (device))
-#else
-#define WIIUSE_IOBluetoothDevice_to_IOBluetoothDeviceRef(device) \
-	[(device) getDeviceRef]
-#endif
-
-// WIIUSE_IOBluetoothDeviceRef_to_IOBluetoothDevice
-#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
-#define WIIUSE_IOBluetoothDeviceRef_to_IOBluetoothDevice(ref) \
-	((IOBluetoothDevice*) (ref))
-#else
-#define WIIUSE_IOBluetoothDeviceRef_to_IOBluetoothDevice(ref) \
-	[IOBluetoothDevice withDeviceRef: (ref)]
-#endif
-
-// WIIUSE_IOBluetoothL2CAPChannel_to_IOBluetoothL2CAPChannelRef
-#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
-#define WIIUSE_IOBluetoothL2CAPChannel_to_IOBluetoothL2CAPChannelRef(channel) \
-	((IOBluetoothL2CAPChannelRef) (channel))
-#else
-#define WIIUSE_IOBluetoothL2CAPChannel_to_IOBluetoothL2CAPChannelRef(channel) \
-	[(channel) getL2CAPChannelRef]
-#endif
-
-// WIIUSE_IOBluetoothL2CAPChannelRef_to_IOBluetoothL2CAPChannel
-#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
-#define WIIUSE_IOBluetoothL2CAPChannelRef_to_IOBluetoothL2CAPChannel(ref) \
-	((IOBluetoothL2CAPChannel*) (ref))
-#else
-#define WIIUSE_IOBluetoothL2CAPChannelRef_to_IOBluetoothL2CAPChannel(ref) \
-	[IOBluetoothL2CAPChannel withChanneleRef: (ref)]
 #endif
 
 
 @interface WiiuseWiimote : NSObject<IOBluetoothL2CAPChannelDelegate> {
 	wiimote* wm; // reference to the C wiimote struct
+	
+	IOBluetoothDevice* device;
+	IOBluetoothL2CAPChannel* controlChannel;
+	IOBluetoothL2CAPChannel* interruptChannel;
+	
 	IOBluetoothUserNotification* disconnectNotification;
 }
 
-- (id) initWithPtr: (wiimote*) wm;
+- (id) initWithPtr: (wiimote*) wm device: (IOBluetoothDevice*) device;
+
 - (IOReturn) connect;
+- (void) disconnect;
 
 @end
 
