@@ -31,8 +31,9 @@ if(WIN32)
 	set(CMAKE_DEBUG_POSTFIX _debug)
 elseif(APPLE)
 	set(MAC_SOURCES
-		os_mac.m
 		os_mac/os_mac.h
+		os_mac/os_mac.m
+		os_mac/os_mac_interface.m
 		os_mac/os_mac_find.m)
 	list(APPEND SOURCES ${MAC_SOURCES})
 	# make sure we use the gcc for Objective-C files as well so that the
