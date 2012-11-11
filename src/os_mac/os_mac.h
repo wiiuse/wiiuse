@@ -51,7 +51,7 @@
 	
 	IOBluetoothUserNotification* disconnectNotification;
 	
-	NSMutableArray* receivedData; // a queue os NSData*
+	NSMutableArray* receivedData; // a queue of NSObject<WiiuseReceivedMessage>*
 	NSLock* receivedDataLock;
 }
 
@@ -63,6 +63,22 @@
 - (int) read;
 - (int) writeBuffer: (byte*) buffer length: (NSUInteger) length;
 
+@end
+
+
+@protocol WiiuseReceivedMessage <NSObject>
+- (int) applyToStruct: (wiimote*) wm; // <0: not copied, 0: copied empty, >0: copied
+@end
+
+@interface WiiuseReceivedData : NSObject<WiiuseReceivedMessage> {
+	NSData* data;
+}
+- (id) initWithBytes: (void*) bytes length: (NSUInteger) length;
+- (id) initWithData: (NSData*) data;
+@end
+
+@interface WiiuseDisconnectionMessage : NSObject<WiiuseReceivedMessage> {
+}
 @end
 
 

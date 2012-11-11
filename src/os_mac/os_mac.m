@@ -142,32 +142,33 @@
 
 - (void) disconnected:(IOBluetoothUserNotification*) notification fromDevice:(IOBluetoothDevice*) device {
 	
-	wiiuse_disconnected(wm);
+	WiiuseDisconnectionMessage* message = [[WiiuseDisconnectionMessage alloc] init];
+	[receivedDataLock lock];
+	[receivedData addObject:message];
+	[receivedDataLock unlock];
+	[message release];
 }
 
 #pragma mark read, write
 
+// <0: nothing received, else: length of data received (can be 0 in case of disconnection message)
 - (int) checkForAvailableData {
-	unsigned int length = 0;
+	int result = -1;
 	
 	[receivedDataLock lock];
 	if([receivedData count]) {
-		// pop first item from queue
-		NSData* firstData = [receivedData objectAtIndex:0];
-		[receivedData removeObjectAtIndex:0];
-		
-		byte* data = (byte*) [firstData bytes];
-		length = [firstData length];
-		
-		// forward event data to C struct
-		memcpy(wm->event_buf, data, sizeof(wm->event_buf));
+		// look at first item in queue
+		NSObject<WiiuseReceivedMessage>* firstMessage = [receivedData objectAtIndex:0];
+		result = [firstMessage applyToStruct:wm];
+		if(result >= 0)
+			[receivedData removeObjectAtIndex:0];
 	}
 	[receivedDataLock unlock];
 	
-	return length;
+	return result;
 }
 
-- (void) waitForInclomingData: (NSTimeInterval) duration {
+- (void) waitForIncomingData: (NSTimeInterval) duration {
 	NSDate* timeoutDate = [NSDate dateWithTimeIntervalSinceNow: duration];
 	NSRunLoop *theRL = [NSRunLoop currentRunLoop];
 	while (true) {
@@ -193,18 +194,19 @@
 	}
 }
 
+// result = length of data copied to event buffer
 - (int) read {
 	// is there already some data to read?
 	int result = [self checkForAvailableData];
-	if(!result) {
-		// wait a short amount of time, until data becomes available
-		[self waitForInclomingData:1];
+	if(result < 0) {
+		// wait a short amount of time, until data becomes available or a timeoutis reached
+		[self waitForIncomingData:1];
 		
 		// check again
 		result = [self checkForAvailableData];
 	}
 	
-	return result;
+	return result >= 0 ? result : 0;
 }
 
 - (int) writeBuffer: (byte*) buffer length: (NSUInteger) length {
@@ -266,7 +268,7 @@
 	}
 	
 	// copy the data into the buffer
-	NSData* newData = [[NSData alloc] initWithBytes:data length:length];
+	WiiuseReceivedData* newData = [[WiiuseReceivedData alloc] initWithBytes: data length: length];
 	[receivedDataLock lock];
 	[receivedData addObject: newData];
 	[receivedDataLock unlock];
@@ -274,5 +276,53 @@
 }
 
 @end
+
+#pragma mark -
+#pragma mark WiiuseReceivedMessage
+
+@implementation WiiuseReceivedData
+
+- (id) initWithData:(NSData *)data_ {
+	self = [super init];
+	if (self) {
+		data = [data_ retain];
+	}
+	return self;
+}
+- (id) initWithBytes: (void*) bytes length: (NSUInteger) length {
+	NSData* data_ = [[NSData alloc] initWithBytes:bytes length:length];
+	id result = [self initWithData: data_];
+	[data_ release];
+	return result;
+}
+
+- (void) dealloc {
+	[data release];
+	[super dealloc];
+}
+
+- (int) applyToStruct:(wiimote *)wm {
+	byte* bytes = (byte*) [data bytes];
+	NSUInteger length = [data length];
+	if(length > sizeof(wm->event_buf)) {
+		WIIUSE_WARNING("Received data was longer than event buffer. Dropping excess bytes.");
+		length = sizeof(wm->event_buf);
+	}
+	memcpy(wm->event_buf, bytes, length);
+	
+	return length;
+}
+
+@end
+
+@implementation WiiuseDisconnectionMessage
+
+- (int) applyToStruct:(wiimote *)wm {
+	wiiuse_disconnected(wm);
+	return 0;
+}
+
+@end
+
 
 #endif // __APPLE__

@@ -85,6 +85,7 @@ void wiiuse_cleanup(struct wiimote_t** wm, int wiimotes) {
 
 	for (; i < wiimotes; ++i) {
 		wiiuse_disconnect(wm[i]);
+		wiiuse_cleanup_platform_fields(wm[i]);
 		free(wm[i]);
 	}
 
@@ -177,8 +178,6 @@ void wiiuse_disconnected(struct wiimote_t* wm) {
 	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
 
 	/* reset a bunch of stuff */
-	wiiuse_cleanup_platform_fields(wm);
-
 	wm->leds = 0;
 	wm->state = WIIMOTE_INIT_STATES;
 	wm->read_req = NULL;

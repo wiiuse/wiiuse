@@ -149,13 +149,14 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 		if (wiiuse_os_read(wm[i])) {
 			/* propagate the event, messages should be read as in linux, starting from the second element */
 			propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
-			evnt += (wm[i]->event != WIIUSE_NONE);
 			
 			/* clear out the event buffer */
 			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
 		} else {
 			idle_cycle(wm[i]);
 		}
+		
+		evnt += (wm[i]->event != WIIUSE_NONE);
 	}
 	
 	return evnt;
