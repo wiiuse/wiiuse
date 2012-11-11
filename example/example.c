@@ -294,6 +294,16 @@ void test(struct wiimote_t* wm, byte* data, unsigned short len) {
 	printf("test: %i [%x %x %x %x]\n", len, data[0], data[1], data[2], data[3]);
 }
 
+short any_wiimote_connected(wiimote** wm, int wiimotes) {
+	if(!wm) return 0;
+	
+	for(int i = 0; i < wiimotes; i++) {
+		if(wm[i] && WIIMOTE_IS_CONNECTED(wm[i]))
+			return 1;
+	}
+	
+	return 0;
+}
 
 
 /**
@@ -390,7 +400,7 @@ int main(int argc, char** argv) {
 	 *	This function will set the event flag for each wiimote
 	 *	when the wiimote has things to report.
 	 */
-	while (1) {
+	while (any_wiimote_connected(wiimotes, MAX_WIIMOTES)) {
 		if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
 			/*
 			 *	This happens if something happened on any wiimote.
