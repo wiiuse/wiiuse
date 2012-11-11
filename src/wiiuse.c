@@ -693,12 +693,13 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 
 	#ifdef WITH_WIIUSE_DEBUG
 	{
-		int x = 2;
-		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[0], buf[1]);
+		int x;
 		#ifndef WIIUSE_WIN32
-		for (; x < len+2; ++x)
+		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[1], buf[2]);
+		for (x = 3; x < len+2; ++x)
 		#else
-		for (; x < len+1; ++x)
+		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[0], buf[1]);
+		for (x = 2; x < len+1; ++x)
 		#endif
 			printf("%.2x ", buf[x]);
 		printf("\n");

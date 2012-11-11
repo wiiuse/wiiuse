@@ -247,17 +247,6 @@
 		return;
 	}
 	
-	// log the received data
-#ifdef WITH_WIIUSE_DEBUG
-	{
-		printf("[DEBUG] (id %i) RECV: (%x) ", wm->unid, data[0]);
-		int x;
-		for (x = 1; x < length; ++x)
-			printf("%.2x ", data[x]);
-		printf("\n");
-	}
-#endif
-	
 	/*
 	 * This is called if we are receiving data before completing
 	 * the handshaking, hence before calling wiiuse_poll
@@ -308,6 +297,19 @@
 		WIIUSE_WARNING("Received data was longer than event buffer. Dropping excess bytes.");
 		length = sizeof(wm->event_buf);
 	}
+	
+	// log the received data
+#ifdef WITH_WIIUSE_DEBUG
+	{
+		printf("[DEBUG] (id %i) RECV: (%x) ", wm->unid, bytes[1]);
+		int x;
+		for (x = 2; x < length; ++x)
+			printf("%.2x ", bytes[x]);
+		printf("\n");
+	}
+#endif
+	
+	// copy to struct
 	memcpy(wm->event_buf, bytes, length);
 	
 	return length;
