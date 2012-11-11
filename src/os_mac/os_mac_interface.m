@@ -163,8 +163,9 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 }
 
 int wiiuse_os_read(struct wiimote_t* wm) {
-	if(!wm || !wm->objc_wm || !WIIMOTE_IS_CONNECTED(wm)) {
-		WIIUSE_ERROR("Attempting to read from NULL or unconnected Wiimote");
+	if(!wm || !wm->objc_wm) return 0;
+	if(!WIIMOTE_IS_CONNECTED(wm)) {
+		WIIUSE_ERROR("Attempting to read from unconnected Wiimote");
 		return 0;
 	}
 	
@@ -178,8 +179,9 @@ int wiiuse_os_read(struct wiimote_t* wm) {
 }
 
 int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
-	if(!wm || !wm->objc_wm || !WIIMOTE_IS_CONNECTED(wm)) {
-		WIIUSE_ERROR("Attempting to write to NULL or unconnected Wiimote");
+	if(!wm || !wm->objc_wm) return 0;
+	if(!WIIMOTE_IS_CONNECTED(wm)) {
+		WIIUSE_ERROR("Attempting to write to unconnected Wiimote");
 		return 0;
 	}
 	
