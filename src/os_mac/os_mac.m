@@ -247,15 +247,6 @@
 		return;
 	}
 	
-	/*
-	 * This is called if we are receiving data before completing
-	 * the handshaking, hence before calling wiiuse_poll
-	 */
-	if(WIIMOTE_IS_SET(wm, WIIMOTE_STATE_HANDSHAKE)) {
-		propagate_event(wm, data[1], data+2);
-		return;
-	}
-	
 	// copy the data into the buffer
 	WiiuseReceivedData* newData = [[WiiuseReceivedData alloc] initWithBytes: data length: length];
 	[receivedDataLock lock];
