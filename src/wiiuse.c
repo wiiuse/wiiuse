@@ -663,7 +663,11 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 	#ifdef WIIUSE_WIN32
 		buf[0] = report_type;
 	#else
-		buf[0] = WM_SET_REPORT | WM_BT_OUTPUT;
+		#ifdef WIIUSE_MAC
+			buf[0] = WM_SET_DATA | WM_BT_OUTPUT;
+		#else // *NIX
+			buf[0] = WM_SET_REPORT | WM_BT_OUTPUT;
+		#endif
 		buf[1] = report_type;
 	#endif
 

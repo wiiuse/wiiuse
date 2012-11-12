@@ -104,6 +104,7 @@
 #define WM_INPUT_CHANNEL			0x13
 
 #define WM_SET_REPORT				0x50
+#define WM_SET_DATA					0xA0
 
 /* commands */
 #define WM_CMD_LED					0x11

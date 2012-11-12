@@ -100,10 +100,10 @@
 	}
 	
 	// open channels
-	if(![self connectChannel:&controlChannel PSM:WM_OUTPUT_CHANNEL]) {
+	if(![self connectChannel:&controlChannel PSM:kBluetoothL2CAPPSMHIDControl]) {
 		[self disconnect];
 		return kIOReturnNotOpen;
-	} else if(![self connectChannel:&interruptChannel PSM:WM_INPUT_CHANNEL]) {
+	} else if(![self connectChannel:&interruptChannel PSM:kBluetoothL2CAPPSMHIDInterrupt]) {
 		[self disconnect];
 		return kIOReturnNotOpen;
 	}
@@ -210,26 +210,26 @@
 }
 
 - (int) writeBuffer: (byte*) buffer length: (NSUInteger) length {
-	if(controlChannel == nil) {
-		WIIUSE_ERROR("Attempted to write to nil control channel [id %i].", wm->unid);
+	if(interruptChannel == nil) {
+		WIIUSE_ERROR("Attempted to write to nil interrupt channel [id %i].", wm->unid);
 		return 0;
 	}
 	
-	IOReturn error = [controlChannel writeSync:buffer length:length];
+	IOReturn error = [interruptChannel writeSync:buffer length:length];
 	if (error != kIOReturnSuccess) {
-		WIIUSE_ERROR("Error writing to control channel [id %i].", wm->unid);
+		WIIUSE_ERROR("Error writing to interrupt channel [id %i].", wm->unid);
 		
-		WIIUSE_DEBUG("Attempting to reopen the control channel [id %i].", wm->unid);
-		[self disconnectChannel:&controlChannel];
-		[self connectChannel:&controlChannel PSM:WM_OUTPUT_CHANNEL];
-		if(!controlChannel) {
-			WIIUSE_ERROR("Error reopening the control channel [id %i].", wm->unid);
+		WIIUSE_DEBUG("Attempting to reopen the interrupt channel [id %i].", wm->unid);
+		[self disconnectChannel:&interruptChannel];
+		[self connectChannel:&interruptChannel PSM:kBluetoothL2CAPPSMHIDInterrupt];
+		if(!interruptChannel) {
+			WIIUSE_ERROR("Error reopening the interrupt channel [id %i].", wm->unid);
 			[self disconnect];
 		} else {
-			WIIUSE_DEBUG("Attempting to write again to the control channel [id %i].", wm->unid);
-			error = [controlChannel writeSync:buffer length:length];
+			WIIUSE_DEBUG("Attempting to write again to the interrupt channel [id %i].", wm->unid);
+			error = [interruptChannel writeSync:buffer length:length];
 			if (error != kIOReturnSuccess)
-				WIIUSE_ERROR("Unable to write again to the control channel [id %i].", wm->unid);
+				WIIUSE_ERROR("Unable to write again to the interrupt channel [id %i].", wm->unid);
 		}
 	}
 	
@@ -242,8 +242,8 @@
 	
 	byte* data = (byte*) data_;
 	
-	// This is done in case the output channel woke up this handler
-	if(!data || ([channel PSM] == WM_OUTPUT_CHANNEL)) {
+	// This is done in case the control channel woke up this handler
+	if(!data || ([channel PSM] == kBluetoothL2CAPPSMHIDControl)) {
 		return;
 	}
 	
