@@ -525,7 +525,7 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	wm->battery_level = (msg[5] / (float)WM_MAX_BATTERY_CODE);
 
 	/* expansion port */
-	if (attachment && !WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP)) {
+	if (attachment && !WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP) && !WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP_HANDSHAKE)) {
 		/* send the initialization code for the attachment */
 		handshake_expansion(wm, NULL, 0);
 		exp_changed = 1;
