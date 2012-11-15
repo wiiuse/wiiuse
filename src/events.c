@@ -51,7 +51,6 @@
 #include <stdlib.h>                     /* for free, malloc */
 #include <string.h>                     /* for memcpy, memset */
 
-static void clear_dirty_reads(struct wiimote_t* wm);
 static void event_data_read(struct wiimote_t* wm, byte* msg);
 static void event_data_write(struct wiimote_t *wm, byte *msg);
 static void event_status(struct wiimote_t* wm, byte* msg);
@@ -141,7 +140,7 @@ void idle_cycle(struct wiimote_t* wm) {
  *
  *	@param wm		Pointer to a wiimote_t structure.
  */
-static void clear_dirty_reads(struct wiimote_t* wm) {
+void clear_dirty_reads(struct wiimote_t* wm) {
 	struct read_req_t* req = wm->read_req;
 
 	while (req && req->dirty) {
