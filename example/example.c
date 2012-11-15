@@ -295,9 +295,10 @@ void test(struct wiimote_t* wm, byte* data, unsigned short len) {
 }
 
 short any_wiimote_connected(wiimote** wm, int wiimotes) {
+	int i;
 	if(!wm) return 0;
 	
-	for(int i = 0; i < wiimotes; i++) {
+	for(i = 0; i < wiimotes; i++) {
 		if(wm[i] && WIIMOTE_IS_CONNECTED(wm[i]))
 			return 1;
 	}
