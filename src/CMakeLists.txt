@@ -30,15 +30,17 @@ if(WIN32)
 	list(APPEND SOURCES os_win.c)
 	set(CMAKE_DEBUG_POSTFIX _debug)
 elseif(APPLE)
-	set(MAC_SOURCES
-		os_mac/os_mac.h
+	set(MAC_OBJC_SOURCES
 		os_mac/os_mac.m
 		os_mac/os_mac_interface.m
 		os_mac/os_mac_find.m)
+	set(MAC_SOURCES
+		os_mac/os_mac.h
+		${MAC_OBJC_SOURCES})
 	list(APPEND SOURCES ${MAC_SOURCES})
 	# make sure we use the gcc for Objective-C files as well so that the
 	# sysroot and deployment target arguments are correctly passed to the compiler
-	SET_SOURCE_FILES_PROPERTIES(${MAC_SOURCES} PROPERTIES LANGUAGE C)
+	SET_SOURCE_FILES_PROPERTIES(${MAC_OBJC_SOURCES} PROPERTIES LANGUAGE C)
 else()
 	list(APPEND SOURCES os_nix.c)
 endif()
