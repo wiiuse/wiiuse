@@ -757,11 +757,11 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
  *	a handshake with the expansion.
  */
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
-	WIIUSE_DEBUG("handshake_expansion with state %d", wm->expansion_state);
 	int id;
 	byte val = 0;
 	byte buf = 0x00;
 	byte* handshake_buf;
+	WIIUSE_DEBUG("handshake_expansion with state %d", wm->expansion_state);
 
 	switch(wm->expansion_state) {
 		/* These two initialization writes disable the encryption */
