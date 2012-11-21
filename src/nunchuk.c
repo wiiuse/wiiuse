@@ -139,7 +139,7 @@ void nunchuk_event(struct nunchuk_t* nc, byte* msg) {
 	int i;
 
 	/* decrypt data */
-	for (i = 0; i < 6; ++i)
+	for (i = 0; i < 5; ++i)
 		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
 	/* get button states */

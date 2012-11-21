@@ -132,7 +132,7 @@ void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg) {
 	int i;
 
 	/* decrypt data */
-	for (i = 0; i < 6; ++i)
+	for (i = 0; i < 4; ++i)
 		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
 	guitar_hero_3_pressed_buttons(gh3, from_big_endian_uint16_t(msg + 4));
