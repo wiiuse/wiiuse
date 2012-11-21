@@ -135,7 +135,7 @@ void classic_ctrl_event(struct classic_ctrl_t* cc, byte* msg) {
 	byte l, r;
 
 	/* decrypt data */
-	for (i = 0; i < 6; ++i)
+	for (i = 0; i < 4; ++i)
 		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
 	classic_ctrl_pressed_buttons(cc, from_big_endian_uint16_t(msg + 4));
