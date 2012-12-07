@@ -354,7 +354,7 @@ int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buff
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
 		return 0;
-	if (!buffer || !len || !read_cb)
+	if (!buffer || !len)
 		return 0;
 
 	/* make this request structure */
@@ -407,43 +407,7 @@ int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buff
  *	finishes.
  */
 int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int addr, uint16_t len) {
-	struct read_req_t* req;
-
-	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
-		return 0;
-	if (!buffer || !len)
-		return 0;
-
-	/* make this request structure */
-	req = (struct read_req_t*)malloc(sizeof(struct read_req_t));
-	if (req == NULL)
-		return 0;
-	req->cb = NULL;
-	req->buf = buffer;
-	req->addr = addr;
-	req->size = len;
-	req->wait = len;
-	req->dirty = 0;
-	req->next = NULL;
-
-	/* add this to the request list */
-	if (!wm->read_req) {
-		/* root node */
-		wm->read_req = req;
-
-		WIIUSE_DEBUG("Data read request can be sent out immediately.");
-
-		/* send the request out immediately */
-		wiiuse_send_next_pending_read_request(wm);
-	} else {
-		struct read_req_t* nptr = wm->read_req;
-		for (; nptr->next; nptr = nptr->next);
-		nptr->next = req;
-
-		WIIUSE_DEBUG("Added pending data read request.");
-	}
-
-	return 1;
+	return wiiuse_read_data_cb(wm, NULL, buffer, addr, len);
 }
 
 

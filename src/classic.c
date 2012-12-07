@@ -49,9 +49,8 @@ static void classic_ctrl_pressed_buttons(struct classic_ctrl_t* cc, short now);
  *
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
+#define HANDSHAKE_BYTES_USED 12
 int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte* data, unsigned short len) {
-	int i;
-	int offset = 0;
 
 	cc->btns = 0;
 	cc->btns_held = 0;
@@ -59,11 +58,7 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 	cc->r_shoulder = 0;
 	cc->l_shoulder = 0;
 
-	/* decrypt data */
-	for (i = 0; i < len; ++i)
-		data[i] = (data[i] ^ 0x17) + 0x17;
-
-	if (data[offset] == 0xFF) {
+	if (data[0] == 0xFF || len < HANDSHAKE_BYTES_USED) {
 		/*
 		 *	Sometimes the data returned here is not correct.
 		 *	This might happen because the wiimote is lagging
@@ -74,7 +69,7 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 		 *	but since the next 16 bytes are the same, just use
 		 *	those.
 		 */
-		if (data[offset + 16] == 0xFF) {
+		if (len < 17 || len < HANDSHAKE_BYTES_USED + 16 || data[16] == 0xFF) {
 			/* get the calibration data */
 			byte* handshake_buf = (byte *)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 
@@ -83,24 +78,24 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 
 			return 0;
 		} else
-			offset += 16;
+			data += 16;
 	}
 
 
 	/* joystick stuff */
-	cc->ljs.max.x = data[0 + offset] / 4;
-	cc->ljs.min.x = data[1 + offset] / 4;
-	cc->ljs.center.x = data[2 + offset] / 4;
-	cc->ljs.max.y = data[3 + offset] / 4;
-	cc->ljs.min.y = data[4 + offset] / 4;
-	cc->ljs.center.y = data[5 + offset] / 4;
+	cc->ljs.max.x = data[0] / 4;
+	cc->ljs.min.x = data[1] / 4;
+	cc->ljs.center.x = data[2] / 4;
+	cc->ljs.max.y = data[3] / 4;
+	cc->ljs.min.y = data[4] / 4;
+	cc->ljs.center.y = data[5] / 4;
 
-	cc->rjs.max.x = data[6 + offset] / 8;
-	cc->rjs.min.x = data[7 + offset] / 8;
-	cc->rjs.center.x = data[8 + offset] / 8;
-	cc->rjs.max.y = data[9 + offset] / 8;
-	cc->rjs.min.y = data[10 + offset] / 8;
-	cc->rjs.center.y = data[11 + offset] / 8;
+	cc->rjs.max.x = data[6] / 8;
+	cc->rjs.min.x = data[7] / 8;
+	cc->rjs.center.x = data[8] / 8;
+	cc->rjs.max.y = data[9] / 8;
+	cc->rjs.min.y = data[10] / 8;
+	cc->rjs.center.y = data[11] / 8;
 
 	/* handshake done */
 	wm->exp.type = EXP_CLASSIC;
@@ -131,12 +126,8 @@ void classic_ctrl_disconnected(struct classic_ctrl_t* cc) {
  *	@param msg		The message specified in the event packet.
  */
 void classic_ctrl_event(struct classic_ctrl_t* cc, byte* msg) {
-	int i, lx, ly, rx, ry;
+	int lx, ly, rx, ry;
 	byte l, r;
-
-	/* decrypt data */
-	for (i = 0; i < 6; ++i)
-		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
 	classic_ctrl_pressed_buttons(cc, from_big_endian_uint16_t(msg + 4));
 
