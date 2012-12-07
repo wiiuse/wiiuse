@@ -51,8 +51,6 @@ static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
 int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, byte* data, unsigned short len) {
-	int i;
-	int offset = 0;
 
 	/*
 	 *	The good fellows that made the Guitar Hero 3 controller
@@ -65,11 +63,11 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 	gh3->btns_released = 0;
 	gh3->whammy_bar = 0.0f;
 
-	/* decrypt data */
-	for (i = 0; i < len; ++i)
-		data[i] = (data[i] ^ 0x17) + 0x17;
-
-	if (data[offset] == 0xFF) {
+	/*
+	TODO: If we're not using anything from calibration data, why are we
+	even bothering here?
+	*/
+	if (data[0] == 0xFF) {
 		/*
 		 *	Sometimes the data returned here is not correct.
 		 *	This might happen because the wiimote is lagging
@@ -80,7 +78,7 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 		 *	but since the next 16 bytes are the same, just use
 		 *	those.
 		 */
-		if (data[offset + 16] == 0xFF) {
+		if (data[16] == 0xFF) {
 			/* get the calibration data */
 			byte* handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 
@@ -89,7 +87,7 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 
 			return 0;
 		} else
-			offset += 16;
+			data += 16;
 	}
 
 	/* joystick stuff */
@@ -129,11 +127,6 @@ void guitar_hero_3_disconnected(struct guitar_hero_3_t* gh3) {
  *	@param msg		The message specified in the event packet.
  */
 void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg) {
-	int i;
-
-	/* decrypt data */
-	for (i = 0; i < 6; ++i)
-		msg[i] = (msg[i] ^ 0x17) + 0x17;
 
 	guitar_hero_3_pressed_buttons(gh3, from_big_endian_uint16_t(msg + 4));
 

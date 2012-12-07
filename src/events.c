@@ -294,11 +294,29 @@ static void clear_dirty_reads(struct wiimote_t* wm) {
 	}
 }
 
+/**
+ *	@brief Handle accel data in a wiimote message.
+ *
+ *	@param wm		Pointer to a wiimote_t structure.
+ *	@param msg		The message specified in the event packet.
+ */
+static void handle_wm_accel(struct wiimote_t* wm, byte* msg) {
+	wm->accel.x = msg[2];
+	wm->accel.y = msg[3];
+	wm->accel.z = msg[4];
+
+	/* calculate the remote orientation */
+	calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
+
+	/* calculate the gforces on each axis */
+	calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+}
+
 
 /**
  *	@brief Analyze the event that occurred on a wiimote.
  *
- *	@param wm		An array of pointers to wiimote_t structures.
+ *	@param wm		Pointer to a wiimote_t structure.
  *	@param event	The event that occurred.
  *	@param msg		The message specified in the event packet.
  *
@@ -319,15 +337,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			/* calculate the remote orientation */
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-
-			/* calculate the gforces on each axis */
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			break;
 		}
@@ -360,12 +370,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion - expansion */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			handle_expansion(wm, msg+5);
 
@@ -376,12 +381,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion - ir */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			/* ir */
 			calculate_extended_ir(wm, msg+5);
@@ -404,12 +404,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 			/* button - motion - ir - expansion */
 			wiiuse_pressed_buttons(wm, msg);
 
-			wm->accel.x = msg[2];
-			wm->accel.y = msg[3];
-			wm->accel.z = msg[4];
-
-			calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient, WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
-			calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+			handle_wm_accel(wm, msg);
 
 			handle_expansion(wm, msg+15);
 
@@ -762,6 +757,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 	byte val = 0;
 	byte buf = 0x00;
 	byte* handshake_buf;
+	int gotIt = 0;
 
 	switch(wm->expansion_state) {
 		/* These two initialization writes disable the encryption */
@@ -791,31 +787,37 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
 				disable_expansion(wm);
 			handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
-			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
-
 			/* tell the wiimote to send expansion data */
 			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
+			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 			break;
 		case 3:
 			if(!data || !len) {
 				WIIUSE_DEBUG("no handshake data received from expansion");
+				disable_expansion(wm);
 				return;
 			}
 			id = from_big_endian_uint32_t(data + 220);
 			switch(id) {
 				case EXP_ID_CODE_NUNCHUK:
-					if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len))
+					if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len)) {
 						wm->event = WIIUSE_NUNCHUK_INSERTED;
+						gotIt = 1;
+					}
 					break;
 
 				case EXP_ID_CODE_CLASSIC_CONTROLLER:
-					if (classic_ctrl_handshake(wm, &wm->exp.classic, data, len))
+					if (classic_ctrl_handshake(wm, &wm->exp.classic, data, len)) {
 						wm->event = WIIUSE_CLASSIC_CTRL_INSERTED;
+						gotIt = 1;
+					}
 					break;
 
 				case EXP_ID_CODE_GUITAR:
-					if (guitar_hero_3_handshake(wm, &wm->exp.gh3, data, len))
+					if (guitar_hero_3_handshake(wm, &wm->exp.gh3, data, len)) {
 						wm->event = WIIUSE_GUITAR_HERO_3_CTRL_INSERTED;
+						gotIt = 1;
+					}
 					break;
 
 				case EXP_ID_CODE_MOTION_PLUS:
@@ -823,11 +825,14 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 				case EXP_ID_CODE_MOTION_PLUS_NUNCHUK:
 					/* wiiuse_motion_plus_handshake(wm, data, len); */
 					wm->event = WIIUSE_MOTION_PLUS_ACTIVATED;
+					gotIt = 1;
 					break;
 
                 case EXP_ID_CODE_WII_BOARD:
-                    if(wii_board_handshake(wm, &wm->exp.wb, data, len))
-                        wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
+                    if(wii_board_handshake(wm, &wm->exp.wb, data, len)) {
+						wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
+						gotIt = 1;
+					}
                     break;
 
 				default:
@@ -835,8 +840,12 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 					break;
 			}
 			free(data);
-			WIIMOTE_DISABLE_STATE(wm,WIIMOTE_STATE_EXP_HANDSHAKE);
-			WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
+			if (gotIt) {
+				WIIMOTE_DISABLE_STATE(wm,WIIMOTE_STATE_EXP_HANDSHAKE);
+				WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
+			} else {
+				WIIUSE_WARNING("Could not handshake with expansion id: 0x%x", id);
+			}
 			wiiuse_set_ir_mode(wm);
 			wiiuse_status(wm);
 			break;
@@ -890,6 +899,7 @@ void disable_expansion(struct wiimote_t* wm) {
 
 	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP);
 	wm->exp.type = EXP_NONE;
+	wm->expansion_state = 0;
 }
 
 
