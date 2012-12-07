@@ -45,13 +45,17 @@
 	foundWiimotes = 0;
 	isDiscovering = NO;
 	if (self != nil) { 
+		BluetoothHCIPowerState powerState;
+   		IOBluetoothLocalDeviceGetPowerState(&powerState);
 		/* 
 		 * Calling IOBluetoothLocalDeviceAvailable has two advantages:
 		 * 1. it sets up a event source in the run loop (bug for C version of the bluetooth api)
 		 * 2. it checks for the availability of the BT hardware
 		 */
-		if (![IOBluetoothHostController defaultController])
+		if (![IOBluetoothHostController defaultController] ||
+			powerState == kBluetoothHCIPowerStateOFF)
 		{
+			WIIUSE_DEBUG("Bluetooth hardware not available.");
 			[self release];
 			self = nil;
 		}		
