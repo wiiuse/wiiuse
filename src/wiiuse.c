@@ -37,6 +37,7 @@
 
 #include "wiiuse_internal.h"
 #include "io.h"                         /* for wiiuse_handshake, etc */
+#include "os.h"							/* for wiiuse_os_* */
 
 #include <stdio.h>                      /* for printf, FILE */
 #include <stdlib.h>                     /* for malloc, free */
@@ -84,6 +85,7 @@ void wiiuse_cleanup(struct wiimote_t** wm, int wiimotes) {
 
 	for (; i < wiimotes; ++i) {
 		wiiuse_disconnect(wm[i]);
+		wiiuse_cleanup_platform_fields(wm[i]);
 		free(wm[i]);
 	}
 
@@ -176,8 +178,6 @@ void wiiuse_disconnected(struct wiimote_t* wm) {
 	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
 
 	/* reset a bunch of stuff */
-	wiiuse_cleanup_platform_fields(wm);
-
 	wm->leds = 0;
 	wm->state = WIIMOTE_INIT_STATES;
 	wm->read_req = NULL;
@@ -627,7 +627,11 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 	#ifdef WIIUSE_WIN32
 		buf[0] = report_type;
 	#else
-		buf[0] = WM_SET_REPORT | WM_BT_OUTPUT;
+		#ifdef WIIUSE_MAC
+			buf[0] = WM_SET_DATA | WM_BT_OUTPUT;
+		#else // *NIX
+			buf[0] = WM_SET_REPORT | WM_BT_OUTPUT;
+		#endif
 		buf[1] = report_type;
 	#endif
 
@@ -657,12 +661,13 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 
 	#ifdef WITH_WIIUSE_DEBUG
 	{
-		int x = 2;
-		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[0], buf[1]);
+		int x;
 		#ifndef WIIUSE_WIN32
-		for (; x < len+2; ++x)
+		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[1], buf[2]);
+		for (x = 3; x < len+2; ++x)
 		#else
-		for (; x < len+1; ++x)
+		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[0], buf[1]);
+		for (x = 2; x < len+1; ++x)
 		#endif
 			printf("%.2x ", buf[x]);
 		printf("\n");
@@ -670,9 +675,9 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 	#endif
 
 	#ifndef WIIUSE_WIN32
-		return wiiuse_io_write(wm, buf, len+2);
+		return wiiuse_os_write(wm, buf, len+2);
 	#else
-		return wiiuse_io_write(wm, buf, len+1);
+		return wiiuse_os_write(wm, buf, len+1);
 	#endif
 }
 

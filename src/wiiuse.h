@@ -99,11 +99,6 @@
 	/* nix */
 	#include <bluetooth/bluetooth.h>
 #endif
-#ifdef WIIUSE_MAC
-	/* mac */
-	#include <CoreFoundation/CoreFoundation.h>		/*CFRunLoops and CFNumberRef in Bluetooth classes*/
-	#include <IOBluetooth/IOBluetoothUserLib.h>		/*IOBluetoothDeviceRef and IOBluetoothL2CAPChannelRef*/
-#endif
 
 #ifndef WCONST
 	#define WCONST		const
@@ -123,6 +118,32 @@
 
 /** @defgroup publicapi External API */
 /** @{ */
+
+/** @name Wiimote state flags and macros */
+/** @{ */
+#define WIIMOTE_STATE_DEV_FOUND				0x0001
+#define WIIMOTE_STATE_HANDSHAKE				0x0002	/* actual connection exists but no handshake yet */
+#define WIIMOTE_STATE_HANDSHAKE_COMPLETE	0x0004	/* actual connection exists but no handshake yet */
+#define WIIMOTE_STATE_CONNECTED				0x0008
+#define WIIMOTE_STATE_RUMBLE				0x0010
+#define WIIMOTE_STATE_ACC					0x0020
+#define WIIMOTE_STATE_EXP					0x0040
+#define WIIMOTE_STATE_IR					0x0080
+#define WIIMOTE_STATE_SPEAKER				0x0100
+#define WIIMOTE_STATE_IR_SENS_LVL1			0x0200
+#define WIIMOTE_STATE_IR_SENS_LVL2			0x0400
+#define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
+#define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
+#define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
+#define WIIMOTE_STATE_EXP_HANDSHAKE        0x10000 /* actual M+ connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_EXTERN           0x20000 /* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_EXP_FAILED           0x40000 /* actual M+ connection exists but handshake failed */
+
+#define WIIMOTE_ID(wm)					(wm->unid)
+
+#define WIIMOTE_IS_SET(wm, s)			((wm->state & (s)) == (s))
+#define WIIMOTE_IS_CONNECTED(wm)		(WIIMOTE_IS_SET(wm, WIIMOTE_STATE_CONNECTED))
+/** @} */
 
 /** @name LED bit masks */
 /** @{ */
@@ -702,6 +723,7 @@ typedef struct wiimote_t {
 	#ifdef WIIUSE_BLUEZ
 	/** @name Linux-specific (BlueZ) members */
 	/** @{ */
+		WCONST char bdaddr_str[18];			/**< readable bt address					*/
 		WCONST bdaddr_t bdaddr;				/**< bt address								*/
 		WCONST int out_sock;				/**< output socket							*/
 		WCONST int in_sock;					/**< input socket 							*/
@@ -722,20 +744,8 @@ typedef struct wiimote_t {
 	
 	#ifdef WIIUSE_MAC
 	/** @name Mac OS X-specific members */
-	/** @{ */	
-		WCONST IOBluetoothDeviceRef device;    	/**  Device reference object                */
-		WCONST CFStringRef address;            	/**  MacOS-like device address string       */
-		WCONST IOBluetoothL2CAPChannelRef inputCh;		/**  Input L2CAP channel					*/	
-		WCONST IOBluetoothL2CAPChannelRef outputCh;	/**  Output L2CAP channel					*/
-		WCONST IOBluetoothUserNotificationRef disconnectionRef;	/**  Disconnection Notification Reference **/
-		WCONST void* connectionHandler; /** Wiimote connection handler for MACOSX **/	
-	/** @} */
-	#endif
-
-	#if defined(WIIUSE_BLUEZ) || defined(WIIUSE_MAC)
-	/** @name Linux (BlueZ) and Mac OS X shared members */
 	/** @{ */
-		WCONST char bdaddr_str[18];			/**< readable bt address					*/
+		WCONST void* objc_wm;				/**  WiiuseWiimote* as opaque pointer       */
 	/** @} */
 	#endif
 
@@ -746,7 +756,7 @@ typedef struct wiimote_t {
 	WCONST int flags;						/**< options flag							*/
 
 	WCONST byte handshake_state;			/**< the state of the connection handshake	*/
-	WCONST byte expansion_state;            /**< the state of the expansion handshake    */
+	WCONST byte expansion_state;            /**< the state of the expansion handshake	*/
 	WCONST struct data_req_t* data_req;		/**< list of data read requests				*/
 
 	WCONST struct read_req_t* read_req;		/**< list of data read requests				*/
@@ -896,7 +906,7 @@ WIIUSE_EXPORT extern void wiiuse_resync(struct wiimote_t* wm);
 WIIUSE_EXPORT extern void wiiuse_set_timeout(struct wiimote_t** wm, int wiimotes, byte normal_timeout, byte exp_timeout);
 WIIUSE_EXPORT extern void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold);
 
-/* connect.c */
+/* io.c */
 WIIUSE_EXPORT extern int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
 WIIUSE_EXPORT extern int wiiuse_connect(struct wiimote_t** wm, int wiimotes);
 WIIUSE_EXPORT extern void wiiuse_disconnect(struct wiimote_t* wm);

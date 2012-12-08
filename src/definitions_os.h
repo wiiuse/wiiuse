@@ -26,38 +26,26 @@
  *
  */
 
+
 /**
  *	@file
- *	@brief Handles device I/O.
+ *	@brief Operating system related definitions.
+ *
+ *	This file is an attempt to separate operating system
+ *	dependent functions and choose what should be used
+ *	at compile time.
  */
 
-#ifndef PLATFORM_H_INCLUDED
-#define PLATFORM_H_INCLUDED
+#ifndef DEFINITIONS_OS_H_INCLUDED
+#define DEFINITIONS_OS_H_INCLUDED
 
-#include "wiiuse_internal.h"
-
-#ifdef __cplusplus
-extern "C" {
+#ifdef _MSC_VER
+	#include <float.h>
+	/* windows with visual c */
+	#define isnan(x)		(_isnan(x))
+	#define isinf(x)		(!_finite(x))
+	/* disable warnings I don't care about */
+	/*#pragma warning(disable:4273)	*/	/* inconsistent dll linkage			*/
 #endif
 
-
-/** @defgroup internal_io Internal: Platform-specific Device I/O */
-/** @{ */
-void wiiuse_init_platform_fields(struct wiimote_t* wm);
-void wiiuse_cleanup_platform_fields(struct wiimote_t* wm);
-
-int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
-
-int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes);
-void wiiuse_os_disconnect(struct wiimote_t* wm);
-
-int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes);
-int wiiuse_os_read(struct wiimote_t* wm);
-int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len);
-/** @} */
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* PLATFORM_H_INCLUDED */
+#endif /* DEFINITIONS_OS_H_INCLUDED */

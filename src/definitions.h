@@ -36,7 +36,7 @@
 
 /* this is wiiuse - used to distinguish from third party programs using wiiuse.h */
 #include <stdio.h>
-#include "os.h"
+#include "definitions_os.h"
 /** @addtogroup internal_general */
 /** @{ */
 

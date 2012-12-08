@@ -104,6 +104,7 @@
 #define WM_INPUT_CHANNEL			0x13
 
 #define WM_SET_REPORT				0x50
+#define WM_SET_DATA					0xA0
 
 /* commands */
 #define WM_CMD_LED					0x11
@@ -221,31 +222,9 @@
  *
  ********************/
 
-/* wiimote state flags - (some duplicated in wiiuse.h)*/
-#define WIIMOTE_STATE_DEV_FOUND				0x0001
-#define WIIMOTE_STATE_HANDSHAKE				0x0002	/* actual connection exists but no handshake yet */
-#define WIIMOTE_STATE_HANDSHAKE_COMPLETE	0x0004	/* actual connection exists but no handshake yet */
-#define WIIMOTE_STATE_CONNECTED				0x0008
-#define WIIMOTE_STATE_RUMBLE				0x0010
-#define WIIMOTE_STATE_ACC					0x0020
-#define WIIMOTE_STATE_EXP					0x0040
-#define WIIMOTE_STATE_IR					0x0080
-#define WIIMOTE_STATE_SPEAKER				0x0100
-#define WIIMOTE_STATE_IR_SENS_LVL1			0x0200
-#define WIIMOTE_STATE_IR_SENS_LVL2			0x0400
-#define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
-#define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
-#define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
-#define WIIMOTE_STATE_EXP_HANDSHAKE        0x10000 /* actual M+ connection exists but no handshake yet */
-#define WIIMOTE_STATE_EXP_EXTERN           0x20000 /* actual M+ connection exists but handshake failed */
-#define WIIMOTE_STATE_EXP_FAILED           0x40000 /* actual M+ connection exists but handshake failed */
-
-
-
 #define WIIMOTE_INIT_STATES					(WIIMOTE_STATE_IR_SENS_LVL3)
 
 /* macro to manage states */
-#define WIIMOTE_IS_SET(wm, s)			((wm->state & (s)) == (s))
 #define WIIMOTE_ENABLE_STATE(wm, s)		(wm->state |= (s))
 #define WIIMOTE_DISABLE_STATE(wm, s)	(wm->state &= ~(s))
 #define WIIMOTE_TOGGLE_STATE(wm, s)		((wm->state & (s)) ? WIIMOTE_DISABLE_STATE(wm, s) : WIIMOTE_ENABLE_STATE(wm, s))
@@ -256,10 +235,6 @@
 #define WIIMOTE_TOGGLE_FLAG(wm, s)		((wm->flags & (s)) ? WIIMOTE_DISABLE_FLAG(wm, s) : WIIMOTE_ENABLE_FLAG(wm, s))
 
 #define NUNCHUK_IS_FLAG_SET(wm, s)		((*(wm->flags) & (s)) == (s))
-
-/* misc macros */
-#define WIIMOTE_ID(wm)					(wm->unid)
-#define WIIMOTE_IS_CONNECTED(wm)		(WIIMOTE_IS_SET(wm, WIIMOTE_STATE_CONNECTED))
 
 /*
  *	Smooth tilt calculations are computed with the

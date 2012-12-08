@@ -33,6 +33,8 @@
 
 
 #include "io.h"
+#include "events.h"
+#include "os.h"
 
 #ifdef WIIUSE_WIN32
 #include <stdlib.h>
@@ -52,7 +54,7 @@ extern "C" {
 #	endif
 #endif
 
-int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
+int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	GUID device_id;
 	HANDLE dev;
 	HDEVINFO device_info;
@@ -146,7 +148,7 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 }
 
 
-int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
+int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 	int connected = 0;
 	int i = 0;
 
@@ -161,7 +163,7 @@ int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
 }
 
 
-void wiiuse_disconnect(struct wiimote_t* wm) {
+void wiiuse_os_disconnect(struct wiimote_t* wm) {
 	if (!wm || WIIMOTE_IS_CONNECTED(wm))
 		return;
 
@@ -177,7 +179,31 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 }
 
 
-int wiiuse_io_read(struct wiimote_t* wm) {
+int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
+	int i;
+	int evnt = 0;
+
+	if (!wm) return 0;
+
+	for (i = 0; i < wiimotes; ++i) {
+		wm[i]->event = WIIUSE_NONE;
+
+		if (wiiuse_os_read(wm[i])) {
+			/* propagate the event */
+			propagate_event(wm[i], wm[i]->event_buf[0], wm[i]->event_buf+1);
+			evnt += (wm[i]->event != WIIUSE_NONE);
+
+			/* clear out the event buffer */
+			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
+		} else {
+			idle_cycle(wm[i]);
+		}
+	}
+
+	return evnt;
+}
+
+int wiiuse_os_read(struct wiimote_t* wm) {
 	DWORD b, r;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
@@ -217,7 +243,7 @@ int wiiuse_io_read(struct wiimote_t* wm) {
 }
 
 
-int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
+int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
 	DWORD bytes;
 	int i;
 

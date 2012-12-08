@@ -56,6 +56,9 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len);
 void disable_expansion(struct wiimote_t* wm);
 
 void propagate_event(struct wiimote_t* wm, byte event, byte* msg);
+void idle_cycle(struct wiimote_t* wm);
+
+void clear_dirty_reads(struct wiimote_t* wm);
 /** @} */
 
 #endif /* EVENTS_H_INCLUDED */

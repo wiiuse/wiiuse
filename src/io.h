@@ -31,12 +31,8 @@
  *	@brief Handles device I/O.
  */
 
-#ifndef CONNECT_H_INCLUDED
-#define CONNECT_H_INCLUDED
-
-#ifdef WIIUSE_BLUEZ
-	#include <bluetooth/bluetooth.h>
-#endif
+#ifndef IO_H_INCLUDED
+#define IO_H_INCLUDED
 
 #include "wiiuse_internal.h"
 
@@ -44,20 +40,13 @@
 extern "C" {
 #endif
 
-
-/** @defgroup internal_io Internal: Device IO */
+/** @defgroup internal_io Internal: Device I/O */
 /** @{ */
 void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len);
-
-void wiiuse_init_platform_fields(struct wiimote_t* wm);
-void wiiuse_cleanup_platform_fields(struct wiimote_t* wm);
-
-int wiiuse_io_read(struct wiimote_t* wm);
-int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len);
 /** @} */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CONNECT_H_INCLUDED */
+#endif /* IO_H_INCLUDED */
