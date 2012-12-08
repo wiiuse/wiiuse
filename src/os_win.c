@@ -243,7 +243,7 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 		/* log the received data */
 #ifdef WITH_WIIUSE_DEBUG
 		{
-			int i;
+			DWORD i;
 			printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
 			for(i = 1; i < b; i++) {
 				printf("%.2x ", buf[i]);

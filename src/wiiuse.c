@@ -629,7 +629,7 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 		{
 			/* Rumble flag for: 0x11, 0x13, 0x14, 0x15, 0x19 or 0x1a */
 			if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_RUMBLE))
-				msg[1] |= 0x01;
+				msg[0] |= 0x01;
 			break;
 		}
 		default:
