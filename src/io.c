@@ -149,7 +149,7 @@ void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int buff
 */
 void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data)
 {
-	byte pkt[8];
+	byte pkt[6];
 	byte buf[MAX_PAYLOAD];
 	unsigned n_full_reports;
 	unsigned last_report;
@@ -160,27 +160,25 @@ void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned shor
 	 * address in big endian first, the leading byte will
 	 * be overwritten (only 3 bytes are sent)
 	 */
-	to_big_endian_uint32_t(pkt + 2, addr);
+	to_big_endian_uint32_t(pkt, addr);
 
-	pkt[0] = 0x52; /* HID read command */
-	pkt[1] = 0x17; /* report 17 - read */
-	pkt[2] = (memory != 0) ? 0x00 : 0x04; /* read from registers or memory*/
-
-	/*
-	 * length in big endian
-	 */
-	to_big_endian_uint16_t(pkt + 6, size);
+	/* read from registers or memory */
+	pkt[0] = (memory != 0) ? 0x00 : 0x04;
+	
+	/* length in big endian */
+	to_big_endian_uint16_t(pkt + 4, size);
+	
+	/* send */
+	wiiuse_send(wm, WM_CMD_READ_DATA, pkt, sizeof(pkt));
 
 	/* calculate how many 16B packets we have to get back */
 	n_full_reports = size / 16;
 	last_report = size % 16;
 	output = data;
 
-	wiiuse_os_write(wm, pkt, 8);
-
 	for(i = 0; i < n_full_reports; ++i)
 	{
-		wiiuse_wait_report(wm, 0x21, buf, MAX_PAYLOAD);
+		wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD);
 		memmove(output, buf + 7, 16);
 		output += 16;
 	}
@@ -188,7 +186,7 @@ void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned shor
 	/* read the last incomplete packet */
 	if(last_report)
 	{
-		wiiuse_wait_report(wm, 0x21, buf, MAX_PAYLOAD);
+		wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD);
 		memmove(output, buf + 7, last_report);
 	}
 }
