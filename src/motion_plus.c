@@ -47,11 +47,15 @@ void wiiuse_probe_motion_plus(struct wiimote_t *wm)
 {
     byte buf[MAX_PAYLOAD];
     unsigned id;
+	unsigned short offset = 0;
+#ifdef WIIUSE_WIN32
+	offset = 1;
+#endif
 
     wiiuse_read(wm, 0, WM_EXP_MOTION_PLUS_IDENT, 6, buf);
 
     /* check error code */
-    if(buf[4] & 0x0f)
+    if(buf[4-offset] & 0x0f)
     {
         WIIUSE_DEBUG("No Motion+ available, stopping probe.");
         WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_MPLUS_PRESENT);
@@ -59,7 +63,7 @@ void wiiuse_probe_motion_plus(struct wiimote_t *wm)
     }
 
     /* decode the id*/
-    id = from_big_endian_uint32_t(buf + 2);
+    id = from_big_endian_uint32_t(buf + 2 - offset);
 
     if(id != EXP_ID_CODE_INACTIVE_MOTION_PLUS &&
                     id != EXP_ID_CODE_NLA_MOTION_PLUS &&

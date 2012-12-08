@@ -225,7 +225,7 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 		if (r == WAIT_TIMEOUT) {
 			/* timeout - cancel and continue */
 
-			if (*wm->event_buf)
+			if (*buf)
 				WIIUSE_WARNING("Packet ignored.  This may indicate a problem (timeout is %i ms).", wm->timeout);
 
 			CancelIo(wm->dev_handle);
@@ -238,6 +238,17 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 
 		if (!GetOverlappedResult(wm->dev_handle, &wm->hid_overlap, &b, 0))
 			return 0;
+
+#ifdef WITH_WIIUSE_DEBUG
+		{
+			int i;
+			printf("[DEBUG] (id %i) RECV: (%x) ", wm->unid, buf[0]);
+			for(i = 1; i < b; i++) {
+				printf("%x ", buf[i]);
+			}
+			printf("\n");
+		}
+#endif
 	}
 
 	ResetEvent(wm->hid_overlap.hEvent);

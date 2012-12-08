@@ -122,13 +122,19 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 */
 void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength)
 {
+	byte readReport;
 	for(;;)
 	{
 		if(wiiuse_os_read(wm, buffer, bufferLength) > 0) {
-			if(buffer[1] == report) {
+#ifdef WIIUSE_WIN32
+			readReport = buffer[0];
+#else
+			readReport = buffer[1];
+#endif
+			if(readReport == report) {
 				break;
 			} else {
-				WIIUSE_WARNING("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[1], report);
+				WIIUSE_WARNING("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, readReport, report);
 			}
 		}
 	}
@@ -154,7 +160,7 @@ void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned shor
 	unsigned n_full_reports;
 	unsigned last_report;
 	byte *output;
-	int i;
+	unsigned int i;
 
 	/*
 	 * address in big endian first, the leading byte will
