@@ -40,7 +40,7 @@ elseif(APPLE)
 	list(APPEND SOURCES ${MAC_SOURCES})
 	# make sure we use the gcc for Objective-C files as well so that the
 	# sysroot and deployment target arguments are correctly passed to the compiler
-	SET_SOURCE_FILES_PROPERTIES(${MAC_OBJC_SOURCES} PROPERTIES LANGUAGE C)
+	set_source_files_properties(${MAC_OBJC_SOURCES} PROPERTIES LANGUAGE C)
 else()
 	list(APPEND SOURCES os_nix.c)
 endif()
