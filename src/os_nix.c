@@ -322,7 +322,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	return evnt;
 }
 
-int wiiuse_io_read(struct wiimote_t* wm, byte* buf, int len) {
+int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	int rc;
 
 	rc = read(wm->in_sock, buf, len);
@@ -333,7 +333,7 @@ int wiiuse_io_read(struct wiimote_t* wm, byte* buf, int len) {
 	return rc;
 }
 
-int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
+int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
 	int rc;
 	rc = write(wm->out_sock, buf, len);
 
