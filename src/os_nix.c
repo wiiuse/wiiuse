@@ -286,32 +286,12 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 			clear_dirty_reads(wm[i]);
 
 			/* read the pending message into the buffer */
-			r = read(wm[i]->in_sock, read_buffer, sizeof(read_buffer));
-			if (r == -1) {
-				/* error reading data */
-				WIIUSE_ERROR("Receiving wiimote data (id %i).", wm[i]->unid);
-				perror("Error Details");
-
-				if (errno == ENOTCONN) {
-					/* this can happen if the bluetooth dongle is disconnected */
-					WIIUSE_ERROR("Bluetooth appears to be disconnected.  Wiimote unid %i will be disconnected.", wm[i]->unid);
-					wiiuse_os_disconnect(wm[i]);
-					wiiuse_disconnected(wm[i]);
-					wm[i]->event = WIIUSE_UNEXPECTED_DISCONNECT;
-				}
-
-				continue;
+			r = wiiuse_os_read(wm, read_buffer, sizeof(read_buffer));
+			if (r > 0) {
+				/* propagate the event */
+				propagate_event(wm[i], read_buffer[0], read_buffer+1);
+				evnt += (wm[i]->event != WIIUSE_NONE);
 			}
-			if (!r) {
-				/* remote disconnect */
-				wiiuse_disconnected(wm[i]);
-				evnt = 1;
-				continue;
-			}
-
-			/* propagate the event */
-			propagate_event(wm[i], read_buffer[1], read_buffer+2);
-			evnt += (wm[i]->event != WIIUSE_NONE);
 		} else {
 			/* send out any waiting writes */
 			wiiuse_send_next_pending_write_request(wm[i]);
@@ -324,11 +304,41 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 
 int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	int rc;
+	int i;
 
 	rc = read(wm->in_sock, buf, len);
 
-	if(rc <= 0)
+	if (r == -1) {
+		/* error reading data */
+		WIIUSE_ERROR("Receiving wiimote data (id %i).", wm->unid);
+		perror("Error Details");
+
+		if (errno == ENOTCONN) {
+			/* this can happen if the bluetooth dongle is disconnected */
+			WIIUSE_ERROR("Bluetooth appears to be disconnected. Wiimote unid %i will be disconnected.", wm->unid);
+			wiiuse_os_disconnect(wm);
+			wiiuse_disconnected(wm);
+		}
+	} else if(rc == 0) {
+		/* remote disconnect */
 		wiiuse_disconnected(wm);
+	} else {
+		/* read successful */
+		/* on *nix we ignore the first byte */
+		memmove(buf, buf+1, len-1);
+
+		/* log the received data */
+#ifdef WITH_WIIUSE_DEBUG
+		{
+			int i;
+			printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
+			for(i = 1; i < rc; i++) {
+				printf("%.2x ", buf[i]);
+			}
+			printf("\n");
+		}
+#endif
+	}
 
 	return rc;
 }

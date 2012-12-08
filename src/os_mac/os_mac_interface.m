@@ -152,8 +152,8 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 		memset(read_buffer, 0, sizeof(read_buffer));
 		/* read */
 		if (wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer))) {
-			/* propagate the event, messages should be read as in linux, starting from the second element */
-			propagate_event(wm[i], read_buffer[1], read_buffer+2);
+			/* propagate the event */
+			propagate_event(wm[i], read_buffer[0], read_buffer+1);
 		} else {
 			/* send out any waiting writes */
 			wiiuse_send_next_pending_write_request(wm[i]);

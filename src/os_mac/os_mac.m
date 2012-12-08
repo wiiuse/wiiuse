@@ -253,7 +253,8 @@
 	}
 	
 	// copy the data into the buffer
-	WiiuseReceivedData* newData = [[WiiuseReceivedData alloc] initWithBytes: data length: length];
+	// on Mac, we ignore the first byte
+	WiiuseReceivedData* newData = [[WiiuseReceivedData alloc] initWithBytes: data+1 length: length-1];
 	[receivedDataLock lock];
 	[receivedData addObject: newData];
 	[receivedDataLock unlock];
@@ -316,9 +317,9 @@
 	// log the received data
 #ifdef WITH_WIIUSE_DEBUG
 	{
-		printf("[DEBUG] (id %i) RECV: (%x) ", wm->unid, bytes[1]);
+		printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, bytes[0]);
 		int x;
-		for (x = 2; x < length; ++x)
+		for (x = 1; x < length; ++x)
 			printf("%.2x ", bytes[x]);
 		printf("\n");
 	}

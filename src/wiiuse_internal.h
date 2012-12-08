@@ -244,6 +244,12 @@
 #define NUNCHUK_IS_FLAG_SET(wm, s)		((*(wm->flags) & (s)) == (s))
 
 /*
+ *	Largest known payload is 21 bytes.
+ *	Add 1 (Win32) or 2 (Mac, *nix) for the prefix and round up to a power of 2.
+ */
+#define MAX_PAYLOAD			32
+
+/*
  *	Smooth tilt calculations are computed with the
  *	exponential moving average formula:
  *		St = St_last + (alpha * (tilt - St_last))

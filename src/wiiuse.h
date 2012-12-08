@@ -308,12 +308,6 @@ typedef enum ir_position_t {
 /** @} */
 
 /*
- *	Largest known payload is 21 bytes.
- *	Add 2 for the prefix and round up to a power of 2.
- */
-#define MAX_PAYLOAD			32
-
-/*
  *	This is left over from an old hack, but it may actually
  *	be a useful feature to keep so it wasn't removed.
  */

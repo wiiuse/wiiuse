@@ -122,19 +122,13 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 */
 void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength)
 {
-	byte readReport;
 	for(;;)
 	{
 		if(wiiuse_os_read(wm, buffer, bufferLength) > 0) {
-#ifdef WIIUSE_WIN32
-			readReport = buffer[0];
-#else
-			readReport = buffer[1];
-#endif
-			if(readReport == report) {
+			if(buffer[0] == report) {
 				break;
 			} else {
-				WIIUSE_WARNING("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, readReport, report);
+				WIIUSE_WARNING("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0], report);
 			}
 		}
 	}
@@ -153,7 +147,7 @@ void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int buff
 *    amount of data from the Wiimote.
 *
 */
-void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data)
+void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data)
 {
 	byte pkt[6];
 	byte buf[MAX_PAYLOAD];
@@ -185,7 +179,7 @@ void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned shor
 	for(i = 0; i < n_full_reports; ++i)
 	{
 		wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD);
-		memmove(output, buf + 7, 16);
+		memmove(output, buf + 6, 16);
 		output += 16;
 	}
 
@@ -193,7 +187,7 @@ void wiiuse_read(struct wiimote_t *wm, byte memory, unsigned addr, unsigned shor
 	if(last_report)
 	{
 		wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD);
-		memmove(output, buf + 7, last_report);
+		memmove(output, buf + 6, last_report);
 	}
 }
 
@@ -240,7 +234,7 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len)
 	{
 		struct accel_t* accel = &wm->accel_calib;
 
-		wiiuse_read(wm, 1, WM_MEM_OFFSET_CALIBRATION, 8, buf);
+		wiiuse_read_data_sync(wm, 1, WM_MEM_OFFSET_CALIBRATION, 8, buf);
 
 		/* received read data */
 		accel->cal_zero.x = buf[0];
