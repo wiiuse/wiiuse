@@ -205,7 +205,7 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
  *	with this data.
  */
 
-#ifndef WIIUSE_SYNC_HANDSHAKE
+#ifdef WIIUSE_SYNC_HANDSHAKE
 
 void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len)
 {
