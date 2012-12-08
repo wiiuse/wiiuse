@@ -322,6 +322,9 @@ typedef enum ir_position_t {
 	#define WIIMOTE_EXP_TIMEOUT			10
 #endif
 
+#define WIIUSE_SYNC_HANDSHAKE
+
+
 typedef unsigned char byte;
 typedef char sbyte;
 
@@ -756,7 +759,9 @@ typedef struct wiimote_t {
 
 	WCONST int flags;						/**< options flag							*/
 
+#ifdef WIIUSE_SYNC_HANDSHAKE
 	WCONST byte handshake_state;			/**< the state of the connection handshake	*/
+#endif
 	WCONST byte expansion_state;            /**< the state of the expansion handshake	*/
 	WCONST struct data_req_t* data_req;		/**< list of data read requests				*/
 

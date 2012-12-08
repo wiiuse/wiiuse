@@ -181,7 +181,9 @@ void wiiuse_disconnected(struct wiimote_t* wm) {
 	wm->leds = 0;
 	wm->state = WIIMOTE_INIT_STATES;
 	wm->read_req = NULL;
+#ifdef WIIUSE_SYNC_HANDSHAKE
 	wm->handshake_state = 0;
+#endif
 	wm->btns = 0;
 	wm->btns_held = 0;
 	wm->btns_released = 0;
@@ -795,7 +797,9 @@ void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold) {
 void wiiuse_resync(struct wiimote_t* wm) {
 	if (!wm)	return;
 
+#ifdef WIIUSE_SYNC_HANDSHAKE
 	wm->handshake_state = 0;
+#endif
 	wiiuse_handshake(wm, NULL, 0);
 }
 
