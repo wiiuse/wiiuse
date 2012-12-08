@@ -308,7 +308,7 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 
 	rc = read(wm->in_sock, buf, len);
 
-	if (r == -1) {
+	if (rc == -1) {
 		/* error reading data */
 		WIIUSE_ERROR("Receiving wiimote data (id %i).", wm->unid);
 		perror("Error Details");
