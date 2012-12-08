@@ -99,10 +99,6 @@
 	/* nix */
 	#include <bluetooth/bluetooth.h>
 #endif
-#ifdef WIIUSE_MAC
-	/* mac */
-	#include <IOBluetooth/IOBluetoothUserLib.h>
-#endif
 
 #ifndef WCONST
 	#define WCONST		const
