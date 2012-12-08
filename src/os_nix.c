@@ -237,6 +237,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	fd_set fds;
 	int r;
 	int i;
+	byte read_buffer[MAX_PAYLOAD];
 	int highest_fd = -1;
 
 	evnt = 0;
@@ -279,13 +280,13 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 
 		if (FD_ISSET(wm[i]->in_sock, &fds)) {
 			/* clear out the event buffer */
-			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
+			memset(read_buffer, 0, sizeof(read_buffer));
 
-			/* clear out any old read requests */
+			/* clear out any old read data */
 			clear_dirty_reads(wm[i]);
 
 			/* read the pending message into the buffer */
-			r = read(wm[i]->in_sock, wm[i]->event_buf, sizeof(wm[i]->event_buf));
+			r = read(wm[i]->in_sock, read_buffer, sizeof(read_buffer));
 			if (r == -1) {
 				/* error reading data */
 				WIIUSE_ERROR("Receiving wiimote data (id %i).", wm[i]->unid);
@@ -309,7 +310,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 			}
 
 			/* propagate the event */
-			propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
+			propagate_event(wm[i], read_buffer[1], read_buffer+2);
 			evnt += (wm[i]->event != WIIUSE_NONE);
 		} else {
 			/* send out any waiting writes */

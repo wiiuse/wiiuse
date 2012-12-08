@@ -181,6 +181,7 @@ void wiiuse_os_disconnect(struct wiimote_t* wm) {
 
 int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	int i;
+	byte read_buffer[MAX_PAYLOAD];
 	int evnt = 0;
 
 	if (!wm) return 0;
@@ -188,13 +189,13 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	for (i = 0; i < wiimotes; ++i) {
 		wm[i]->event = WIIUSE_NONE;
 
-		if (wiiuse_os_read(wm[i], wm[i]->event_buf, sizeof(wm[i]->event_buf))) {
+		/* clear out the buffer */
+		memset(read_buffer, 0, sizeof(read_buffer));
+		/* read */
+		if (wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer))) {
 			/* propagate the event */
-			propagate_event(wm[i], wm[i]->event_buf[0], wm[i]->event_buf+1);
+			propagate_event(wm[i], read_buffer[0], read_buffer+1);
 			evnt += (wm[i]->event != WIIUSE_NONE);
-
-			/* clear out the event buffer */
-			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
 		} else {
 			/* send out any waiting writes */
 			wiiuse_send_next_pending_write_request(wm[i]);

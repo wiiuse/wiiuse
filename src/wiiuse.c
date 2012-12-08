@@ -187,7 +187,6 @@ void wiiuse_disconnected(struct wiimote_t* wm) {
 	wm->btns = 0;
 	wm->btns_held = 0;
 	wm->btns_released = 0;
-	memset(wm->event_buf, 0, sizeof(wm->event_buf));
 
 	wm->event = WIIUSE_DISCONNECT;
 }

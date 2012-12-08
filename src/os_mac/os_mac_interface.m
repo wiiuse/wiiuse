@@ -139,19 +139,21 @@ void wiiuse_os_disconnect(struct wiimote_t* wm) {
 #pragma mark poll, read, write
 
 int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
-	int i, evnt = 0;
+	int i;
+	byte read_buffer[MAX_PAYLOAD];
+	int evnt = 0;
 	
 	if (!wm) return 0;
 	
 	for (i = 0; i < wiimotes; ++i) {
 		wm[i]->event = WIIUSE_NONE;
 		
-		if (wiiuse_os_read(wm[i], wm[i]->event_buf, sizeof(wm[i]->event_buf))) {
+		/* clear out the buffer */
+		memset(read_buffer, 0, sizeof(read_buffer));
+		/* read */
+		if (wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer))) {
 			/* propagate the event, messages should be read as in linux, starting from the second element */
-			propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
-			
-			/* clear out the event buffer */
-			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
+			propagate_event(wm[i], read_buffer[1], read_buffer+2);
 		} else {
 			/* send out any waiting writes */
 			wiiuse_send_next_pending_write_request(wm[i]);
