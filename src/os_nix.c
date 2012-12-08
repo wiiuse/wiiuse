@@ -343,9 +343,14 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	return rc;
 }
 
-int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
+int wiiuse_os_write(struct wiimote_t* wm, byte report_type, byte* buf, int len) {
 	int rc;
-	rc = write(wm->out_sock, buf, len);
+	byte write_buffer[MAX_PAYLOAD];
+
+	write_buffer[0] = WM_SET_REPORT | WM_BT_OUTPUT;
+	write_buffer[1] = report_type;
+	memcpy(write_buffer+2, buf, len);
+	rc = write(wm->out_sock, write_buffer, len+2);
 
 	if(rc < 0)
 		wiiuse_disconnected(wm);

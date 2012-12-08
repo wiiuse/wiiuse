@@ -616,26 +616,12 @@ void wiiuse_send_next_pending_write_request(struct wiimote_t* wm) {
  *
  *	@param wm			Pointer to a wiimote_t structure.
  *	@param report_type	The report type to send (WIIMOTE_CMD_LED, WIIMOTE_CMD_RUMBLE, etc). Found in wiiuse.h
- *	@param msg			The payload.
+ *	@param msg			The payload. Might be changed by the callee.
  *	@param len			Length of the payload in bytes.
  *
  *	This function should replace any write()s directly to the wiimote device.
  */
 int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
-	byte buf[MAX_PAYLOAD];		/* no payload is better than this */
-	int rumble = 0;
-
-	#ifdef WIIUSE_WIN32
-		buf[0] = report_type;
-	#else
-		#ifdef WIIUSE_MAC
-			buf[0] = WM_SET_DATA | WM_BT_OUTPUT;
-		#else // *NIX
-			buf[0] = WM_SET_REPORT | WM_BT_OUTPUT;
-		#endif
-		buf[1] = report_type;
-	#endif
-
 	switch (report_type) {
 		case WM_CMD_LED:
 		case WM_CMD_RUMBLE:
@@ -643,43 +629,24 @@ int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len) {
 		{
 			/* Rumble flag for: 0x11, 0x13, 0x14, 0x15, 0x19 or 0x1a */
 			if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_RUMBLE))
-				rumble = 1;
+				msg[1] |= 0x01;
 			break;
 		}
 		default:
 			break;
 	}
 
-	#ifndef WIIUSE_WIN32
-		memcpy(buf+2, msg, len);
-		if (rumble)
-			buf[2] |= 0x01;
-	#else
-		memcpy(buf+1, msg, len);
-		if (rumble)
-			buf[1] |= 0x01;
-	#endif
-
 	#ifdef WITH_WIIUSE_DEBUG
 	{
 		int x;
-		#ifndef WIIUSE_WIN32
-		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[1], buf[2]);
-		for (x = 3; x < len+2; ++x)
-		#else
-		printf("[DEBUG] (id %i) SEND: (%x) %.2x ", wm->unid, buf[0], buf[1]);
-		for (x = 2; x < len+1; ++x)
-		#endif
-			printf("%.2x ", buf[x]);
+		printf("[DEBUG] (id %i) SEND: (%.2x) %.2x ", wm->unid, report_type, msg[0]);
+		for (x = 1; x < len; ++x)
+			printf("%.2x ", msg[x]);
 		printf("\n");
 	}
 	#endif
 
-	#ifndef WIIUSE_WIN32
-		return wiiuse_os_write(wm, buf, len+2);
-	#else
-		return wiiuse_os_write(wm, buf, len+1);
-	#endif
+	return wiiuse_os_write(wm, report_type, msg, len);
 }
 
 

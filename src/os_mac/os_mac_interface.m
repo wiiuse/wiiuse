@@ -182,7 +182,7 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	return result;
 }
 
-int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
+int wiiuse_os_write(struct wiimote_t* wm, byte report_type, byte* buf, int len) {
 	if(!wm || !wm->objc_wm) return 0;
 	if(!WIIMOTE_IS_CONNECTED(wm)) {
 		WIIUSE_ERROR("Attempting to write to unconnected Wiimote");
@@ -192,7 +192,7 @@ int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	
 	WiiuseWiimote* objc_wm = (WiiuseWiimote*) wm->objc_wm;
-	int result = [objc_wm writeBuffer: buf length: (NSUInteger)len];
+	int result = [objc_wm writeReport: report_type buffer: buf length: (NSUInteger)len];
 	
 	[pool drain];
 	return result;

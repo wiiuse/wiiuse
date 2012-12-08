@@ -68,7 +68,7 @@
 - (void) disconnect;
 
 - (int) readBuffer: (byte*) buffer length: (NSUInteger) bufferLength;
-- (int) writeBuffer: (byte*) buffer length: (NSUInteger) length;
+- (int) writeReport: (byte) report_type buffer: (byte*) buffer length: (NSUInteger) length;
 
 @end
 

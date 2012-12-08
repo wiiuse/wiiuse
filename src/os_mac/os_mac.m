@@ -209,13 +209,18 @@
 	return result >= 0 ? result : 0;
 }
 
-- (int) writeBuffer: (byte*) buffer length: (NSUInteger) length {
+- (int) writeReport: (byte) report_type buffer: (byte*) buffer length: (NSUInteger) length {
 	if(interruptChannel == nil) {
 		WIIUSE_ERROR("Attempted to write to nil interrupt channel [id %i].", wm->unid);
 		return 0;
 	}
 	
-	IOReturn error = [interruptChannel writeSync:buffer length:length];
+	byte write_buffer[MAX_PAYLOAD];
+	write_buffer[0] = WM_SET_DATA | WM_BT_OUTPUT;
+	write_buffer[1] = report_type;
+	memcpy(write_buffer+2, buffer, length);
+
+	IOReturn error = [interruptChannel writeSync:write_buffer length:length+2];
 	if (error != kIOReturnSuccess) {
 		WIIUSE_ERROR("Error writing to interrupt channel [id %i].", wm->unid);
 		
@@ -227,7 +232,7 @@
 			[self disconnect];
 		} else {
 			WIIUSE_DEBUG("Attempting to write again to the interrupt channel [id %i].", wm->unid);
-			error = [interruptChannel writeSync:buffer length:length];
+			error = [interruptChannel writeSync:write_buffer length:length+2];
 			if (error != kIOReturnSuccess)
 				WIIUSE_ERROR("Unable to write again to the interrupt channel [id %i].", wm->unid);
 		}
