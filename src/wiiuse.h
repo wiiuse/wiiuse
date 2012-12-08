@@ -135,9 +135,10 @@
 #define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
 #define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
 #define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
-#define WIIMOTE_STATE_EXP_HANDSHAKE        0x10000 /* actual M+ connection exists but no handshake yet */
-#define WIIMOTE_STATE_EXP_EXTERN           0x20000 /* actual M+ connection exists but handshake failed */
-#define WIIMOTE_STATE_EXP_FAILED           0x40000 /* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_EXP_HANDSHAKE			0x10000	/* actual M+ connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_EXTERN			0x20000	/* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_EXP_FAILED			0x40000	/* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_MPLUS_PRESENT			0x80000	/* Motion+ is connected */
 
 #define WIIMOTE_ID(wm)					(wm->unid)
 

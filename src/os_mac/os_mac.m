@@ -152,14 +152,14 @@
 #pragma mark read, write
 
 // <0: nothing received, else: length of data received (can be 0 in case of disconnection message)
-- (int) checkForAvailableData {
+- (int) checkForAvailableDataForBuffer: (byte*) buffer length: (NSUInteger) bufferLength {
 	int result = -1;
 	
 	[receivedDataLock lock];
 	if([receivedData count]) {
 		// look at first item in queue
 		NSObject<WiiuseReceivedMessage>* firstMessage = [receivedData objectAtIndex:0];
-		result = [firstMessage applyToStruct:wm];
+		result = [firstMessage applyToStruct:wm buffer: buffer length: bufferLength];
 		if(result >= 0)
 			[receivedData removeObjectAtIndex:0];
 	}
@@ -195,15 +195,15 @@
 }
 
 // result = length of data copied to event buffer
-- (int) read {
+- (int) readBuffer:(byte *)buffer length:(NSUInteger)bufferLength {
 	// is there already some data to read?
-	int result = [self checkForAvailableData];
+	int result = [self checkForAvailableDataForBuffer: buffer length: bufferLength];
 	if(result < 0) {
-		// wait a short amount of time, until data becomes available or a timeoutis reached
+		// wait a short amount of time, until data becomes available or a timeout is reached
 		[self waitForIncomingData:1];
 		
 		// check again
-		result = [self checkForAvailableData];
+		result = [self checkForAvailableDataForBuffer: buffer length: bufferLength];
 	}
 	
 	return result >= 0 ? result : 0;
@@ -305,12 +305,12 @@
 	[super dealloc];
 }
 
-- (int) applyToStruct:(wiimote *)wm {
+- (int) applyToStruct:(wiimote *)wm buffer:(byte *)buffer length:(NSUInteger)bufferLength {
 	byte* bytes = (byte*) [data bytes];
 	NSUInteger length = [data length];
-	if(length > sizeof(wm->event_buf)) {
+	if(length > bufferLength) {
 		WIIUSE_WARNING("Received data was longer than event buffer. Dropping excess bytes.");
-		length = sizeof(wm->event_buf);
+		length = bufferLength;
 	}
 	
 	// log the received data
@@ -325,7 +325,7 @@
 #endif
 	
 	// copy to struct
-	memcpy(wm->event_buf, bytes, length);
+	memcpy(buffer, bytes, length);
 	
 	return length;
 }
@@ -334,7 +334,7 @@
 
 @implementation WiiuseDisconnectionMessage
 
-- (int) applyToStruct:(wiimote *)wm {
+- (int) applyToStruct:(wiimote *)wm buffer:(byte *)buffer length:(NSUInteger)bufferLength {
 	wiiuse_disconnected(wm);
 	return 0;
 }

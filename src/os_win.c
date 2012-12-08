@@ -188,7 +188,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	for (i = 0; i < wiimotes; ++i) {
 		wm[i]->event = WIIUSE_NONE;
 
-		if (wiiuse_os_read(wm[i])) {
+		if (wiiuse_os_read(wm[i], wm[i]->event_buf, sizeof(wm[i]->event_buf))) {
 			/* propagate the event */
 			propagate_event(wm[i], wm[i]->event_buf[0], wm[i]->event_buf+1);
 			evnt += (wm[i]->event != WIIUSE_NONE);
@@ -196,6 +196,8 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 			/* clear out the event buffer */
 			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
 		} else {
+			/* send out any waiting writes */
+			wiiuse_send_next_pending_write_request(wm[i]);
 			idle_cycle(wm[i]);
 		}
 	}
@@ -203,13 +205,13 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	return evnt;
 }
 
-int wiiuse_os_read(struct wiimote_t* wm) {
+int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	DWORD b, r;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
 		return 0;
 
-	if (!ReadFile(wm->dev_handle, wm->event_buf, sizeof(wm->event_buf), &b, &wm->hid_overlap)) {
+	if (!ReadFile(wm->dev_handle, buf, len, &b, &wm->hid_overlap)) {
 		/* partial read */
 		b = GetLastError();
 

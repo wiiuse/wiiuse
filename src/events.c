@@ -503,9 +503,16 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_3)	led[2] = 1;
 	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_4)	led[3] = 1;
 
+	/* probe for Motion+ */
+	if(!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_MPLUS_PRESENT))
+		wiiuse_probe_motion_plus(wm);
+
 	/* is an attachment connected to the expansion port? */
 	if ((msg[2] & WM_CTRL_STATUS_BYTE1_ATTACHMENT) == WM_CTRL_STATUS_BYTE1_ATTACHMENT)
+	{
+		WIIUSE_DEBUG("Attachment detected!");
 		attachment = 1;
+	}
 
 	/* is the speaker enabled? */
 	if ((msg[2] & WM_CTRL_STATUS_BYTE1_SPEAKER_ENABLED) == WM_CTRL_STATUS_BYTE1_SPEAKER_ENABLED)
@@ -561,7 +568,6 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	req->state = REQ_DONE;
 	/* if(req->cb!=NULL) req->cb(wm,msg,6); */
 	free(req);
-	wiiuse_send_next_pending_write_request(wm);
 }
 
 

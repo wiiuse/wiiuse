@@ -173,6 +173,7 @@
 #define WM_EXP_MEM_ENABLE1			0x04A400F0
 #define WM_EXP_MEM_ENABLE2			0x04A400FB
 #define WM_EXP_MEM_CALIBR			0x04A40020
+#define WM_EXP_MOTION_PLUS_IDENT    0x04A600FA
 #define WM_EXP_MOTION_PLUS_ENABLE   		0x04A600FE
 #define WM_EXP_MOTION_PLUS_INIT     0x04A600F0
 #define WM_REG_IR				0x04B00030
@@ -210,9 +211,15 @@
 #define EXP_ID_CODE_WII_BOARD               0xA4200402
 #define EXP_ID_CODE_CLASSIC_CONTROLLER      0xA4200101
 #define EXP_ID_CODE_GUITAR                  0xA4200103
-#define EXP_ID_CODE_MOTION_PLUS             0xa4200405
+#define EXP_ID_CODE_MOTION_PLUS             0xA4200405
 #define EXP_ID_CODE_MOTION_PLUS_NUNCHUK     0xA4200505 /** Motion Plus ID in Nunchuck passthrough mode */
 #define EXP_ID_CODE_MOTION_PLUS_CLASSIC     0xA4200705 /** Motion Plus ID in Classic control. passthrough */
+
+/* decrypted M+ codes at 0x04A600FA */
+#define EXP_ID_CODE_INACTIVE_MOTION_PLUS        0xA6200005 /** Inactive Motion Plus ID */
+#define EXP_ID_CODE_NLA_MOTION_PLUS             0xA6200405 /** No longer active Motion Plus ID */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK     0xA6200505 /** No longer active Motion Plus ID in Nunchuck passthrough mode */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC     0xA6200705 /** No longer active Motion Plus ID in Classic control. passthrough */
 
 #define EXP_HANDSHAKE_LEN					224
 

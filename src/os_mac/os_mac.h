@@ -67,14 +67,14 @@
 - (IOReturn) connect;
 - (void) disconnect;
 
-- (int) read;
+- (int) readBuffer: (byte*) buffer length: (NSUInteger) bufferLength;
 - (int) writeBuffer: (byte*) buffer length: (NSUInteger) length;
 
 @end
 
 
 @protocol WiiuseReceivedMessage <NSObject>
-- (int) applyToStruct: (wiimote*) wm; // <0: not copied, 0: copied empty, >0: copied
+- (int) applyToStruct: (wiimote*) wm buffer: (byte*) buffer length: (NSUInteger) bufferLength; // <0: not copied, 0: copied empty, >0: copied
 @end
 
 @interface WiiuseReceivedData : NSObject<WiiuseReceivedMessage> {

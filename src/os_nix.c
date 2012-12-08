@@ -312,6 +312,8 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 			propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
 			evnt += (wm[i]->event != WIIUSE_NONE);
 		} else {
+			/* send out any waiting writes */
+			wiiuse_send_next_pending_write_request(wm[i]);
 			idle_cycle(wm[i]);
 		}
 	}
@@ -319,14 +321,25 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	return evnt;
 }
 
-int wiiuse_os_read(struct wiimote_t* wm) {
-	/* not used */
-	return 0;
+int wiiuse_io_read(struct wiimote_t* wm, byte* buf, int len) {
+	int rc;
+
+	rc = read(wm->in_sock, buf, len);
+
+	if(rc <= 0)
+		wiiuse_disconnected(wm);
+
+	return rc;
 }
 
+int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
+	int rc;
+	rc = write(wm->out_sock, buf, len);
 
-int wiiuse_os_write(struct wiimote_t* wm, byte* buf, int len) {
-	return write(wm->out_sock, buf, len);
+	if(rc < 0)
+		wiiuse_disconnected(wm);
+
+	return rc;
 }
 
 void wiiuse_init_platform_fields(struct wiimote_t* wm) {

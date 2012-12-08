@@ -146,13 +146,15 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	for (i = 0; i < wiimotes; ++i) {
 		wm[i]->event = WIIUSE_NONE;
 		
-		if (wiiuse_os_read(wm[i])) {
+		if (wiiuse_os_read(wm[i], wm[i]->event_buf, sizeof(wm[i]->event_buf))) {
 			/* propagate the event, messages should be read as in linux, starting from the second element */
 			propagate_event(wm[i], wm[i]->event_buf[1], wm[i]->event_buf+2);
 			
 			/* clear out the event buffer */
 			memset(wm[i]->event_buf, 0, sizeof(wm[i]->event_buf));
 		} else {
+			/* send out any waiting writes */
+			wiiuse_send_next_pending_write_request(wm[i]);
 			idle_cycle(wm[i]);
 		}
 		
@@ -162,7 +164,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	return evnt;
 }
 
-int wiiuse_os_read(struct wiimote_t* wm) {
+int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	if(!wm || !wm->objc_wm) return 0;
 	if(!WIIMOTE_IS_CONNECTED(wm)) {
 		WIIUSE_ERROR("Attempting to read from unconnected Wiimote");
@@ -172,7 +174,7 @@ int wiiuse_os_read(struct wiimote_t* wm) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	
 	WiiuseWiimote* objc_wm = (WiiuseWiimote*) wm->objc_wm;
-	int result = [objc_wm read];
+	int result = [objc_wm readBuffer: buf length: len];
 	
 	[pool drain];
 	return result;
