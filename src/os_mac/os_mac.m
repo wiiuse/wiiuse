@@ -243,7 +243,12 @@
 	byte* data = (byte*) data_;
 	
 	// This is done in case the control channel woke up this handler
-	if(!data || ([channel PSM] == kBluetoothL2CAPPSMHIDControl)) {
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+	BluetoothL2CAPPSM psm = channel.PSM;
+#else
+	BluetoothL2CAPPSM psm = [channel getPSM];
+#endif
+	if(!data || (psm == kBluetoothL2CAPPSMHIDControl)) {
 		return;
 	}
 	
@@ -254,6 +259,25 @@
 	[receivedDataLock unlock];
 	[newData release];
 }
+
+#if !WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+// the following delegate methods were required on 10.6. They are here to get rid of 10.6 compiler warnings.
+- (void)l2capChannelOpenComplete:(IOBluetoothL2CAPChannel*)l2capChannel status:(IOReturn)error {
+	/* no-op */
+}
+- (void)l2capChannelClosed:(IOBluetoothL2CAPChannel*)l2capChannel {
+	/* no-op */
+}
+- (void)l2capChannelReconfigured:(IOBluetoothL2CAPChannel*)l2capChannel {
+	/* no-op */
+}
+- (void)l2capChannelWriteComplete:(IOBluetoothL2CAPChannel*)l2capChannel refcon:(void*)refcon status:(IOReturn)error {
+	/* no-op */
+}
+- (void)l2capChannelQueueSpaceAvailable:(IOBluetoothL2CAPChannel*)l2capChannel {
+	/* no-op */
+}
+#endif
 
 @end
 

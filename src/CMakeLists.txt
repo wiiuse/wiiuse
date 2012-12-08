@@ -58,18 +58,20 @@ if(WIN32)
 elseif(LINUX)
 	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 elseif(APPLE)
+	# link libraries
 	find_library(IOBLUETOOTH_FRAMEWORK
 		NAMES
 		IOBluetooth)
-	
 	find_library(COREFOUNDATION_FRAMEWORK
 		NAMES
 		CoreFoundation)
-		
 	find_library(FOUNDATION_FRAMEWORK
 		NAMES
 		Foundation)
 	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK} ${COREFOUNDATION_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+
+	# do not link Objective-C runtime with clang
+	set_target_properties(wiiuse PROPERTIES XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME "NO")
 endif()
 
 set_property(TARGET

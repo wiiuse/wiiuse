@@ -43,12 +43,19 @@
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
 #import <IOBluetooth/objc/IOBluetoothHostController.h>
 #import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
+#if !WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+#import <IOBluetooth/IOBluetoothUserLib.h> // IOBluetoothLocalDeviceGetPowerState
+#endif
 
 
 #pragma mark -
 #pragma mark WiiuseDeviceInquiry
 
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
 @interface WiiuseDeviceInquiry : NSObject<IOBluetoothDeviceInquiryDelegate> {
+#else
+@interface WiiuseDeviceInquiry : NSObject {
+#endif
 	wiimote** wiimotes;
 	NSUInteger maxDevices;
 	int timeout;
@@ -68,8 +75,17 @@
 - (id) initWithMemory:(wiimote**)wiimotes_ maxDevices:(int)maxDevices_ timeout:(int)timeout_ {
 	self = [super init];
 	if(self) {
+
+		BluetoothHCIPowerState powerState = kBluetoothHCIPowerStateUnintialized;
+#if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
+		if([IOBluetoothHostController defaultController])
+			powerState = [IOBluetoothHostController defaultController].powerState;
+#else
+		// yes it is deprecated. no, there is no alternative (on 10.6).
+		IOBluetoothLocalDeviceGetPowerState(&powerState);
+#endif
 		if (![IOBluetoothHostController defaultController] ||
-			[IOBluetoothHostController defaultController].powerState == kBluetoothHCIPowerStateOFF)
+			powerState != kBluetoothHCIPowerStateON)
 		{
 			WIIUSE_DEBUG("Bluetooth hardware not available.");
 			[self release];

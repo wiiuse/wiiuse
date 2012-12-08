@@ -42,6 +42,13 @@
 #import "../wiiuse_internal.h"
 
 
+#if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7
+#define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 1
+#else
+#define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 0
+#endif
+
+
 @interface WiiuseWiimote : NSObject<IOBluetoothL2CAPChannelDelegate> {
 	wiimote* wm; // reference to the C wiimote struct
 	
