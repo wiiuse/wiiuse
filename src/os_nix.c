@@ -286,7 +286,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 			clear_dirty_reads(wm[i]);
 
 			/* read the pending message into the buffer */
-			r = wiiuse_os_read(wm, read_buffer, sizeof(read_buffer));
+			r = wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer));
 			if (r > 0) {
 				/* propagate the event */
 				propagate_event(wm[i], read_buffer[0], read_buffer+1);
