@@ -40,13 +40,13 @@
 extern "C" {
 #endif
 
-/** @defgroup internal_io Internal: Device I/O */
-/** @{ */
-void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len);
+	/** @defgroup internal_io Internal: Device I/O */
+	/** @{ */
+	void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len);
 
-void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength);
-void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data);
-/** @} */
+	void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength);
+	void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data);
+	/** @} */
 
 #ifdef __cplusplus
 }

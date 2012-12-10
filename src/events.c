@@ -99,7 +99,7 @@ int wiiuse_update(struct wiimote_t** wiimotes, int nwiimotes, wiiuse_update_cb c
 					s.event = wiimotes[i]->event;
 					s.state = wiimotes[i]->state;
 					s.expansion = wiimotes[i]->exp;
-					callback( &s );
+					callback(&s);
 					evnt++;
 					break;
 			}
@@ -184,108 +184,98 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 	save_state(wm);
 
 	switch (event) {
-		case WM_RPT_BTN:
-		{
-			/* button */
-			wiiuse_pressed_buttons(wm, msg);
-			break;
-		}
-		case WM_RPT_BTN_ACC:
-		{
-			/* button - motion */
-			wiiuse_pressed_buttons(wm, msg);
+		case WM_RPT_BTN: {
+				/* button */
+				wiiuse_pressed_buttons(wm, msg);
+				break;
+			}
+		case WM_RPT_BTN_ACC: {
+				/* button - motion */
+				wiiuse_pressed_buttons(wm, msg);
 
-			handle_wm_accel(wm, msg);
+				handle_wm_accel(wm, msg);
 
-			break;
-		}
-		case WM_RPT_READ:
-		{
-			/* data read */
-			event_data_read(wm, msg);
+				break;
+			}
+		case WM_RPT_READ: {
+				/* data read */
+				event_data_read(wm, msg);
 
-			/* yeah buttons may be pressed, but this wasn't an "event" */
-			return;
-		}
-		case WM_RPT_CTRL_STATUS:
-		{
-			/* controller status */
-			event_status(wm, msg);
+				/* yeah buttons may be pressed, but this wasn't an "event" */
+				return;
+			}
+		case WM_RPT_CTRL_STATUS: {
+				/* controller status */
+				event_status(wm, msg);
 
-			/* don't execute the event callback */
-			return;
-		}
-		case WM_RPT_BTN_EXP:
-		{
-			/* button - expansion */
-			wiiuse_pressed_buttons(wm, msg);
-			handle_expansion(wm, msg+2);
+				/* don't execute the event callback */
+				return;
+			}
+		case WM_RPT_BTN_EXP: {
+				/* button - expansion */
+				wiiuse_pressed_buttons(wm, msg);
+				handle_expansion(wm, msg + 2);
 
-			break;
-		}
-		case WM_RPT_BTN_ACC_EXP:
-		{
-			/* button - motion - expansion */
-			wiiuse_pressed_buttons(wm, msg);
+				break;
+			}
+		case WM_RPT_BTN_ACC_EXP: {
+				/* button - motion - expansion */
+				wiiuse_pressed_buttons(wm, msg);
 
-			handle_wm_accel(wm, msg);
+				handle_wm_accel(wm, msg);
 
-			handle_expansion(wm, msg+5);
+				handle_expansion(wm, msg + 5);
 
-			break;
-		}
-		case WM_RPT_BTN_ACC_IR:
-		{
-			/* button - motion - ir */
-			wiiuse_pressed_buttons(wm, msg);
+				break;
+			}
+		case WM_RPT_BTN_ACC_IR: {
+				/* button - motion - ir */
+				wiiuse_pressed_buttons(wm, msg);
 
-			handle_wm_accel(wm, msg);
+				handle_wm_accel(wm, msg);
 
-			/* ir */
-			calculate_extended_ir(wm, msg+5);
+				/* ir */
+				calculate_extended_ir(wm, msg + 5);
 
-			break;
-		}
-		case WM_RPT_BTN_IR_EXP:
-		{
-			/* button - ir - expansion */
-			wiiuse_pressed_buttons(wm, msg);
-			handle_expansion(wm, msg+12);
+				break;
+			}
+		case WM_RPT_BTN_IR_EXP: {
+				/* button - ir - expansion */
+				wiiuse_pressed_buttons(wm, msg);
+				handle_expansion(wm, msg + 12);
 
-			/* ir */
-			calculate_basic_ir(wm, msg+2);
+				/* ir */
+				calculate_basic_ir(wm, msg + 2);
 
-			break;
-		}
-		case WM_RPT_BTN_ACC_IR_EXP:
-		{
-			/* button - motion - ir - expansion */
-			wiiuse_pressed_buttons(wm, msg);
+				break;
+			}
+		case WM_RPT_BTN_ACC_IR_EXP: {
+				/* button - motion - ir - expansion */
+				wiiuse_pressed_buttons(wm, msg);
 
-			handle_wm_accel(wm, msg);
+				handle_wm_accel(wm, msg);
 
-			handle_expansion(wm, msg+15);
+				handle_expansion(wm, msg + 15);
 
-			/* ir */
-			calculate_basic_ir(wm, msg+5);
+				/* ir */
+				calculate_basic_ir(wm, msg + 5);
 
-			break;
-		}
-		case WM_RPT_WRITE:
-		{
-			event_data_write(wm,msg);
-			break;
-		}
-		default:
-		{
-			WIIUSE_WARNING("Unknown event, can not handle it [Code 0x%x].", event);
-			return;
-		}
+				break;
+			}
+		case WM_RPT_WRITE: {
+				event_data_write(wm, msg);
+				break;
+			}
+		default: {
+				WIIUSE_WARNING("Unknown event, can not handle it [Code 0x%x].", event);
+				return;
+			}
 	}
 
 	/* was there an event? */
-	if (state_changed(wm))
+	if (state_changed(wm)) {
 		wm->event = WIIUSE_EVENT;
+	}
 }
 
 
@@ -334,8 +324,9 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 	wiiuse_pressed_buttons(wm, msg);
 
 	/* find the next non-dirty request */
-	while (req && req->dirty)
+	while (req && req->dirty) {
 		req = req->next;
+	}
 
 	/* if we don't have a request out then we didn't ask for this packet */
 	if (!req) {
@@ -345,12 +336,13 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 
 	err = msg[2] & 0x0F;
 
-	if (err == 0x08)
+	if (err == 0x08) {
 		WIIUSE_WARNING("Unable to read data - address does not exist.");
-	else if (err == 0x07)
+	} else if (err == 0x07) {
 		WIIUSE_WARNING("Unable to read data - address is for write-only registers.");
-	else if (err)
+	} else if (err) {
 		WIIUSE_WARNING("Unable to read data - unknown error code %x.", err);
+	}
 
 	if (err) {
 		/* this request errored out, so skip it and go to the next one */
@@ -360,8 +352,9 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 		free(req);
 
 		/* if another request exists send it to the wiimote */
-		if (wm->read_req)
+		if (wm->read_req) {
 			wiiuse_send_next_pending_read_request(wm);
+		}
 
 		return;
 	}
@@ -373,7 +366,9 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 	req->wait -= len;
 	if (req->wait >= req->size)
 		/* this should never happen */
+	{
 		req->wait = 0;
+	}
 
 	WIIUSE_DEBUG("Received read packet:");
 	WIIUSE_DEBUG("    Packet read offset:   %i bytes", offset);
@@ -385,15 +380,16 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 	/* reconstruct this part of the data */
 	memcpy((req->buf + offset - req->addr), (msg + 5), len);
 
-	#ifdef WITH_WIIUSE_DEBUG
+#ifdef WITH_WIIUSE_DEBUG
 	{
 		int i = 0;
 		printf("Read: ");
-		for (; i < req->size - req->wait; ++i)
+		for (; i < req->size - req->wait; ++i) {
 			printf("%x ", req->buf[i]);
+		}
 		printf("\n");
 	}
-	#endif
+#endif
 
 	/* if all data has been received, execute the read event callback or generate event */
 	if (!req->wait) {
@@ -417,25 +413,25 @@ static void event_data_read(struct wiimote_t* wm, byte* msg) {
 		}
 
 		/* if another request exists send it to the wiimote */
-		if (wm->read_req)
+		if (wm->read_req) {
 			wiiuse_send_next_pending_read_request(wm);
+		}
 	}
 }
 
 
-static void event_data_write(struct wiimote_t *wm, byte *msg)
-{
+static void event_data_write(struct wiimote_t *wm, byte *msg) {
 
 	struct data_req_t* req = wm->data_req;
 
-	wiiuse_pressed_buttons(wm,msg);
+	wiiuse_pressed_buttons(wm, msg);
 
 	/* if we don't have a request out then we didn't ask for this packet */
 	if (!req) {
 		WIIUSE_WARNING("Transmitting data packet when no request was made.");
 		return;
 	}
-	if(!(req->state==REQ_SENT)) {
+	if (!(req->state == REQ_SENT)) {
 		WIIUSE_WARNING("Transmission is not necessary");
 		/* delete this request */
 		wm->data_req = req->next;
@@ -446,23 +442,23 @@ static void event_data_write(struct wiimote_t *wm, byte *msg)
 
 	req->state = REQ_DONE;
 
-	if(req->cb) {
+	if (req->cb) {
 		/* this was a callback, so invoke it now */
-		req->cb(wm,NULL,0);
+		req->cb(wm, NULL, 0);
 		/* delete this request */
 		wm->data_req = req->next;
 		free(req);
 	} else {
-			/*
-			 *  This should generate an event.
-			 *  We need to leave the event in the array so the client
-			 *  can access it still.  We'll flag is as being 'REQ_DONE'
-			 *  and give the client one cycle to use it.  Next event
-			 *  we will remove it from the list.
-			 */
-			wm->event = WIIUSE_WRITE_DATA;
+		/*
+		 *  This should generate an event.
+		 *  We need to leave the event in the array so the client
+		 *  can access it still.  We'll flag is as being 'REQ_DONE'
+		 *  and give the client one cycle to use it.  Next event
+		 *  we will remove it from the list.
+		 */
+		wm->event = WIIUSE_WRITE_DATA;
 
-		}
+	}
 	/* if another request exists send it to the wiimote */
 	if (wm->data_req)   {
 		wiiuse_send_next_pending_write_request(wm);
@@ -485,8 +481,9 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	struct data_req_t* req = wm->data_req;
 
 	/* initial handshake is not finished yet, ignore this */
-	if(WIIMOTE_IS_SET(wm, WIIMOTE_STATE_HANDSHAKE))
+	if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_HANDSHAKE)) {
 		return;
+	}
 
 	/*
 	 *	An event occurred.
@@ -498,29 +495,39 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	wiiuse_pressed_buttons(wm, msg);
 
 	/* find what LEDs are lit */
-	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_1)	led[0] = 1;
-	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_2)	led[1] = 1;
-	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_3)	led[2] = 1;
-	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_4)	led[3] = 1;
+	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_1)	{
+		led[0] = 1;
+	}
+	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_2)	{
+		led[1] = 1;
+	}
+	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_3)	{
+		led[2] = 1;
+	}
+	if (msg[2] & WM_CTRL_STATUS_BYTE1_LED_4)	{
+		led[3] = 1;
+	}
 
 	/* probe for Motion+ */
-	if(!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_MPLUS_PRESENT))
+	if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_MPLUS_PRESENT)) {
 		wiiuse_probe_motion_plus(wm);
+	}
 
 	/* is an attachment connected to the expansion port? */
-	if ((msg[2] & WM_CTRL_STATUS_BYTE1_ATTACHMENT) == WM_CTRL_STATUS_BYTE1_ATTACHMENT)
-	{
+	if ((msg[2] & WM_CTRL_STATUS_BYTE1_ATTACHMENT) == WM_CTRL_STATUS_BYTE1_ATTACHMENT) {
 		WIIUSE_DEBUG("Attachment detected!");
 		attachment = 1;
 	}
 
 	/* is the speaker enabled? */
-	if ((msg[2] & WM_CTRL_STATUS_BYTE1_SPEAKER_ENABLED) == WM_CTRL_STATUS_BYTE1_SPEAKER_ENABLED)
+	if ((msg[2] & WM_CTRL_STATUS_BYTE1_SPEAKER_ENABLED) == WM_CTRL_STATUS_BYTE1_SPEAKER_ENABLED) {
 		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_SPEAKER);
+	}
 
 	/* is IR sensing enabled? */
-	if ((msg[2] & WM_CTRL_STATUS_BYTE1_IR_ENABLED) == WM_CTRL_STATUS_BYTE1_IR_ENABLED)
+	if ((msg[2] & WM_CTRL_STATUS_BYTE1_IR_ENABLED) == WM_CTRL_STATUS_BYTE1_IR_ENABLED) {
 		ir = 1;
+	}
 
 	/* find the battery level and normalize between 0 and 1 */
 	wm->battery_level = (msg[5] / (float)WM_MAX_BATTERY_CODE);
@@ -536,20 +543,19 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 		exp_changed = 1;
 	}
 
-	#ifdef WIIUSE_WIN32
+#ifdef WIIUSE_WIN32
 	if (!attachment) {
 		WIIUSE_DEBUG("Setting timeout to normal %i ms.", wm->normal_timeout);
 		wm->timeout = wm->normal_timeout;
 	}
-	#endif
+#endif
 
 	/*
 	 *	From now on the remote will only send status packets.
 	 *	We need to send a WIIMOTE_CMD_REPORT_TYPE packet to
 	 *	reenable other incoming reports.
 	 */
-		if (exp_changed && WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR))
-	{
+	if (exp_changed && WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR)) {
 		/*
 		 *  Since the expansion status changed IR needs to
 		 *  be reset for the new IR report mode.
@@ -562,8 +568,12 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	}
 
 	/* handling new Tx for changed exp */
-	if(!req) return;
-	if(!(req->state==REQ_SENT)) return;
+	if (!req) {
+		return;
+	}
+	if (!(req->state == REQ_SENT)) {
+		return;
+	}
 	wm->data_req = req->next;
 	req->state = REQ_DONE;
 	/* if(req->cb!=NULL) req->cb(wm,msg,6); */
@@ -623,8 +633,8 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 	int gotIt = 0;
 	WIIUSE_DEBUG("handshake_expansion with state %d", wm->expansion_state);
 
-	switch(wm->expansion_state) {
-		/* These two initialization writes disable the encryption */
+	switch (wm->expansion_state) {
+			/* These two initialization writes disable the encryption */
 		case 0:
 			wm->expansion_state = 1;
 			/* increase the timeout until the handshake completes */
@@ -648,22 +658,23 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 		case 2:
 			wm->expansion_state = 3;
 			/* get the calibration data */
-			if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
+			if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP)) {
 				disable_expansion(wm);
+			}
 			handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 			/* tell the wiimote to send expansion data */
 			WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
 			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 			break;
 		case 3:
-			if(!data || !len) {
+			if (!data || !len) {
 				WIIUSE_DEBUG("no handshake data received from expansion");
 				disable_expansion(wm);
 				return;
 			}
 			wm->expansion_state = 0;
 			id = from_big_endian_uint32_t(data + 220);
-			switch(id) {
+			switch (id) {
 				case EXP_ID_CODE_NUNCHUK:
 					if (nunchuk_handshake(wm, &wm->exp.nunchuk, data, len)) {
 						wm->event = WIIUSE_NUNCHUK_INSERTED;
@@ -693,12 +704,12 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 					gotIt = 1;
 					break;
 
-                case EXP_ID_CODE_WII_BOARD:
-                    if(wii_board_handshake(wm, &wm->exp.wb, data, len)) {
+				case EXP_ID_CODE_WII_BOARD:
+					if (wii_board_handshake(wm, &wm->exp.wb, data, len)) {
 						wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
 						gotIt = 1;
 					}
-                    break;
+					break;
 
 				default:
 					WIIUSE_WARNING("Unknown expansion type. Code: 0x%x", id);
@@ -706,8 +717,8 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 			}
 			free(data);
 			if (gotIt) {
-				WIIMOTE_DISABLE_STATE(wm,WIIMOTE_STATE_EXP_HANDSHAKE);
-				WIIMOTE_ENABLE_STATE(wm,WIIMOTE_STATE_EXP);
+				WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+				WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
 			} else {
 				WIIUSE_WARNING("Could not handshake with expansion id: 0x%x", id);
 			}
@@ -731,8 +742,9 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
  */
 void disable_expansion(struct wiimote_t* wm) {
 	WIIUSE_DEBUG("Disabling expansion");
-	if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
+	if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP)) {
 		return;
+	}
 
 	/* tell the associated module the expansion was removed */
 	switch (wm->exp.type) {
@@ -819,30 +831,28 @@ static void save_state(struct wiimote_t* wm) {
 
 		case EXP_MOTION_PLUS:
 		case EXP_MOTION_PLUS_CLASSIC:
-		case EXP_MOTION_PLUS_NUNCHUK:
-		{
-			wm->lstate.drx = wm->exp.mp.raw_gyro.pitch;
-			wm->lstate.dry = wm->exp.mp.raw_gyro.roll;
-			wm->lstate.drz = wm->exp.mp.raw_gyro.yaw;
+		case EXP_MOTION_PLUS_NUNCHUK: {
+				wm->lstate.drx = wm->exp.mp.raw_gyro.pitch;
+				wm->lstate.dry = wm->exp.mp.raw_gyro.roll;
+				wm->lstate.drz = wm->exp.mp.raw_gyro.yaw;
 
-			if(wm->exp.type == EXP_MOTION_PLUS_CLASSIC)
-			{
-				wm->lstate.exp_ljs_ang = wm->exp.classic.ljs.ang;
-				wm->lstate.exp_ljs_mag = wm->exp.classic.ljs.mag;
-				wm->lstate.exp_rjs_ang = wm->exp.classic.rjs.ang;
-				wm->lstate.exp_rjs_mag = wm->exp.classic.rjs.mag;
-				wm->lstate.exp_r_shoulder = wm->exp.classic.r_shoulder;
-				wm->lstate.exp_l_shoulder = wm->exp.classic.l_shoulder;
-				wm->lstate.exp_btns = wm->exp.classic.btns;
-			} else {
-				wm->lstate.exp_ljs_ang = wm->exp.nunchuk.js.ang;
-				wm->lstate.exp_ljs_mag = wm->exp.nunchuk.js.mag;
-				wm->lstate.exp_btns = wm->exp.nunchuk.btns;
-				wm->lstate.exp_accel = wm->exp.nunchuk.accel;
+				if (wm->exp.type == EXP_MOTION_PLUS_CLASSIC) {
+					wm->lstate.exp_ljs_ang = wm->exp.classic.ljs.ang;
+					wm->lstate.exp_ljs_mag = wm->exp.classic.ljs.mag;
+					wm->lstate.exp_rjs_ang = wm->exp.classic.rjs.ang;
+					wm->lstate.exp_rjs_mag = wm->exp.classic.rjs.mag;
+					wm->lstate.exp_r_shoulder = wm->exp.classic.r_shoulder;
+					wm->lstate.exp_l_shoulder = wm->exp.classic.l_shoulder;
+					wm->lstate.exp_btns = wm->exp.classic.btns;
+				} else {
+					wm->lstate.exp_ljs_ang = wm->exp.nunchuk.js.ang;
+					wm->lstate.exp_ljs_mag = wm->exp.nunchuk.js.mag;
+					wm->lstate.exp_btns = wm->exp.nunchuk.btns;
+					wm->lstate.exp_accel = wm->exp.nunchuk.accel;
+				}
+
+				break;
 			}
-
-			break;
-		}
 
 		case EXP_NONE:
 			break;
@@ -856,9 +866,9 @@ static void save_state(struct wiimote_t* wm) {
  *	@return	1 if a significant change occurred, 0 if not.
  */
 static int state_changed(struct wiimote_t* wm) {
-	#define STATE_CHANGED(a, b)		if (a != b)				return 1
+#define STATE_CHANGED(a, b)		if (a != b)				return 1
 
-	#define CROSS_THRESH(last, now, thresh)										\
+#define CROSS_THRESH(last, now, thresh)										\
 				do {															\
 					if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH)) {		\
 						if ((diff_f(last.roll, now.roll) >= thresh) ||			\
@@ -875,7 +885,7 @@ static int state_changed(struct wiimote_t* wm) {
 					}															\
 				} while (0)
 
-	#define CROSS_THRESH_XYZ(last, now, thresh)									\
+#define CROSS_THRESH_XYZ(last, now, thresh)									\
 				do {															\
 					if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH)) {		\
 						if ((diff_f(last.x, now.x) >= thresh) ||				\
@@ -910,54 +920,16 @@ static int state_changed(struct wiimote_t* wm) {
 
 	/* expansion */
 	switch (wm->exp.type) {
-		case EXP_NUNCHUK:
-		{
-			STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.nunchuk.js.ang);
-			STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.nunchuk.js.mag);
-			STATE_CHANGED(wm->lstate.exp_btns, wm->exp.nunchuk.btns);
+		case EXP_NUNCHUK: {
+				STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.nunchuk.js.ang);
+				STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.nunchuk.js.mag);
+				STATE_CHANGED(wm->lstate.exp_btns, wm->exp.nunchuk.btns);
 
-			CROSS_THRESH(wm->lstate.exp_orient, wm->exp.nunchuk.orient, wm->exp.nunchuk.orient_threshold);
-			CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel, wm->exp.nunchuk.accel_threshold);
-			break;
-		}
-		case EXP_CLASSIC:
-		{
-			STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.classic.ljs.ang);
-			STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.classic.ljs.mag);
-			STATE_CHANGED(wm->lstate.exp_rjs_ang, wm->exp.classic.rjs.ang);
-			STATE_CHANGED(wm->lstate.exp_rjs_mag, wm->exp.classic.rjs.mag);
-			STATE_CHANGED(wm->lstate.exp_r_shoulder, wm->exp.classic.r_shoulder);
-			STATE_CHANGED(wm->lstate.exp_l_shoulder, wm->exp.classic.l_shoulder);
-			STATE_CHANGED(wm->lstate.exp_btns, wm->exp.classic.btns);
-			break;
-		}
-		case EXP_GUITAR_HERO_3:
-		{
-			STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.gh3.js.ang);
-			STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.gh3.js.mag);
-			STATE_CHANGED(wm->lstate.exp_r_shoulder, wm->exp.gh3.whammy_bar);
-			STATE_CHANGED(wm->lstate.exp_btns, wm->exp.gh3.btns);
-			break;
-		}
-		case EXP_WII_BOARD:
-		{
-			STATE_CHANGED(wm->lstate.exp_wb_rtr,wm->exp.wb.tr);
-			STATE_CHANGED(wm->lstate.exp_wb_rtl,wm->exp.wb.tl);
-			STATE_CHANGED(wm->lstate.exp_wb_rbr,wm->exp.wb.br);
-			STATE_CHANGED(wm->lstate.exp_wb_rbl,wm->exp.wb.bl);
-			break;
-		}
-
-		case EXP_MOTION_PLUS:
-		case EXP_MOTION_PLUS_CLASSIC:
-		case EXP_MOTION_PLUS_NUNCHUK:
-		{
-			STATE_CHANGED(wm->lstate.drx, wm->exp.mp.raw_gyro.pitch);
-			STATE_CHANGED(wm->lstate.dry, wm->exp.mp.raw_gyro.roll);
-			STATE_CHANGED(wm->lstate.drz, wm->exp.mp.raw_gyro.yaw);
-
-			if(wm->exp.type == EXP_MOTION_PLUS_CLASSIC)
-			{
+				CROSS_THRESH(wm->lstate.exp_orient, wm->exp.nunchuk.orient, wm->exp.nunchuk.orient_threshold);
+				CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel, wm->exp.nunchuk.accel_threshold);
+				break;
+			}
+		case EXP_CLASSIC: {
 				STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.classic.ljs.ang);
 				STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.classic.ljs.mag);
 				STATE_CHANGED(wm->lstate.exp_rjs_ang, wm->exp.classic.rjs.ang);
@@ -965,21 +937,52 @@ static int state_changed(struct wiimote_t* wm) {
 				STATE_CHANGED(wm->lstate.exp_r_shoulder, wm->exp.classic.r_shoulder);
 				STATE_CHANGED(wm->lstate.exp_l_shoulder, wm->exp.classic.l_shoulder);
 				STATE_CHANGED(wm->lstate.exp_btns, wm->exp.classic.btns);
-			} else {
-				STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.nunchuk.js.ang);
-				STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.nunchuk.js.mag);
-				STATE_CHANGED(wm->lstate.exp_btns, wm->exp.nunchuk.btns);
-
-				CROSS_THRESH(wm->lstate.exp_orient, wm->exp.nunchuk.orient, wm->exp.nunchuk.orient_threshold);
-				CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel, wm->exp.nunchuk.accel_threshold);
+				break;
+			}
+		case EXP_GUITAR_HERO_3: {
+				STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.gh3.js.ang);
+				STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.gh3.js.mag);
+				STATE_CHANGED(wm->lstate.exp_r_shoulder, wm->exp.gh3.whammy_bar);
+				STATE_CHANGED(wm->lstate.exp_btns, wm->exp.gh3.btns);
+				break;
+			}
+		case EXP_WII_BOARD: {
+				STATE_CHANGED(wm->lstate.exp_wb_rtr, wm->exp.wb.tr);
+				STATE_CHANGED(wm->lstate.exp_wb_rtl, wm->exp.wb.tl);
+				STATE_CHANGED(wm->lstate.exp_wb_rbr, wm->exp.wb.br);
+				STATE_CHANGED(wm->lstate.exp_wb_rbl, wm->exp.wb.bl);
+				break;
 			}
 
-			break;
-		}
-		case EXP_NONE:
-		{
-			break;
-		}
+		case EXP_MOTION_PLUS:
+		case EXP_MOTION_PLUS_CLASSIC:
+		case EXP_MOTION_PLUS_NUNCHUK: {
+				STATE_CHANGED(wm->lstate.drx, wm->exp.mp.raw_gyro.pitch);
+				STATE_CHANGED(wm->lstate.dry, wm->exp.mp.raw_gyro.roll);
+				STATE_CHANGED(wm->lstate.drz, wm->exp.mp.raw_gyro.yaw);
+
+				if (wm->exp.type == EXP_MOTION_PLUS_CLASSIC) {
+					STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.classic.ljs.ang);
+					STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.classic.ljs.mag);
+					STATE_CHANGED(wm->lstate.exp_rjs_ang, wm->exp.classic.rjs.ang);
+					STATE_CHANGED(wm->lstate.exp_rjs_mag, wm->exp.classic.rjs.mag);
+					STATE_CHANGED(wm->lstate.exp_r_shoulder, wm->exp.classic.r_shoulder);
+					STATE_CHANGED(wm->lstate.exp_l_shoulder, wm->exp.classic.l_shoulder);
+					STATE_CHANGED(wm->lstate.exp_btns, wm->exp.classic.btns);
+				} else {
+					STATE_CHANGED(wm->lstate.exp_ljs_ang, wm->exp.nunchuk.js.ang);
+					STATE_CHANGED(wm->lstate.exp_ljs_mag, wm->exp.nunchuk.js.mag);
+					STATE_CHANGED(wm->lstate.exp_btns, wm->exp.nunchuk.btns);
+
+					CROSS_THRESH(wm->lstate.exp_orient, wm->exp.nunchuk.orient, wm->exp.nunchuk.orient_threshold);
+					CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel, wm->exp.nunchuk.accel_threshold);
+				}
+
+				break;
+			}
+		case EXP_NONE: {
+				break;
+			}
 	}
 
 	STATE_CHANGED(wm->lstate.btns, wm->btns);

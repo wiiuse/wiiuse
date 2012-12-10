@@ -77,12 +77,21 @@ void calculate_orientation(struct accel_t* ac, struct vec3b_t* accel, struct ori
 	z = ((float)accel->z - (float)ac->cal_zero.z) / zg;
 
 	/* make sure x,y,z are between -1 and 1 for the tan functions */
-	if (x < -1.0f)			x = -1.0f;
-	else if (x > 1.0f)		x = 1.0f;
-	if (y < -1.0f)			y = -1.0f;
-	else if (y > 1.0f)		y = 1.0f;
-	if (z < -1.0f)			z = -1.0f;
-	else if (z > 1.0f)		z = 1.0f;
+	if (x < -1.0f) {
+		x = -1.0f;
+	} else if (x > 1.0f) {
+		x = 1.0f;
+	}
+	if (y < -1.0f) {
+		y = -1.0f;
+	} else if (y > 1.0f) {
+		y = 1.0f;
+	}
+	if (z < -1.0f) {
+		z = -1.0f;
+	} else if (z > 1.0f) {
+		z = 1.0f;
+	}
 
 	/* if it is over 1g then it is probably accelerating and not reliable */
 	if (abs(accel->x - ac->cal_zero.x) <= ac->cal_g.x) {
@@ -180,39 +189,39 @@ void calc_joystick_state(struct joystick_t* js, float x, float y) {
 
 void apply_smoothing(struct accel_t* ac, struct orient_t* orient, int type) {
 	switch (type) {
-		case SMOOTH_ROLL:
-		{
-			/* it's possible last iteration was nan or inf, so set it to 0 if that happened */
-			if (isnan(ac->st_roll) || isinf(ac->st_roll))
-				ac->st_roll = 0.0f;
+		case SMOOTH_ROLL: {
+				/* it's possible last iteration was nan or inf, so set it to 0 if that happened */
+				if (isnan(ac->st_roll) || isinf(ac->st_roll)) {
+					ac->st_roll = 0.0f;
+				}
 
-			/*
-			 *	If the sign changes (which will happen if going from -180 to 180)
-			 *	or from (-1 to 1) then don't smooth, just use the new angle.
-			 */
-			if (((ac->st_roll < 0) && (orient->roll > 0)) || ((ac->st_roll > 0) && (orient->roll < 0))) {
-				ac->st_roll = orient->roll;
-			} else {
-				orient->roll = ac->st_roll + (ac->st_alpha * (orient->a_roll - ac->st_roll));
-				ac->st_roll = orient->roll;
+				/*
+				 *	If the sign changes (which will happen if going from -180 to 180)
+				 *	or from (-1 to 1) then don't smooth, just use the new angle.
+				 */
+				if (((ac->st_roll < 0) && (orient->roll > 0)) || ((ac->st_roll > 0) && (orient->roll < 0))) {
+					ac->st_roll = orient->roll;
+				} else {
+					orient->roll = ac->st_roll + (ac->st_alpha * (orient->a_roll - ac->st_roll));
+					ac->st_roll = orient->roll;
+				}
+
+				return;
 			}
 
-			return;
-		}
+		case SMOOTH_PITCH: {
+				if (isnan(ac->st_pitch) || isinf(ac->st_pitch)) {
+					ac->st_pitch = 0.0f;
+				}
 
-		case SMOOTH_PITCH:
-		{
-			if (isnan(ac->st_pitch) || isinf(ac->st_pitch))
-				ac->st_pitch = 0.0f;
+				if (((ac->st_pitch < 0) && (orient->pitch > 0)) || ((ac->st_pitch > 0) && (orient->pitch < 0))) {
+					ac->st_pitch = orient->pitch;
+				} else {
+					orient->pitch = ac->st_pitch + (ac->st_alpha * (orient->a_pitch - ac->st_pitch));
+					ac->st_pitch = orient->pitch;
+				}
 
-			if (((ac->st_pitch < 0) && (orient->pitch > 0)) || ((ac->st_pitch > 0) && (orient->pitch < 0))) {
-				ac->st_pitch = orient->pitch;
-			} else {
-				orient->pitch = ac->st_pitch + (ac->st_alpha * (orient->a_pitch - ac->st_pitch));
-				ac->st_pitch = orient->pitch;
+				return;
 			}
-
-			return;
-		}
 	}
 }

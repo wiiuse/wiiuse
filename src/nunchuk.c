@@ -77,8 +77,9 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 
 			return 0;
-		} else
+		} else {
 			data += 16;
+		}
 	}
 
 	nc->accel_calib.cal_zero.x = data[0];
@@ -94,8 +95,8 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	nc->js.min.y = data[12];
 	nc->js.center.y = data[13];
 	WIIUSE_DEBUG("Nunchuk calibration X: min %x, max %x, center %x Y: min %x, max %x, center %x",
-		nc->js.min.x, nc->js.max.x, nc->js.center.x,
-		nc->js.min.y, nc->js.max.y, nc->js.center.y);
+	             nc->js.min.x, nc->js.max.x, nc->js.center.x,
+	             nc->js.min.y, nc->js.max.y, nc->js.center.y);
 
 	/* default the thresholds to the same as the wiimote */
 	nc->orient_threshold = wm->orient_threshold;
@@ -104,9 +105,9 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	/* handshake done */
 	wm->exp.type = EXP_NUNCHUK;
 
-	#ifdef WIIUSE_WIN32
+#ifdef WIIUSE_WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
-	#endif
+#endif
 
 	return 1;
 }
@@ -177,7 +178,9 @@ void nunchuk_pressed_buttons(struct nunchuk_t* nc, byte now) {
  *	See wiiuse_set_orient_threshold() for details.
  */
 void wiiuse_set_nunchuk_orient_threshold(struct wiimote_t* wm, float threshold) {
-	if (!wm)	return;
+	if (!wm)	{
+		return;
+	}
 
 	wm->exp.nunchuk.orient_threshold = threshold;
 }
@@ -192,7 +195,9 @@ void wiiuse_set_nunchuk_orient_threshold(struct wiimote_t* wm, float threshold) 
  *	See wiiuse_set_orient_threshold() for details.
  */
 void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t* wm, int threshold) {
-	if (!wm)	return;
+	if (!wm)	{
+		return;
+	}
 
 	wm->exp.nunchuk.accel_threshold = threshold;
 }

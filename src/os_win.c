@@ -84,8 +84,9 @@ int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 		}
 
 		/* query the next hid device info */
-		if (!SetupDiEnumDeviceInterfaces(device_info, NULL, &device_id, index, &device_data))
+		if (!SetupDiEnumDeviceInterfaces(device_info, NULL, &device_id, index, &device_data)) {
 			break;
+		}
 
 		/* get the size of the data block required */
 		i = SetupDiGetDeviceInterfaceDetail(device_info, &device_data, NULL, 0, &len, NULL);
@@ -93,16 +94,18 @@ int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 		detail_data->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
 
 		/* query the data for this device */
-		if (!SetupDiGetDeviceInterfaceDetail(device_info, &device_data, detail_data, len, NULL, NULL))
+		if (!SetupDiGetDeviceInterfaceDetail(device_info, &device_data, detail_data, len, NULL, NULL)) {
 			continue;
+		}
 
 		/* open the device */
 		dev = CreateFile(detail_data->DevicePath,
-						(GENERIC_READ | GENERIC_WRITE),
-						(FILE_SHARE_READ | FILE_SHARE_WRITE),
-						NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
-		if (dev == INVALID_HANDLE_VALUE)
+		                 (GENERIC_READ | GENERIC_WRITE),
+		                 (FILE_SHARE_READ | FILE_SHARE_WRITE),
+		                 NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+		if (dev == INVALID_HANDLE_VALUE) {
 			continue;
+		}
 
 		/* get device attributes */
 		attr.Size = sizeof(attr);
@@ -131,16 +134,18 @@ int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 			WIIUSE_INFO("Connected to wiimote [id %i].", wm[found]->unid);
 
 			++found;
-			if (found >= max_wiimotes)
+			if (found >= max_wiimotes) {
 				break;
+			}
 		} else {
 			/* not a wiimote */
 			CloseHandle(dev);
 		}
 	}
 
-	if (detail_data)
+	if (detail_data) {
 		free(detail_data);
+	}
 
 	SetupDiDestroyDeviceInfoList(device_info);
 
@@ -153,10 +158,12 @@ int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 	int i = 0;
 
 	for (; i < wiimotes; ++i) {
-		if (!wm[i])
+		if (!wm[i]) {
 			continue;
-		if (WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_CONNECTED))
+		}
+		if (WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_CONNECTED)) {
 			++connected;
+		}
 	}
 
 	return connected;
@@ -164,8 +171,9 @@ int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 
 
 void wiiuse_os_disconnect(struct wiimote_t* wm) {
-	if (!wm || WIIMOTE_IS_CONNECTED(wm))
+	if (!wm || WIIMOTE_IS_CONNECTED(wm)) {
 		return;
+	}
 
 	CloseHandle(wm->dev_handle);
 	wm->dev_handle = 0;
@@ -184,7 +192,9 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 	byte read_buffer[MAX_PAYLOAD];
 	int evnt = 0;
 
-	if (!wm) return 0;
+	if (!wm) {
+		return 0;
+	}
 
 	for (i = 0; i < wiimotes; ++i) {
 		wm[i]->event = WIIUSE_NONE;
@@ -194,7 +204,7 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 		/* read */
 		if (wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer))) {
 			/* propagate the event */
-			propagate_event(wm[i], read_buffer[0], read_buffer+1);
+			propagate_event(wm[i], read_buffer[0], read_buffer + 1);
 			evnt += (wm[i]->event != WIIUSE_NONE);
 		} else {
 			/* send out any waiting writes */
@@ -209,8 +219,9 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	DWORD b, r;
 
-	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
+	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
 		return 0;
+	}
 
 	if (!ReadFile(wm->dev_handle, buf, len, &b, &wm->hid_overlap)) {
 		/* partial read */
@@ -226,8 +237,9 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 		if (r == WAIT_TIMEOUT) {
 			/* timeout - cancel and continue */
 
-			if (*buf)
+			if (*buf) {
 				WIIUSE_WARNING("Packet ignored.  This may indicate a problem (timeout is %i ms).", wm->timeout);
+			}
 
 			CancelIo(wm->dev_handle);
 			ResetEvent(wm->hid_overlap.hEvent);
@@ -237,15 +249,16 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 			return 0;
 		}
 
-		if (!GetOverlappedResult(wm->dev_handle, &wm->hid_overlap, &b, 0))
+		if (!GetOverlappedResult(wm->dev_handle, &wm->hid_overlap, &b, 0)) {
 			return 0;
+		}
 
 		/* log the received data */
 #ifdef WITH_WIIUSE_DEBUG
 		{
 			DWORD i;
 			printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
-			for(i = 1; i < b; i++) {
+			for (i = 1; i < b; i++) {
 				printf("%.2x ", buf[i]);
 			}
 			printf("\n");
@@ -263,33 +276,33 @@ int wiiuse_os_write(struct wiimote_t* wm, byte report_type, byte* buf, int len) 
 	int i;
 	byte write_buffer[MAX_PAYLOAD];
 
-	if (!wm || !WIIMOTE_IS_CONNECTED(wm))
+	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
 		return 0;
+	}
 
 	write_buffer[0] = report_type;
-	memcpy(write_buffer+1, buf, len);
+	memcpy(write_buffer + 1, buf, len);
 
 	switch (wm->stack) {
-		case WIIUSE_STACK_UNKNOWN:
-		{
-			/* try to auto-detect the stack type */
-			if (i = WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap)) {
-				/* bluesoleil will always return 1 here, even if it's not connected */
-				wm->stack = WIIUSE_STACK_BLUESOLEIL;
-				return i;
-			}
+		case WIIUSE_STACK_UNKNOWN: {
+				/* try to auto-detect the stack type */
+				if (i = WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap)) {
+					/* bluesoleil will always return 1 here, even if it's not connected */
+					wm->stack = WIIUSE_STACK_BLUESOLEIL;
+					return i;
+				}
 
-			if (i = HidD_SetOutputReport(wm->dev_handle, write_buffer, len+1)) {
-				wm->stack = WIIUSE_STACK_MS;
-				return i;
-			}
+				if (i = HidD_SetOutputReport(wm->dev_handle, write_buffer, len + 1)) {
+					wm->stack = WIIUSE_STACK_MS;
+					return i;
+				}
 
-			WIIUSE_ERROR("Unable to determine bluetooth stack type.");
-			return 0;
-		}
+				WIIUSE_ERROR("Unable to determine bluetooth stack type.");
+				return 0;
+			}
 
 		case WIIUSE_STACK_MS:
-			return HidD_SetOutputReport(wm->dev_handle, write_buffer, len+1);
+			return HidD_SetOutputReport(wm->dev_handle, write_buffer, len + 1);
 
 		case WIIUSE_STACK_BLUESOLEIL:
 			return WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap);
