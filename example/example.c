@@ -36,12 +36,11 @@
 
 #include <stdio.h>                      /* for printf */
 
-#ifndef WIN32
-	#include <unistd.h>                     /* for usleep */
-#endif
-
 #include "wiiuse.h"                     /* for wiimote_t, classic_ctrl_t, etc */
 
+#ifndef WIIUSE_WIN32
+#include <unistd.h>                     /* for usleep */
+#endif
 
 #define MAX_WIIMOTES				4
 
@@ -451,11 +450,11 @@ int main(int argc, char** argv) {
 	wiiuse_rumble(wiimotes[0], 1);
 	wiiuse_rumble(wiimotes[1], 1);
 
-	#ifndef WIN32
-		usleep(200000);
-	#else
-		Sleep(200);
-	#endif
+#ifndef WIIUSE_WIN32
+	usleep(200000);
+#else
+	Sleep(200);
+#endif
 
 	wiiuse_rumble(wiimotes[0], 0);
 	wiiuse_rumble(wiimotes[1], 0);
