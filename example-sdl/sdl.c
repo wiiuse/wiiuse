@@ -56,7 +56,7 @@
 #define MAX_WIIMOTES				2
 
 GLint width = 1024, height = 768;
-GLfloat backColor[4] = {1.0,1.0,1.0,1.0};
+GLfloat backColor[4] = {1.0, 1.0, 1.0, 1.0};
 
 wiimote** wiimotes = NULL;
 
@@ -65,11 +65,11 @@ int xcoord = 0;
 int ycoord = 0;
 
 #ifdef WIN32
-	DWORD last_render;
+DWORD last_render;
 #else
-	struct timeval last_render;
-	int last_sec = 0;
-	int fps = 0;
+struct timeval last_render;
+int last_sec = 0;
+int fps = 0;
 #endif
 
 enum render_mode_t {
@@ -123,39 +123,45 @@ void set_material(struct material_t* mptr);
 void resize_window(GLint new_width, GLint new_height);
 
 void handle_event(struct wiimote_t* wm) {
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_PLUS))
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_PLUS)) {
 		wiiuse_motion_sensing(wm, 1);
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_MINUS))
+	}
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_MINUS)) {
 		wiiuse_motion_sensing(wm, 0);
+	}
 
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_UP))
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_UP)) {
 		wiiuse_set_ir(wm, 1);
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN))
+	}
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN)) {
 		wiiuse_set_ir(wm, 0);
+	}
 
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_B))
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_B)) {
 		wiiuse_toggle_rumble(wm);
+	}
 
 	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_ONE)) {
 		int level;
 		WIIUSE_GET_IR_SENSITIVITY(wm, &level);
-		wiiuse_set_ir_sensitivity(wm, level+1);
+		wiiuse_set_ir_sensitivity(wm, level + 1);
 	}
 	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_TWO)) {
 		int level;
 		WIIUSE_GET_IR_SENSITIVITY(wm, &level);
-		wiiuse_set_ir_sensitivity(wm, level-1);
+		wiiuse_set_ir_sensitivity(wm, level - 1);
 	}
 
-	#if 0
+#if 0
 	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_A)) {
-		if (render_mode == IR)
+		if (render_mode == IR) {
 			render_mode = TEAPOT;
-		else
+		} else {
 			render_mode = IR;
+		}
 		resize_window(width, height);
 	}
-	#endif
+#endif
 }
 
 #define DRAW_TRIANGLE(x, y, z, s)	do {							\
@@ -166,52 +172,57 @@ void handle_event(struct wiimote_t* wm) {
 
 int can_render() {
 	/* quick fps limit to ~60fps -- not too fancy, could be better */
-	#ifdef WIN32
-		if (GetTickCount() < (last_render + 16))
-			return 0;
-		last_render = GetTickCount();
-		return 1;
-	#else
-		struct timeval now;
-		long elapsed_usec = 0;
+#ifdef WIN32
+	if (GetTickCount() < (last_render + 16)) {
+		return 0;
+	}
+	last_render = GetTickCount();
+	return 1;
+#else
+	struct timeval now;
+	long elapsed_usec = 0;
 
-		gettimeofday(&now, NULL);
+	gettimeofday(&now, NULL);
 
-		if (now.tv_usec > 1000000) {
-			now.tv_usec -= 1000000;
-			++now.tv_sec;
-		}
+	if (now.tv_usec > 1000000) {
+		now.tv_usec -= 1000000;
+		++now.tv_sec;
+	}
 
-		if (now.tv_sec > last_render.tv_sec)
-			elapsed_usec = ((now.tv_sec - last_render.tv_sec) * 1000000);
+	if (now.tv_sec > last_render.tv_sec) {
+		elapsed_usec = ((now.tv_sec - last_render.tv_sec) * 1000000);
+	}
 
-		if (now.tv_usec > last_render.tv_usec)
-			elapsed_usec += now.tv_usec - last_render.tv_usec;
-		else
-			elapsed_usec += last_render.tv_usec - now.tv_usec;
+	if (now.tv_usec > last_render.tv_usec) {
+		elapsed_usec += now.tv_usec - last_render.tv_usec;
+	} else {
+		elapsed_usec += last_render.tv_usec - now.tv_usec;
+	}
 
-		if (time(NULL) > last_sec) {
-			printf("fps: %i\n", fps);
-			fps = 0;
-			last_sec = time(NULL);
-		}
+	if (time(NULL) > last_sec) {
+		printf("fps: %i\n", fps);
+		fps = 0;
+		last_sec = time(NULL);
+	}
 
-		if (elapsed_usec < 16000)
-			return 0;
+	if (elapsed_usec < 16000) {
+		return 0;
+	}
 
-		last_render = now;
-		++fps;
+	last_render = now;
+	++fps;
 
-		return 1;
-	#endif
+	return 1;
+#endif
 }
 
 void display() {
 	int i, wm;
 	float size = 5;
 
-	if (!can_render())
+	if (!can_render()) {
 		return;
+	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -223,37 +234,39 @@ void display() {
 		glDisable(GL_LIGHTING);
 
 		glBegin(GL_TRIANGLES);
-			/* green center */
-			glColor3f(0.0, 1.0, 0.0);
-			DRAW_TRIANGLE(width/2, height/2, 0, size);
+		/* green center */
+		glColor3f(0.0, 1.0, 0.0);
+		DRAW_TRIANGLE(width / 2, height / 2, 0, size);
 		glEnd();
 
 		for (wm = 0; wm < MAX_WIIMOTES; ++wm) {
 			glBegin(GL_TRIANGLES);
-				/* red ir */
-				glColor3f(1.0, 0.0, 0.0);
-				for (i = 0; i < 4; ++i) {
-					if (wiimotes[wm]->ir.dot[i].visible)
-						DRAW_TRIANGLE(wiimotes[wm]->ir.dot[i].rx, wiimotes[wm]->ir.dot[i].ry, 0, size);
+			/* red ir */
+			glColor3f(1.0, 0.0, 0.0);
+			for (i = 0; i < 4; ++i) {
+				if (wiimotes[wm]->ir.dot[i].visible) {
+					DRAW_TRIANGLE(wiimotes[wm]->ir.dot[i].rx, wiimotes[wm]->ir.dot[i].ry, 0, size);
 				}
+			}
 
-				/* yellow corrected ir */
-				glColor3f(1.0, 1.0, 0.0);
-				for (i = 0; i < 4; ++i) {
-					if (wiimotes[wm]->ir.dot[i].visible)
-						DRAW_TRIANGLE(wiimotes[wm]->ir.dot[i].x, wiimotes[wm]->ir.dot[i].y, 0, size);
+			/* yellow corrected ir */
+			glColor3f(1.0, 1.0, 0.0);
+			for (i = 0; i < 4; ++i) {
+				if (wiimotes[wm]->ir.dot[i].visible) {
+					DRAW_TRIANGLE(wiimotes[wm]->ir.dot[i].x, wiimotes[wm]->ir.dot[i].y, 0, size);
 				}
+			}
 
-				/* blue cursor */
-				glColor3f(0.0, 0.0, 1.0);
-				DRAW_TRIANGLE(wiimotes[wm]->ir.x, wiimotes[wm]->ir.y-size, 0, size);
+			/* blue cursor */
+			glColor3f(0.0, 0.0, 1.0);
+			DRAW_TRIANGLE(wiimotes[wm]->ir.x, wiimotes[wm]->ir.y - size, 0, size);
 			glEnd();
 		}
 	} else {
 		/* draw the teapot */
 		gluLookAt(0.0, 0.0, -5.0,
-				  0.0, 0.0, 0.0,
-				  0.0, 1.0, 0.0);
+		          0.0, 0.0, 0.0,
+		          0.0, 1.0, 0.0);
 
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
@@ -300,8 +313,9 @@ void resize_window(GLint new_width, GLint new_height) {
 	width = new_width;
 	height = new_height;
 
-	if (new_height == 0)
+	if (new_height == 0) {
 		new_height = 1;
+	}
 
 	SDL_SetVideoMode(width, height, 16, SDL_RESIZABLE | SDL_OPENGL);
 
@@ -310,10 +324,11 @@ void resize_window(GLint new_width, GLint new_height) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	if (render_mode == IR)
+	if (render_mode == IR) {
 		gluOrtho2D(0, width, height, 0);
-	else
-		gluPerspective(60.0f, (float)new_width/(float)new_height, 0.1f, 100.0f);
+	} else {
+		gluPerspective(60.0f, (float)new_width / (float)new_height, 0.1f, 100.0f);
+	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -321,8 +336,9 @@ void resize_window(GLint new_width, GLint new_height) {
 	width = new_width;
 	height = new_height;
 
-	for (wm = 0; wm < MAX_WIIMOTES; ++wm)
+	for (wm = 0; wm < MAX_WIIMOTES; ++wm) {
 		wiiuse_set_ir_vres(wiimotes[wm], width, height);
+	}
 }
 
 #ifndef WIN32
@@ -337,12 +353,13 @@ int WINAPI WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	wiimotes =  wiiuse_init(MAX_WIIMOTES);
 	found = wiiuse_find(wiimotes, MAX_WIIMOTES, 5);
-	if (!found)
+	if (!found) {
 		return 0;
+	}
 	connected = wiiuse_connect(wiimotes, MAX_WIIMOTES);
-	if (connected)
+	if (connected) {
 		printf("Connected to %i wiimotes (of %i found).\n", connected, found);
-	else {
+	} else {
 		printf("Failed to connect to any wiimote.\n");
 		return 0;
 	}
@@ -350,11 +367,11 @@ int WINAPI WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wiiuse_set_leds(wiimotes[1], WIIMOTE_LED_2 | WIIMOTE_LED_4);
 	wiiuse_rumble(wiimotes[0], 1);
 
-	#ifndef WIN32
-		usleep(200000);
-	#else
-		Sleep(200);
-	#endif
+#ifndef WIN32
+	usleep(200000);
+#else
+	Sleep(200);
+#endif
 
 	wiiuse_rumble(wiimotes[0], 0);
 
@@ -379,49 +396,47 @@ int WINAPI WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	height = wiimotes[0]->ir.vres[1];
 	SDL_SetVideoMode(width, height, 16, SDL_RESIZABLE | SDL_OPENGL);
 
-	for (wm = 0; wm < MAX_WIIMOTES; ++wm)
+	for (wm = 0; wm < MAX_WIIMOTES; ++wm) {
 		wiiuse_set_ir_vres(wiimotes[wm], width, height);
+	}
 
 	/* set OpenGL stuff */
 	glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHTING);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_BLEND);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthFunc(GL_LEQUAL);
-    glClearColor(0, 0, 0, 0);
+	glDepthFunc(GL_LEQUAL);
+	glClearColor(0, 0, 0, 0);
 
 	/* set the size of the window */
 	resize_window(width, height);
 
 	display();
 
-	#ifdef WIN32
-		last_render = GetTickCount();
-	#endif
+#ifdef WIN32
+	last_render = GetTickCount();
+#endif
 
 	while (1) {
 		SDL_Event event;
 
 		if (SDL_PollEvent(&event)) {
 			switch (event.type) {
-				case SDL_VIDEORESIZE:
-				{
-					/* resize the window */
-					resize_window(event.resize.w, event.resize.h);
-					break;
-				}
-				case SDL_QUIT:
-				{
-					/* shutdown */
-					SDL_Quit();
-					wiiuse_cleanup(wiimotes, MAX_WIIMOTES);
-					return 0;
-				}
-				default:
-				{
-				}
+				case SDL_VIDEORESIZE: {
+						/* resize the window */
+						resize_window(event.resize.w, event.resize.h);
+						break;
+					}
+				case SDL_QUIT: {
+						/* shutdown */
+						SDL_Quit();
+						wiiuse_cleanup(wiimotes, MAX_WIIMOTES);
+						return 0;
+					}
+				default: {
+					}
 			}
 		}
 
