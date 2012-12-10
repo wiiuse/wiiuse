@@ -46,6 +46,7 @@
 #include <stdio.h>                      /* for perror */
 #include <string.h>                     /* for memset */
 #include <sys/socket.h>                 /* for connect, socket */
+#include <sys/time.h>                   /* for struct timeval */
 #include <unistd.h>                     /* for close, write */
 #include <errno.h>
 
