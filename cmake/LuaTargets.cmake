@@ -40,15 +40,15 @@ function(add_lua_target _target _dest)
 	if(NOT LUA_TARGET_LUAC_EXECUTABLE)
 		if(TARGET luac)
 			set(LUA_TARGET_LUAC_EXECUTABLE luac)
+			mark_as_advanced(LUA_TARGET_LUAC_EXECUTABLE)
 		else()
-			find_program(LUA_TARGET_LUAC_EXECUTABLE
-				NAMES
-				luac)
+			find_program(LUA_TARGET_LUAC_EXECUTABLE NAMES luac)
 		endif()
 	endif()
 
 	if(NOT LUA_TARGET_LUAC_EXECUTABLE)
-		message(FATAL_ERROR "Can't find luac: please give LUA_TARGET_LUAC_EXECUTABLE a useful value - currently ${LUA_TARGET_LUAC_EXECUTABLE}")
+		message(FATAL_ERROR
+			"Can't find luac: please give LUA_TARGET_LUAC_EXECUTABLE a useful value - currently ${LUA_TARGET_LUAC_EXECUTABLE}")
 	endif()
 	mark_as_advanced(LUA_TARGET_LUAC_EXECUTABLE)
 
@@ -60,7 +60,9 @@ function(add_lua_target _target _dest)
 			get_filename_component(fullpath "${fn}" ABSOLUTE)
 			get_filename_component(fn "${fn}" NAME)
 		else()
-			get_filename_component(fullpath "${CMAKE_CURRENT_SOURCE_DIR}/${fn}" ABSOLUTE)
+			get_filename_component(fullpath
+				"${CMAKE_CURRENT_SOURCE_DIR}/${fn}"
+				ABSOLUTE)
 		endif()
 
 		# Clean up output file name
@@ -88,7 +90,11 @@ function(add_lua_target _target _dest)
 		SOURCES ${SOURCES}
 		DEPENDS ${ALLFILES})
 	if(TARGET "${LUA_TARGET_LUAC_EXECUTABLE}")
-		get_property(_luac_imported TARGET "${LUA_TARGET_LUAC_EXECUTABLE}" PROPERTY IMPORTED)
+		get_property(_luac_imported
+			TARGET
+			"${LUA_TARGET_LUAC_EXECUTABLE}"
+			PROPERTY
+			IMPORTED)
 		if(NOT _luac_imported)
 			add_dependencies(${_target} ${LUA_TARGET_LUAC_EXECUTABLE})
 		endif()
