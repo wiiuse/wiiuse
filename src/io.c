@@ -274,7 +274,7 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 		case 0: {
 				byte* buf;
 
-				/* continous reporting off, report to buttons only */
+				/* continuous reporting off, report to buttons only */
 				WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
 				wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
 
