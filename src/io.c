@@ -126,7 +126,7 @@ void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int buff
 			if (buffer[0] == report) {
 				break;
 			} else {
-				WIIUSE_WARNING("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0], report);
+				WIIUSE_DEBUG("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0], report);
 			}
 		}
 	}
