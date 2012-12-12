@@ -32,6 +32,8 @@
  */
 
 #include "io.h"
+#include "events.h"
+#include "os.h"
 
 #ifdef WIIUSE_BLUEZ
 
@@ -44,28 +46,13 @@
 #include <stdio.h>                      /* for perror */
 #include <string.h>                     /* for memset */
 #include <sys/socket.h>                 /* for connect, socket */
+#include <sys/time.h>                   /* for struct timeval */
 #include <unistd.h>                     /* for close, write */
 #include <errno.h>
 
-static int wiiuse_connect_single(struct wiimote_t* wm, char* address);
+static int wiiuse_os_connect_single(struct wiimote_t* wm, char* address);
 
-/**
- *	@brief Find a wiimote or wiimotes.
- *
- *	@param wm			An array of wiimote_t structures.
- *	@param max_wiimotes	The number of wiimote structures in \a wm.
- *	@param timeout		The number of seconds before the search times out.
- *
- *	@return The number of wiimotes found.
- *
- *	@see wiimote_connect()
- *
- *	This function will only look for wiimote devices.						\n
- *	When a device is found the address in the structures will be set.		\n
- *	You can then call wiimote_connect() to connect to the found				\n
- *	devices.
- */
-int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
+int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	int device_id;
 	int device_sock;
 	inquiry_info scan_info_arr[128];
@@ -113,9 +100,8 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	/* display discovered devices */
 	for (i = 0; (i < found_devices) && (found_wiimotes < max_wiimotes); ++i) {
 		if ((scan_info[i].dev_class[0] == WM_DEV_CLASS_0) &&
-			(scan_info[i].dev_class[1] == WM_DEV_CLASS_1) &&
-			(scan_info[i].dev_class[2] == WM_DEV_CLASS_2))
-		{
+		        (scan_info[i].dev_class[1] == WM_DEV_CLASS_1) &&
+		        (scan_info[i].dev_class[2] == WM_DEV_CLASS_2)) {
 			/* found a device */
 			ba2str(&scan_info[i].bdaddr, wm[found_wiimotes]->bdaddr_str);
 
@@ -133,32 +119,23 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 
 
 /**
- *	@brief Connect to a wiimote or wiimotes once an address is known.
- *
- *	@param wm			An array of wiimote_t structures.
- *	@param wiimotes		The number of wiimote structures in \a wm.
- *
- *	@return The number of wiimotes that successfully connected.
- *
- *	@see wiiuse_find()
- *	@see wiiuse_connect_single()
- *	@see wiiuse_disconnect()
- *
- *	Connect to a number of wiimotes when the address is already set
- *	in the wiimote_t structures.  These addresses are normally set
- *	by the wiiuse_find() function, but can also be set manually.
+ *	@see wiiuse_connect()
+ *	@see wiiuse_os_connect_single()
  */
-int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
+int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
 	int connected = 0;
 	int i = 0;
 
 	for (; i < wiimotes; ++i) {
 		if (!WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_DEV_FOUND))
 			/* if the device address is not set, skip it */
+		{
 			continue;
+		}
 
-		if (wiiuse_connect_single(wm[i], NULL))
+		if (wiiuse_os_connect_single(wm[i], NULL)) {
 			++connected;
+		}
 	}
 
 	return connected;
@@ -170,24 +147,25 @@ int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
  *
  *	@param wm		Pointer to a wiimote_t structure.
  *	@param address	The address of the device to connect to.
- *					If NULL, use the address in the struct set by wiiuse_find().
+ *					If NULL, use the address in the struct set by wiiuse_os_find().
  *
  *	@return 1 on success, 0 on failure
  */
-static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
+static int wiiuse_os_connect_single(struct wiimote_t* wm, char* address) {
 	struct sockaddr_l2 addr;
-	memset(&addr, 0, sizeof (addr));
+	memset(&addr, 0, sizeof(addr));
 
-	if (!wm || WIIMOTE_IS_CONNECTED(wm))
+	if (!wm || WIIMOTE_IS_CONNECTED(wm)) {
 		return 0;
+	}
 
 	addr.l2_family = AF_BLUETOOTH;
 	bdaddr_t *bdaddr = &wm->bdaddr;
 	if (address)
 		/* use provided address */
-		str2ba(address, &addr.l2_bdaddr);
-	else
 	{
+		str2ba(address, &addr.l2_bdaddr);
+	} else {
 		/** @todo this line doesn't make sense
 		bacmp(bdaddr, BDADDR_ANY);*/
 		/* use address of device discovered */
@@ -199,8 +177,9 @@ static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
 	 *	OUTPUT CHANNEL
 	 */
 	wm->out_sock = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
-	if (wm->out_sock == -1)
+	if (wm->out_sock == -1) {
 		return 0;
+	}
 
 	addr.l2_psm = htobs(WM_OUTPUT_CHANNEL);
 
@@ -241,19 +220,10 @@ static int wiiuse_connect_single(struct wiimote_t* wm, char* address) {
 	return 1;
 }
 
-
-/**
- *	@brief Disconnect a wiimote.
- *
- *	@param wm		Pointer to a wiimote_t structure.
- *
- *	@see wiiuse_connect()
- *
- *	Note that this will not free the wiimote structure.
- */
-void wiiuse_disconnect(struct wiimote_t* wm) {
-	if (!wm || WIIMOTE_IS_CONNECTED(wm))
+void wiiuse_os_disconnect(struct wiimote_t* wm) {
+	if (!wm || WIIMOTE_IS_CONNECTED(wm)) {
 		return;
+	}
 
 	close(wm->out_sock);
 	close(wm->in_sock);
@@ -267,14 +237,138 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 }
 
 
-int wiiuse_io_read(struct wiimote_t* wm) {
-	/* not used */
-	return 0;
+int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
+	int evnt;
+	struct timeval tv;
+	fd_set fds;
+	int r;
+	int i;
+	byte read_buffer[MAX_PAYLOAD];
+	int highest_fd = -1;
+
+	evnt = 0;
+	if (!wm) {
+		return 0;
+	}
+
+	/* block select() for 1/2000th of a second */
+	tv.tv_sec = 0;
+	tv.tv_usec = 500;
+
+	FD_ZERO(&fds);
+
+	for (i = 0; i < wiimotes; ++i) {
+		/* only poll it if it is connected */
+		if (WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_CONNECTED)) {
+			FD_SET(wm[i]->in_sock, &fds);
+
+			/* find the highest fd of the connected wiimotes */
+			if (wm[i]->in_sock > highest_fd) {
+				highest_fd = wm[i]->in_sock;
+			}
+		}
+
+		wm[i]->event = WIIUSE_NONE;
+	}
+
+	if (highest_fd == -1)
+		/* nothing to poll */
+	{
+		return 0;
+	}
+
+	if (select(highest_fd + 1, &fds, NULL, NULL, &tv) == -1) {
+		WIIUSE_ERROR("Unable to select() the wiimote interrupt socket(s).");
+		perror("Error Details");
+		return 0;
+	}
+
+	/* check each socket for an event */
+	for (i = 0; i < wiimotes; ++i) {
+		/* if this wiimote is not connected, skip it */
+		if (!WIIMOTE_IS_CONNECTED(wm[i])) {
+			continue;
+		}
+
+		if (FD_ISSET(wm[i]->in_sock, &fds)) {
+			/* clear out the event buffer */
+			memset(read_buffer, 0, sizeof(read_buffer));
+
+			/* clear out any old read data */
+			clear_dirty_reads(wm[i]);
+
+			/* read the pending message into the buffer */
+			r = wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer));
+			if (r > 0) {
+				/* propagate the event */
+				propagate_event(wm[i], read_buffer[0], read_buffer + 1);
+				evnt += (wm[i]->event != WIIUSE_NONE);
+			}
+		} else {
+			/* send out any waiting writes */
+			wiiuse_send_next_pending_write_request(wm[i]);
+			idle_cycle(wm[i]);
+		}
+	}
+
+	return evnt;
 }
 
+int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
+	int rc;
+	int i;
 
-int wiiuse_io_write(struct wiimote_t* wm, byte* buf, int len) {
-	return write(wm->out_sock, buf, len);
+	rc = read(wm->in_sock, buf, len);
+
+	if (rc == -1) {
+		/* error reading data */
+		WIIUSE_ERROR("Receiving wiimote data (id %i).", wm->unid);
+		perror("Error Details");
+
+		if (errno == ENOTCONN) {
+			/* this can happen if the bluetooth dongle is disconnected */
+			WIIUSE_ERROR("Bluetooth appears to be disconnected. Wiimote unid %i will be disconnected.", wm->unid);
+			wiiuse_os_disconnect(wm);
+			wiiuse_disconnected(wm);
+		}
+	} else if (rc == 0) {
+		/* remote disconnect */
+		wiiuse_disconnected(wm);
+	} else {
+		/* read successful */
+		/* on *nix we ignore the first byte */
+		memmove(buf, buf + 1, len - 1);
+
+		/* log the received data */
+#ifdef WITH_WIIUSE_DEBUG
+		{
+			int i;
+			printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
+			for (i = 1; i < rc; i++) {
+				printf("%.2x ", buf[i]);
+			}
+			printf("\n");
+		}
+#endif
+	}
+
+	return rc;
+}
+
+int wiiuse_os_write(struct wiimote_t* wm, byte report_type, byte* buf, int len) {
+	int rc;
+	byte write_buffer[MAX_PAYLOAD];
+
+	write_buffer[0] = WM_SET_REPORT | WM_BT_OUTPUT;
+	write_buffer[1] = report_type;
+	memcpy(write_buffer + 2, buf, len);
+	rc = write(wm->out_sock, write_buffer, len + 2);
+
+	if (rc < 0) {
+		wiiuse_disconnected(wm);
+	}
+
+	return rc;
 }
 
 void wiiuse_init_platform_fields(struct wiimote_t* wm) {

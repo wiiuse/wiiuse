@@ -3,12 +3,16 @@
 # Cache Variables: (probably not for direct use in your scripts)
 #  HDAPI_INCLUDE_DIR
 #  HDAPI_LIBRARY
+#  HDAPI_LIBRARY_RELEASE
+#  HDAPI_LIBRARY_DEBUG
 #  HDAPI_HDU_INCLUDE_DIR
 #  HDAPI_HDU_LIBRARY
 #  HDAPI_HDU_LIBRARY_RELEASE
 #  HDAPI_HDU_LIBRARY_DEBUG
 #  HLAPI_INCLUDE_DIR
 #  HLAPI_LIBRARY
+#  HLAPI_LIBRARY_RELEASE
+#  HLAPI_LIBRARY_DEBUG
 #  HLAPI_HLU_INCLUDE_DIR
 #  HLAPI_HLU_LIBRARY
 #  HLAPI_HLU_LIBRARY_RELEASE
@@ -40,7 +44,7 @@
 #  CMake 2.6.3 (uses "unset")
 #
 # Original Author:
-# 2009-2010 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
+# 2009-2012 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
 # http://academic.cleardefinition.com
 # Iowa State University HCI Graduate Program/VRAC
 #
@@ -77,8 +81,20 @@ set(_libsearchdirs)
 set(OPENHAPTICS_ENVIRONMENT)
 set(OPENHAPTICS_RUNTIME_LIBRARY_DIRS)
 
+set(_dirs)
+if(NOT "$ENV{OH_SDK_BASE}" STREQUAL "")
+	list(APPEND _dirs "$ENV{OH_SDK_BASE}")
+elseif(NOT "$ENV{3DTOUCH_BASE}" STREQUAL "")
+	list(APPEND _dirs "$ENV{3DTOUCH_BASE}")
+endif()
 if(WIN32)
-	program_files_fallback_glob(_dirs "/Sensable/3DTouch*/")
+	program_files_fallback_glob(_pfdirs "/Sensable/3DTouch*/")
+	foreach(_OH_DEFAULT_LOCATION "C:/OpenHaptics/3.1" "C:/OpenHaptics/Academic/3.1")
+		if(EXISTS "${_OH_DEFAULT_LOCATION}")
+			list(APPEND _dirs "${_OH_DEFAULT_LOCATION}")
+		endif()
+	endforeach()
+	set(_dirs "${_dirs};${_pfdirs}")
 	if(MSVC60)
 		set(_vc "vc6")
 	elseif(MSVC70 OR MSVC71)
@@ -160,11 +176,25 @@ find_path(HDAPI_INCLUDE_DIR
 	HINTS
 	${_incsearchdirs})
 
-find_library(HDAPI_LIBRARY
+find_library(HDAPI_LIBRARY_RELEASE
 	NAMES
 	HD
+	PATH_SUFFIXES
+	ReleaseAcademicEdition
+	Release
 	HINTS
 	${_libsearchdirs})
+
+find_library(HDAPI_LIBRARY_DEBUG
+	NAMES
+	HD
+	PATH_SUFFIXES
+	DebugAcademicEdition
+	Debug
+	HINTS
+	${_libsearchdirs})
+
+select_library_configurations(HDAPI)
 
 ###
 # HDAPI: HDU
@@ -230,6 +260,7 @@ if(OPENHAPTICS_NESTED_TARGETS OR NOT HDAPI_HDU_LIBRARY)
 			STRING
 			"We will build the OpenHaptics HDU lib."
 			FORCE)
+		set(HDAPI_HDU_LIBRARIES ${HDAPI_HDU_LIBRARY})
 	endif()
 endif()
 
@@ -243,12 +274,25 @@ find_path(HLAPI_INCLUDE_DIR
 	HINTS
 	${_incsearchdirs})
 
-find_library(HLAPI_LIBRARY
+find_library(HLAPI_LIBRARY_RELEASE
 	NAMES
 	HL
+	PATH_SUFFIXES
+	ReleaseAcademicEdition
+	Release
 	HINTS
 	${_libsearchdirs})
 
+find_library(HLAPI_LIBRARY_DEBUG
+	NAMES
+	HL
+	PATH_SUFFIXES
+	DebugAcademicEdition
+	Debug
+	HINTS
+	${_libsearchdirs})
+
+select_library_configurations(HLAPI)
 
 ###
 # HLAPI: HLU
@@ -314,62 +358,9 @@ if(OPENHAPTICS_NESTED_TARGETS OR NOT HLAPI_HLU_LIBRARY)
 			STRING
 			"We will build the OpenHaptics HLU lib."
 			FORCE)
+		set(HLAPI_HLU_LIBRARIES ${HLAPI_HLU_LIBRARY})
 	endif()
 endif()
-
-
-###
-# Unix: check stdc++ version
-###
-
-if(UNIX
-	AND
-	HDAPI_LIBRARY
-	AND
-	HDAPI_PHANToMIO_LIBRARY
-	AND
-	HDAPI_INCLUDE_DIR)
-	find_file(OPENHAPTICS_LINKTEST_FILE
-		FindOpenHaptics.cpp
-		PATHS
-		${CMAKE_MODULE_PATH})
-	mark_as_advanced(OPENHAPTICS_LINKTEST_FILE)
-
-	try_compile(_result
-		${CMAKE_CURRENT_BINARY_DIR}/FindOpenHaptics
-		"${OPENHAPTICS_LINKTEST_FILE}"
-		CMAKE_FLAGS
-		"-DLINK_LIBRARIES=${HDAPI_LIBRARY}\;${HDAPI_PHANToMIO_LIBRARY} -DINCLUDE_DIRECTORIES=${HDAPI_INCLUDE_DIR}")
-	if(NOT _result)
-		set(OPENHAPTICS_LIBSTDCPP_DIR
-			"${OPENHAPTICS_LIBSTDCPP_DIR}"
-			CACHE
-			PATH
-			"The path to search for a libstdc++ with GLIBCXX_3.4.9 defined.")
-		if(OPENHAPTICS_LIBSTDCPP_DIR)
-			mark_as_advanced(OPENHAPTICS_LIBSTDCPP_DIR)
-		endif()
-		find_library(OPENHAPTICS_LIBSTDCPP_LIBRARY
-			libstdc++
-			PATHS
-			${OPENHAPTICS_LIBSTDCPP_DIR}
-			NO_DEFAULT_PATH)
-		if(OPENHAPTICS_LIBSTDCPP_LIBRARY)
-			mark_as_advanced(OPENHAPTICS_LIBSTDCPP_LIBRARY)
-		endif()
-		list(APPEND _deps_check OPENHAPTICS_LIBSTDCPP_LIBRARY)
-		list(APPEND _deps_libs "${OPENHAPTICS_LIBSTDCPP_LIBRARY}")
-
-		get_filename_component(_stdcppdir
-			"${OPENHAPTICS_LIBSTDCPP_LIBRARY}"
-			PATH)
-		list(APPEND
-			OPENHAPTICS_ENVIRONMENT
-			"LD_LIBRARY_PATH=${_stdcppdir}:$LD_LIBRARY_PATH")
-		list(APPEND OPENHAPTICS_RUNTIME_LIBRARY_DIRS "${_stdcppdir}")
-	endif()
-endif()
-
 
 ###
 # Add dependencies: Libraries
@@ -448,10 +439,12 @@ if(OPENHAPTICS_FOUND)
 	set(OPENHAPTICS_LIBRARY_DIRS)
 	foreach(_lib
 		${_deps_check}
-		HDAPI_LIBRARY
+		HDAPI_LIBRARY_RELEASE
+		HDAPI_LIBRARY_DEBUG
 		HDAPI_HDU_LIBRARY_RELEASE
 		HDAPI_HDU_LIBRARY_DEBUG
-		HLAPI_LIBRARY
+		HLAPI_LIBRARY_RELEASE
+		HLAPI_LIBRARY_DEBUG
 		HLAPI_HLU_LIBRARY_RELEASE
 		HLAPI_HLU_LIBRARY_DEBUG)
 		get_filename_component(_libdir ${${_lib}} PATH)
@@ -475,12 +468,14 @@ if(OPENHAPTICS_FOUND)
 endif()
 
 mark_as_advanced(HDAPI_INCLUDE_DIR
-	HDAPI_LIBRARY
+	HDAPI_LIBRARY_RELEASE
+	HDAPI_LIBRARY_DEBUG
 	HDAPI_HDU_INCLUDE_DIR
 	HDAPI_HDU_LIBRARY_RELEASE
 	HDAPI_HDU_LIBRARY_DEBUG
 	HLAPI_INCLUDE_DIR
-	HLAPI_LIBRARY
+	HLAPI_LIBRARY_RELEASE
+	HLAPI_LIBRARY_DEBUG
 	HLAPI_HLU_INCLUDE_DIR
 	HLAPI_HLU_LIBRARY_RELEASE
 	HLAPI_HLU_LIBRARY_DEBUG)
