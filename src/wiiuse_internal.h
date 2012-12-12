@@ -104,6 +104,7 @@
 #define WM_INPUT_CHANNEL			0x13
 
 #define WM_SET_REPORT				0x50
+#define WM_SET_DATA					0xA0
 
 /* commands */
 #define WM_CMD_LED					0x11
@@ -142,12 +143,12 @@
  * not store them in such a way, rather it uses
  * the concept of major service, major class,
  * and minor class, that are respectivelly
- * 11bit, 5bit, and 6bit long. Hence, the 
+ * 11bit, 5bit, and 6bit long. Hence, the
  * numbers are different.
  * The Wiimote CoD Bluetooth division is the following:
  * 00000000001 00101 000001 00 (major service - major class - minor class - format type)
  * This can also be seen in the WiiC Linux way:
- * 00000000 00100101 00000100 
+ * 00000000 00100101 00000100
  */
 #ifdef WIIUSE_MAC
 	#define WM_DEV_MINOR_CLASS				0x01
@@ -172,6 +173,7 @@
 #define WM_EXP_MEM_ENABLE1			0x04A400F0
 #define WM_EXP_MEM_ENABLE2			0x04A400FB
 #define WM_EXP_MEM_CALIBR			0x04A40020
+#define WM_EXP_MOTION_PLUS_IDENT    0x04A600FA
 #define WM_EXP_MOTION_PLUS_ENABLE   		0x04A600FE
 #define WM_EXP_MOTION_PLUS_INIT     0x04A600F0
 #define WM_REG_IR				0x04B00030
@@ -209,9 +211,15 @@
 #define EXP_ID_CODE_WII_BOARD               0xA4200402
 #define EXP_ID_CODE_CLASSIC_CONTROLLER      0xA4200101
 #define EXP_ID_CODE_GUITAR                  0xA4200103
-#define EXP_ID_CODE_MOTION_PLUS             0xa4200405
+#define EXP_ID_CODE_MOTION_PLUS             0xA4200405
 #define EXP_ID_CODE_MOTION_PLUS_NUNCHUK     0xA4200505 /** Motion Plus ID in Nunchuck passthrough mode */
 #define EXP_ID_CODE_MOTION_PLUS_CLASSIC     0xA4200705 /** Motion Plus ID in Classic control. passthrough */
+
+/* decrypted M+ codes at 0x04A600FA */
+#define EXP_ID_CODE_INACTIVE_MOTION_PLUS        0xA6200005 /** Inactive Motion Plus ID */
+#define EXP_ID_CODE_NLA_MOTION_PLUS             0xA6200405 /** No longer active Motion Plus ID */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK     0xA6200505 /** No longer active Motion Plus ID in Nunchuck passthrough mode */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC     0xA6200705 /** No longer active Motion Plus ID in Classic control. passthrough */
 
 #define EXP_HANDSHAKE_LEN					224
 
@@ -221,31 +229,9 @@
  *
  ********************/
 
-/* wiimote state flags - (some duplicated in wiiuse.h)*/
-#define WIIMOTE_STATE_DEV_FOUND				0x0001
-#define WIIMOTE_STATE_HANDSHAKE				0x0002	/* actual connection exists but no handshake yet */
-#define WIIMOTE_STATE_HANDSHAKE_COMPLETE	0x0004	/* actual connection exists but no handshake yet */
-#define WIIMOTE_STATE_CONNECTED				0x0008
-#define WIIMOTE_STATE_RUMBLE				0x0010
-#define WIIMOTE_STATE_ACC					0x0020
-#define WIIMOTE_STATE_EXP					0x0040
-#define WIIMOTE_STATE_IR					0x0080
-#define WIIMOTE_STATE_SPEAKER				0x0100
-#define WIIMOTE_STATE_IR_SENS_LVL1			0x0200
-#define WIIMOTE_STATE_IR_SENS_LVL2			0x0400
-#define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
-#define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
-#define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
-#define WIIMOTE_STATE_EXP_HANDSHAKE        0x10000 /* actual M+ connection exists but no handshake yet */
-#define WIIMOTE_STATE_EXP_EXTERN           0x20000 /* actual M+ connection exists but handshake failed */
-#define WIIMOTE_STATE_EXP_FAILED           0x40000 /* actual M+ connection exists but handshake failed */
-
-
-
 #define WIIMOTE_INIT_STATES					(WIIMOTE_STATE_IR_SENS_LVL3)
 
 /* macro to manage states */
-#define WIIMOTE_IS_SET(wm, s)			((wm->state & (s)) == (s))
 #define WIIMOTE_ENABLE_STATE(wm, s)		(wm->state |= (s))
 #define WIIMOTE_DISABLE_STATE(wm, s)	(wm->state &= ~(s))
 #define WIIMOTE_TOGGLE_STATE(wm, s)		((wm->state & (s)) ? WIIMOTE_DISABLE_STATE(wm, s) : WIIMOTE_ENABLE_STATE(wm, s))
@@ -257,9 +243,11 @@
 
 #define NUNCHUK_IS_FLAG_SET(wm, s)		((*(wm->flags) & (s)) == (s))
 
-/* misc macros */
-#define WIIMOTE_ID(wm)					(wm->unid)
-#define WIIMOTE_IS_CONNECTED(wm)		(WIIMOTE_IS_SET(wm, WIIMOTE_STATE_CONNECTED))
+/*
+ *	Largest known payload is 21 bytes.
+ *	Add 1 (Win32) or 2 (Mac, *nix) for the prefix and round up to a power of 2.
+ */
+#define MAX_PAYLOAD			32
 
 /*
  *	Smooth tilt calculations are computed with the
@@ -292,121 +280,121 @@
 extern "C" {
 #endif
 
-/* not part of the api */
+	/* not part of the api */
 
-/** @brief Cross-platform call to sleep for at least the specified number
- * of milliseconds.
- *
- * Use instead of Sleep(), usleep(), or similar functions.
- * Defined in util.c
- */
-void wiiuse_millisleep(int durationMilliseconds);
+	/** @brief Cross-platform call to sleep for at least the specified number
+	 * of milliseconds.
+	 *
+	 * Use instead of Sleep(), usleep(), or similar functions.
+	 * Defined in util.c
+	 */
+	void wiiuse_millisleep(int durationMilliseconds);
 
-int wiiuse_set_report_type(struct wiimote_t* wm);
-void wiiuse_send_next_pending_read_request(struct wiimote_t* wm);
-void wiiuse_send_next_pending_write_request(struct wiimote_t* wm);
-int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len);
-int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int offset, uint16_t len);
-int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte* data, byte len, wiiuse_write_cb write_cb);
+	int wiiuse_set_report_type(struct wiimote_t* wm);
+	void wiiuse_send_next_pending_read_request(struct wiimote_t* wm);
+	void wiiuse_send_next_pending_write_request(struct wiimote_t* wm);
+	int wiiuse_send(struct wiimote_t* wm, byte report_type, byte* msg, int len);
+	int wiiuse_read_data_cb(struct wiimote_t* wm, wiiuse_read_cb read_cb, byte* buffer, unsigned int offset, uint16_t len);
+	int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte* data, byte len, wiiuse_write_cb write_cb);
 
 
 #ifdef WIIUSE_DOXYGEN_PARSING
-/** @addtogroup betosystem Big-endian buffer to system-byte-order value
-	@{ */
+	/** @addtogroup betosystem Big-endian buffer to system-byte-order value
+		@{ */
 
-/** @brief Given a buffer buf, copy and return a value of type uint8_t.
-*/
-uint8_t from_big_endian_uint8_t(byte * buf);
-/** @brief Given a buffer buf, copy out a uint16_t, convert it from big-endian
-	to system byte order, and return it.
+	/** @brief Given a buffer buf, copy and return a value of type uint8_t.
+	*/
+	uint8_t from_big_endian_uint8_t(byte * buf);
+	/** @brief Given a buffer buf, copy out a uint16_t, convert it from big-endian
+		to system byte order, and return it.
 
-	@note Requires that at least 2 bytes be available in buf, but does not
-	check this - it is your responsibility.
-*/
-uint16_t from_big_endian_uint16_t(byte * buf);
+		@note Requires that at least 2 bytes be available in buf, but does not
+		check this - it is your responsibility.
+	*/
+	uint16_t from_big_endian_uint16_t(byte * buf);
 
-/** @brief Given a buffer buf, copy out a uint32_t, convert it from big-endian
-	to system byte order, and return it.
+	/** @brief Given a buffer buf, copy out a uint32_t, convert it from big-endian
+		to system byte order, and return it.
 
-	@note Requires that at least 4 bytes be available in buf, but does not
-	check this - it is your responsibility.
-*/
-uint32_t from_big_endian_uint32_t(byte * buf);
-/** @} */
+		@note Requires that at least 4 bytes be available in buf, but does not
+		check this - it is your responsibility.
+	*/
+	uint32_t from_big_endian_uint32_t(byte * buf);
+	/** @} */
 
-/** @addtogroup systemtobe System-byte-order value to big-endian buffer
-	@{
-*/
+	/** @addtogroup systemtobe System-byte-order value to big-endian buffer
+		@{
+	*/
 
-/** @brief Copies the value val into the buffer buf.
-	@note Requires that at least 1 byte is available in buf, but does not
-	check this - it is your responsibility.
-*/
-void to_big_endian_uint8_t(byte * buf, uint8_t val);
+	/** @brief Copies the value val into the buffer buf.
+		@note Requires that at least 1 byte is available in buf, but does not
+		check this - it is your responsibility.
+	*/
+	void to_big_endian_uint8_t(byte * buf, uint8_t val);
 
-/** @brief Converts the value val from system byte order to big endian,
-	and copies it into the given buffer starting at buf.
+	/** @brief Converts the value val from system byte order to big endian,
+		and copies it into the given buffer starting at buf.
 
-	@note Requires that at least 2 bytes be available in buf, but does not
-	check this - it is your responsibility.
-*/
-void to_big_endian_uint16_t(byte * buf, uint16_t val);
+		@note Requires that at least 2 bytes be available in buf, but does not
+		check this - it is your responsibility.
+	*/
+	void to_big_endian_uint16_t(byte * buf, uint16_t val);
 
-/** @brief Converts the value val from system byte order to big endian,
-	and copies it into the given buffer starting at buf.
+	/** @brief Converts the value val from system byte order to big endian,
+		and copies it into the given buffer starting at buf.
 
-	@note Requires that at least 4 bytes be available in buf, but does not
-	check this - it is your responsibility.
-*/
-void to_big_endian_uint32_t(byte * buf, uint32_t val);
-/** @}
-*/
+		@note Requires that at least 4 bytes be available in buf, but does not
+		check this - it is your responsibility.
+	*/
+	void to_big_endian_uint32_t(byte * buf, uint32_t val);
+	/** @}
+	*/
 
-/** @addtogroup bufferfunc Buffering functions
-	@brief These wrap around from/to_big_endian_TYPE, but take a byte** so that
-	they can advance the input/output pointer appropriately.
-	@{
-*/
-/** @brief Converts the value val from system byte order to big endian,
-	copies it into the given buffer starting at *buf, and advances buf by
-	sizeof(uint16_t).
-*/
-void buffer_big_endian_uint16_t(byte ** buf, uint16_t val);
+	/** @addtogroup bufferfunc Buffering functions
+		@brief These wrap around from/to_big_endian_TYPE, but take a byte** so that
+		they can advance the input/output pointer appropriately.
+		@{
+	*/
+	/** @brief Converts the value val from system byte order to big endian,
+		copies it into the given buffer starting at *buf, and advances buf by
+		sizeof(uint16_t).
+	*/
+	void buffer_big_endian_uint16_t(byte ** buf, uint16_t val);
 
-/** @brief Given the address of a buffer pointer buf, copy out a uint16_t
-	from *buf, convert it from big-endian to system byte order, advance
-	buf by sizeof(uint16_t), and return the value retrieved.
-*/
-uint16_t unbuffer_big_endian_uint16_t(byte ** buf);
+	/** @brief Given the address of a buffer pointer buf, copy out a uint16_t
+		from *buf, convert it from big-endian to system byte order, advance
+		buf by sizeof(uint16_t), and return the value retrieved.
+	*/
+	uint16_t unbuffer_big_endian_uint16_t(byte ** buf);
 
-/** @sa buffer_big_endian_uint16_t()
-*/
-void buffer_big_endian_uint8_t(byte ** buf, uint8_t val);
+	/** @sa buffer_big_endian_uint16_t()
+	*/
+	void buffer_big_endian_uint8_t(byte ** buf, uint8_t val);
 
-/** @sa unbuffer_big_endian_uint8_t
-*/
-uint8_t unbuffer_big_endian_uint8_t(byte ** buf);
+	/** @sa unbuffer_big_endian_uint8_t
+	*/
+	uint8_t unbuffer_big_endian_uint8_t(byte ** buf);
 
-/** @sa buffer_big_endian_uint16_t
-*/
-void buffer_big_endian_uint32_t(byte ** buf, uint32_t val);
+	/** @sa buffer_big_endian_uint16_t
+	*/
+	void buffer_big_endian_uint32_t(byte ** buf, uint32_t val);
 
-/** @sa unbuffer_big_endian_uint32_t
-*/
-uint8_t unbuffer_big_endian_uint32_t(byte ** buf)
+	/** @sa unbuffer_big_endian_uint32_t
+	*/
+	uint8_t unbuffer_big_endian_uint32_t(byte ** buf)
 
-/** @} */
+	/** @} */
 #else /* this else is true when not in doxygen */
 
-INLINE_UTIL void to_big_endian_uint8_t(byte * buf, uint8_t val) {
-	memcpy(buf, &val, 1);
-}
+	INLINE_UTIL void to_big_endian_uint8_t(byte * buf, uint8_t val) {
+		memcpy(buf, &val, 1);
+	}
 
-INLINE_UTIL uint8_t from_big_endian_uint8_t(byte * buf) {
-	uint8_t beVal;
-	memcpy(&beVal, buf, 1);
-	return beVal;
-}
+	INLINE_UTIL uint8_t from_big_endian_uint8_t(byte * buf) {
+		uint8_t beVal;
+		memcpy(&beVal, buf, 1);
+		return beVal;
+	}
 
 #define WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS(_TYPE, _TOBE, _FROMBE) \
 INLINE_UTIL void to_big_endian_##_TYPE(byte * buf, _TYPE val) { \
@@ -419,8 +407,8 @@ INLINE_UTIL _TYPE from_big_endian_##_TYPE(byte * buf) { \
 	return _FROMBE(beVal); \
 }
 
-WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS(uint16_t, htons, ntohs)
-WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS(uint32_t, htonl, ntohl)
+	WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS(uint16_t, htons, ntohs)
+	WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS(uint32_t, htonl, ntohl)
 
 #undef WIIUSE_DECLARE_ENDIAN_CONVERSION_OPS
 
@@ -435,9 +423,9 @@ INLINE_UTIL _TYPE unbuffer_big_endian_##_TYPE (byte ** buf) { \
 	return from_big_endian_##_TYPE(current); \
 }
 
-WIIUSE_DECLARE_BUFFERING_OPS(uint8_t)
-WIIUSE_DECLARE_BUFFERING_OPS(uint16_t)
-WIIUSE_DECLARE_BUFFERING_OPS(uint32_t)
+	WIIUSE_DECLARE_BUFFERING_OPS(uint8_t)
+	WIIUSE_DECLARE_BUFFERING_OPS(uint16_t)
+	WIIUSE_DECLARE_BUFFERING_OPS(uint32_t)
 
 #undef WIIUSE_DECLARE_BUFFERING_OPS
 

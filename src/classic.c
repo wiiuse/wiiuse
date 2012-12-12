@@ -77,8 +77,9 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 
 			return 0;
-		} else
+		} else {
 			data += 16;
+		}
 	}
 
 
@@ -100,9 +101,9 @@ int classic_ctrl_handshake(struct wiimote_t* wm, struct classic_ctrl_t* cc, byte
 	/* handshake done */
 	wm->exp.type = EXP_CLASSIC;
 
-	#ifdef WIIUSE_WIN32
+#ifdef WIIUSE_WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
-	#endif
+#endif
 
 	return 1;
 }

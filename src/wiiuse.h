@@ -99,11 +99,6 @@
 	/* nix */
 	#include <bluetooth/bluetooth.h>
 #endif
-#ifdef WIIUSE_MAC
-	/* mac */
-	#include <CoreFoundation/CoreFoundation.h>		/*CFRunLoops and CFNumberRef in Bluetooth classes*/
-	#include <IOBluetooth/IOBluetoothUserLib.h>		/*IOBluetoothDeviceRef and IOBluetoothL2CAPChannelRef*/
-#endif
 
 #ifndef WCONST
 	#define WCONST		const
@@ -123,6 +118,33 @@
 
 /** @defgroup publicapi External API */
 /** @{ */
+
+/** @name Wiimote state flags and macros */
+/** @{ */
+#define WIIMOTE_STATE_DEV_FOUND				0x0001
+#define WIIMOTE_STATE_HANDSHAKE				0x0002	/* actual connection exists but no handshake yet */
+#define WIIMOTE_STATE_HANDSHAKE_COMPLETE	0x0004	/* actual connection exists but no handshake yet */
+#define WIIMOTE_STATE_CONNECTED				0x0008
+#define WIIMOTE_STATE_RUMBLE				0x0010
+#define WIIMOTE_STATE_ACC					0x0020
+#define WIIMOTE_STATE_EXP					0x0040
+#define WIIMOTE_STATE_IR					0x0080
+#define WIIMOTE_STATE_SPEAKER				0x0100
+#define WIIMOTE_STATE_IR_SENS_LVL1			0x0200
+#define WIIMOTE_STATE_IR_SENS_LVL2			0x0400
+#define WIIMOTE_STATE_IR_SENS_LVL3			0x0800
+#define WIIMOTE_STATE_IR_SENS_LVL4			0x1000
+#define WIIMOTE_STATE_IR_SENS_LVL5			0x2000
+#define WIIMOTE_STATE_EXP_HANDSHAKE			0x10000	/* actual M+ connection exists but no handshake yet */
+#define WIIMOTE_STATE_EXP_EXTERN			0x20000	/* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_EXP_FAILED			0x40000	/* actual M+ connection exists but handshake failed */
+#define WIIMOTE_STATE_MPLUS_PRESENT			0x80000	/* Motion+ is connected */
+
+#define WIIMOTE_ID(wm)					(wm->unid)
+
+#define WIIMOTE_IS_SET(wm, s)			((wm->state & (s)) == (s))
+#define WIIMOTE_IS_CONNECTED(wm)		(WIIMOTE_IS_SET(wm, WIIMOTE_STATE_CONNECTED))
+/** @} */
 
 /** @name LED bit masks */
 /** @{ */
@@ -286,12 +308,6 @@ typedef enum ir_position_t {
 /** @} */
 
 /*
- *	Largest known payload is 21 bytes.
- *	Add 2 for the prefix and round up to a power of 2.
- */
-#define MAX_PAYLOAD			32
-
-/*
  *	This is left over from an old hack, but it may actually
  *	be a useful feature to keep so it wasn't removed.
  */
@@ -299,6 +315,9 @@ typedef enum ir_position_t {
 	#define WIIMOTE_DEFAULT_TIMEOUT		10
 	#define WIIMOTE_EXP_TIMEOUT			10
 #endif
+
+#define WIIUSE_SYNC_HANDSHAKE
+
 
 typedef unsigned char byte;
 typedef char sbyte;
@@ -344,7 +363,7 @@ struct read_req_t {
  *  @brief Roll/Pitch/Yaw short angles.
  */
 typedef struct ang3s_t {
-    int16_t roll, pitch, yaw;
+	int16_t roll, pitch, yaw;
 } ang3s_t;
 
 /**
@@ -352,7 +371,7 @@ typedef struct ang3s_t {
  *  @brief Roll/Pitch/Yaw float angles.
  */
 typedef struct ang3f_t {
-    float roll, pitch, yaw;
+	float roll, pitch, yaw;
 } ang3f_t;
 
 /**
@@ -547,9 +566,8 @@ typedef struct guitar_hero_3_t {
 /**
  * 	@brief Motion Plus expansion device
  */
-typedef struct motion_plus_t
-{
-    byte ext;                           /**< is there a device on the pass-through port? */
+typedef struct motion_plus_t {
+	byte ext;                           /**< is there a device on the pass-through port? */
 
 	struct ang3s_t raw_gyro;            /**< current raw gyroscope data */
 	struct ang3s_t cal_gyro;            /**< calibration raw gyroscope data */
@@ -558,7 +576,7 @@ typedef struct motion_plus_t
 	byte acc_mode;                      /**< Fast/slow rotation mode for roll, pitch and yaw (0 if rotating fast, 1 if slow or still) */
 	int raw_gyro_threshold;             /**< threshold for gyroscopes to generate an event */
 
-    struct nunchuk_t *nc;               /**< pointers to nunchuk & classic in pass-through-mode */
+	struct nunchuk_t *nc;               /**< pointers to nunchuk & classic in pass-through-mode */
 	struct classic_ctrl_t *classic;
 } motion_plus_t;
 
@@ -699,45 +717,34 @@ typedef enum WIIUSE_EVENT_TYPE {
 typedef struct wiimote_t {
 	WCONST int unid;						/**< user specified id						*/
 
-	#ifdef WIIUSE_BLUEZ
+#ifdef WIIUSE_BLUEZ
 	/** @name Linux-specific (BlueZ) members */
 	/** @{ */
-		WCONST bdaddr_t bdaddr;				/**< bt address								*/
-		WCONST int out_sock;				/**< output socket							*/
-		WCONST int in_sock;					/**< input socket 							*/
+	WCONST char bdaddr_str[18];			/**< readable bt address					*/
+	WCONST bdaddr_t bdaddr;				/**< bt address								*/
+	WCONST int out_sock;				/**< output socket							*/
+	WCONST int in_sock;					/**< input socket 							*/
 	/** @} */
-	#endif
+#endif
 
-	#ifdef WIIUSE_WIN32
+#ifdef WIIUSE_WIN32
 	/** @name Windows-specific members */
 	/** @{ */
-		WCONST HANDLE dev_handle;			/**< HID handle								*/
-		WCONST OVERLAPPED hid_overlap;		/**< overlap handle							*/
-		WCONST enum win_bt_stack_t stack;	/**< type of bluetooth stack to use			*/
-		WCONST int timeout;					/**< read timeout							*/
-		WCONST byte normal_timeout;			/**< normal timeout							*/
-		WCONST byte exp_timeout;			/**< timeout for expansion handshake		*/
+	WCONST HANDLE dev_handle;			/**< HID handle								*/
+	WCONST OVERLAPPED hid_overlap;		/**< overlap handle							*/
+	WCONST enum win_bt_stack_t stack;	/**< type of bluetooth stack to use			*/
+	WCONST int timeout;					/**< read timeout							*/
+	WCONST byte normal_timeout;			/**< normal timeout							*/
+	WCONST byte exp_timeout;			/**< timeout for expansion handshake		*/
 	/** @} */
-	#endif
-	
-	#ifdef WIIUSE_MAC
-	/** @name Mac OS X-specific members */
-	/** @{ */	
-		WCONST IOBluetoothDeviceRef device;    	/**  Device reference object                */
-		WCONST CFStringRef address;            	/**  MacOS-like device address string       */
-		WCONST IOBluetoothL2CAPChannelRef inputCh;		/**  Input L2CAP channel					*/	
-		WCONST IOBluetoothL2CAPChannelRef outputCh;	/**  Output L2CAP channel					*/
-		WCONST IOBluetoothUserNotificationRef disconnectionRef;	/**  Disconnection Notification Reference **/
-		WCONST void* connectionHandler; /** Wiimote connection handler for MACOSX **/	
-	/** @} */
-	#endif
+#endif
 
-	#if defined(WIIUSE_BLUEZ) || defined(WIIUSE_MAC)
-	/** @name Linux (BlueZ) and Mac OS X shared members */
+#ifdef WIIUSE_MAC
+	/** @name Mac OS X-specific members */
 	/** @{ */
-		WCONST char bdaddr_str[18];			/**< readable bt address					*/
+	WCONST void* objc_wm;				/**  WiiuseWiimote* as opaque pointer       */
 	/** @} */
-	#endif
+#endif
 
 	WCONST int state;						/**< various state flags					*/
 	WCONST byte leds;						/**< currently lit leds						*/
@@ -745,8 +752,10 @@ typedef struct wiimote_t {
 
 	WCONST int flags;						/**< options flag							*/
 
+#ifndef WIIUSE_SYNC_HANDSHAKE
 	WCONST byte handshake_state;			/**< the state of the connection handshake	*/
-	WCONST byte expansion_state;            /**< the state of the expansion handshake    */
+#endif
+	WCONST byte expansion_state;            /**< the state of the expansion handshake	*/
 	WCONST struct data_req_t* data_req;		/**< list of data read requests				*/
 
 	WCONST struct read_req_t* read_req;		/**< list of data read requests				*/
@@ -769,7 +778,6 @@ typedef struct wiimote_t {
 	WCONST struct wiimote_state_t lstate;	/**< last saved state						*/
 
 	WCONST WIIUSE_EVENT_TYPE event;			/**< type of event that occurred				*/
-	WCONST byte event_buf[MAX_PAYLOAD];		/**< event buffer							*/
 	WCONST byte motion_plus_id[6];
 } wiimote;
 
@@ -808,8 +816,7 @@ typedef void (*wiiuse_update_cb)(struct wiimote_callback_data_t* wm);
  */
 typedef void (*wiiuse_write_cb)(struct wiimote_t* wm, unsigned char* data, unsigned short len);
 
-typedef enum data_req_s
-{
+typedef enum data_req_s {
 	REQ_READY = 0,
 	REQ_SENT,
 	REQ_DONE
@@ -868,69 +875,69 @@ typedef enum wiiuse_loglevel {
 extern "C" {
 #endif
 
-/* wiiuse.c */
-WIIUSE_EXPORT extern const char* wiiuse_version();
+	/* wiiuse.c */
+	WIIUSE_EXPORT extern const char* wiiuse_version();
 
-/** @brief Define indicating the presence of the feature allowing you to
- *  redirect output for one or more logging levels within the library.
- */
+	/** @brief Define indicating the presence of the feature allowing you to
+	 *  redirect output for one or more logging levels within the library.
+	 */
 #define WIIUSE_HAS_OUTPUT_REDIRECTION
-WIIUSE_EXPORT extern void wiiuse_set_output(enum wiiuse_loglevel loglevel, FILE *logtarget);
+	WIIUSE_EXPORT extern void wiiuse_set_output(enum wiiuse_loglevel loglevel, FILE *logtarget);
 
-WIIUSE_EXPORT extern struct wiimote_t** wiiuse_init(int wiimotes);
-WIIUSE_EXPORT extern void wiiuse_disconnected(struct wiimote_t* wm);
-WIIUSE_EXPORT extern void wiiuse_cleanup(struct wiimote_t** wm, int wiimotes);
-WIIUSE_EXPORT extern void wiiuse_rumble(struct wiimote_t* wm, int status);
-WIIUSE_EXPORT extern void wiiuse_toggle_rumble(struct wiimote_t* wm);
-WIIUSE_EXPORT extern void wiiuse_set_leds(struct wiimote_t* wm, int leds);
-WIIUSE_EXPORT extern void wiiuse_motion_sensing(struct wiimote_t* wm, int status);
-WIIUSE_EXPORT extern int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int offset, uint16_t len);
-WIIUSE_EXPORT extern int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data, byte len);
-WIIUSE_EXPORT extern void wiiuse_status(struct wiimote_t* wm);
-WIIUSE_EXPORT extern struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid);
-WIIUSE_EXPORT extern int wiiuse_set_flags(struct wiimote_t* wm, int enable, int disable);
-WIIUSE_EXPORT extern float wiiuse_set_smooth_alpha(struct wiimote_t* wm, float alpha);
-WIIUSE_EXPORT extern void wiiuse_set_bluetooth_stack(struct wiimote_t** wm, int wiimotes, enum win_bt_stack_t type);
-WIIUSE_EXPORT extern void wiiuse_set_orient_threshold(struct wiimote_t* wm, float threshold);
-WIIUSE_EXPORT extern void wiiuse_resync(struct wiimote_t* wm);
-WIIUSE_EXPORT extern void wiiuse_set_timeout(struct wiimote_t** wm, int wiimotes, byte normal_timeout, byte exp_timeout);
-WIIUSE_EXPORT extern void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold);
+	WIIUSE_EXPORT extern struct wiimote_t** wiiuse_init(int wiimotes);
+	WIIUSE_EXPORT extern void wiiuse_disconnected(struct wiimote_t* wm);
+	WIIUSE_EXPORT extern void wiiuse_cleanup(struct wiimote_t** wm, int wiimotes);
+	WIIUSE_EXPORT extern void wiiuse_rumble(struct wiimote_t* wm, int status);
+	WIIUSE_EXPORT extern void wiiuse_toggle_rumble(struct wiimote_t* wm);
+	WIIUSE_EXPORT extern void wiiuse_set_leds(struct wiimote_t* wm, int leds);
+	WIIUSE_EXPORT extern void wiiuse_motion_sensing(struct wiimote_t* wm, int status);
+	WIIUSE_EXPORT extern int wiiuse_read_data(struct wiimote_t* wm, byte* buffer, unsigned int offset, uint16_t len);
+	WIIUSE_EXPORT extern int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data, byte len);
+	WIIUSE_EXPORT extern void wiiuse_status(struct wiimote_t* wm);
+	WIIUSE_EXPORT extern struct wiimote_t* wiiuse_get_by_id(struct wiimote_t** wm, int wiimotes, int unid);
+	WIIUSE_EXPORT extern int wiiuse_set_flags(struct wiimote_t* wm, int enable, int disable);
+	WIIUSE_EXPORT extern float wiiuse_set_smooth_alpha(struct wiimote_t* wm, float alpha);
+	WIIUSE_EXPORT extern void wiiuse_set_bluetooth_stack(struct wiimote_t** wm, int wiimotes, enum win_bt_stack_t type);
+	WIIUSE_EXPORT extern void wiiuse_set_orient_threshold(struct wiimote_t* wm, float threshold);
+	WIIUSE_EXPORT extern void wiiuse_resync(struct wiimote_t* wm);
+	WIIUSE_EXPORT extern void wiiuse_set_timeout(struct wiimote_t** wm, int wiimotes, byte normal_timeout, byte exp_timeout);
+	WIIUSE_EXPORT extern void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold);
 
-/* connect.c */
-WIIUSE_EXPORT extern int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
-WIIUSE_EXPORT extern int wiiuse_connect(struct wiimote_t** wm, int wiimotes);
-WIIUSE_EXPORT extern void wiiuse_disconnect(struct wiimote_t* wm);
+	/* io.c */
+	WIIUSE_EXPORT extern int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
+	WIIUSE_EXPORT extern int wiiuse_connect(struct wiimote_t** wm, int wiimotes);
+	WIIUSE_EXPORT extern void wiiuse_disconnect(struct wiimote_t* wm);
 
-/* events.c */
-WIIUSE_EXPORT extern int wiiuse_poll(struct wiimote_t** wm, int wiimotes);
+	/* events.c */
+	WIIUSE_EXPORT extern int wiiuse_poll(struct wiimote_t** wm, int wiimotes);
 
-/**
- *  @brief Poll Wiimotes, and call the provided callback with information
- *  on each Wiimote that had an event.
- *
- *  Alternative to calling wiiuse_poll yourself, and provides the same
- *  information struct on all platforms.
- *
- *  @return Number of wiimotes that had an event.
- */
-WIIUSE_EXPORT extern int wiiuse_update(struct wiimote_t** wm, int wiimotes, wiiuse_update_cb callback);
+	/**
+	 *  @brief Poll Wiimotes, and call the provided callback with information
+	 *  on each Wiimote that had an event.
+	 *
+	 *  Alternative to calling wiiuse_poll yourself, and provides the same
+	 *  information struct on all platforms.
+	 *
+	 *  @return Number of wiimotes that had an event.
+	 */
+	WIIUSE_EXPORT extern int wiiuse_update(struct wiimote_t** wm, int wiimotes, wiiuse_update_cb callback);
 
-/* ir.c */
-WIIUSE_EXPORT extern void wiiuse_set_ir(struct wiimote_t* wm, int status);
-WIIUSE_EXPORT extern void wiiuse_set_ir_vres(struct wiimote_t* wm, unsigned int x, unsigned int y);
-WIIUSE_EXPORT extern void wiiuse_set_ir_position(struct wiimote_t* wm, enum ir_position_t pos);
-WIIUSE_EXPORT extern void wiiuse_set_aspect_ratio(struct wiimote_t* wm, enum aspect_t aspect);
-WIIUSE_EXPORT extern void wiiuse_set_ir_sensitivity(struct wiimote_t* wm, int level);
+	/* ir.c */
+	WIIUSE_EXPORT extern void wiiuse_set_ir(struct wiimote_t* wm, int status);
+	WIIUSE_EXPORT extern void wiiuse_set_ir_vres(struct wiimote_t* wm, unsigned int x, unsigned int y);
+	WIIUSE_EXPORT extern void wiiuse_set_ir_position(struct wiimote_t* wm, enum ir_position_t pos);
+	WIIUSE_EXPORT extern void wiiuse_set_aspect_ratio(struct wiimote_t* wm, enum aspect_t aspect);
+	WIIUSE_EXPORT extern void wiiuse_set_ir_sensitivity(struct wiimote_t* wm, int level);
 
-/* nunchuk.c */
-WIIUSE_EXPORT extern void wiiuse_set_nunchuk_orient_threshold(struct wiimote_t* wm, float threshold);
-WIIUSE_EXPORT extern void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t* wm, int threshold);
+	/* nunchuk.c */
+	WIIUSE_EXPORT extern void wiiuse_set_nunchuk_orient_threshold(struct wiimote_t* wm, float threshold);
+	WIIUSE_EXPORT extern void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t* wm, int threshold);
 
-/* wiiboard.c */
-/* this function not currently implemented... */
-WIIUSE_EXPORT extern void wiiuse_set_wii_board_calib(struct wiimote_t *wm);
+	/* wiiboard.c */
+	/* this function not currently implemented... */
+	WIIUSE_EXPORT extern void wiiuse_set_wii_board_calib(struct wiimote_t *wm);
 
-WIIUSE_EXPORT extern void wiiuse_set_motion_plus(struct wiimote_t *wm, int status);
+	WIIUSE_EXPORT extern void wiiuse_set_motion_plus(struct wiimote_t *wm, int status);
 
 #ifdef __cplusplus
 }

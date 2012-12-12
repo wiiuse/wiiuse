@@ -10,6 +10,7 @@ set(SOURCES
 	wiiboard.c
 	classic.h
 	definitions.h
+	definitions_os.h
 	dynamics.h
 	events.h
 	guitar_hero_3.h
@@ -26,13 +27,22 @@ set(API
 	wiiuse.h)
 
 if(WIN32)
-	list(APPEND SOURCES io_win.c)
+	list(APPEND SOURCES os_win.c)
 	set(CMAKE_DEBUG_POSTFIX _debug)
 elseif(APPLE)
-	list(APPEND SOURCES io_mac.h)
-	list(APPEND SOURCES io_mac.m)
+	set(MAC_OBJC_SOURCES
+		os_mac/os_mac.m
+		os_mac/os_mac_interface.m
+		os_mac/os_mac_find.m)
+	set(MAC_SOURCES
+		os_mac/os_mac.h
+		${MAC_OBJC_SOURCES})
+	list(APPEND SOURCES ${MAC_SOURCES})
+	# make sure we use the gcc for Objective-C files as well so that the
+	# sysroot and deployment target arguments are correctly passed to the compiler
+	set_source_files_properties(${MAC_OBJC_SOURCES} PROPERTIES LANGUAGE C)
 else()
-	list(APPEND SOURCES io_nix.c)
+	list(APPEND SOURCES os_nix.c)
 endif()
 
 if(MSVC)
@@ -48,18 +58,20 @@ if(WIN32)
 elseif(LINUX)
 	target_link_libraries(wiiuse m ${BLUEZ_LIBRARIES})
 elseif(APPLE)
+	# link libraries
 	find_library(IOBLUETOOTH_FRAMEWORK
 		NAMES
 		IOBluetooth)
-	
 	find_library(COREFOUNDATION_FRAMEWORK
 		NAMES
 		CoreFoundation)
-		
 	find_library(FOUNDATION_FRAMEWORK
 		NAMES
 		Foundation)
 	target_link_libraries(wiiuse ${IOBLUETOOTH_FRAMEWORK} ${COREFOUNDATION_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+
+	# do not link Objective-C runtime with clang
+	set_target_properties(wiiuse PROPERTIES XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME "NO")
 endif()
 
 set_property(TARGET

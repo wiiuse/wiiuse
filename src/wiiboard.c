@@ -53,14 +53,13 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 #ifdef WITH_WIIUSE_DEBUG
 	int i;
 	printf("DECRYPTED DATA WIIBOARD\n");
-	for (i = 0; i < len; ++i)
-	{
-		if(i%16==0)
-		{
-			if(i!=0)
+	for (i = 0; i < len; ++i) {
+		if (i % 16 == 0) {
+			if (i != 0) {
 				printf("\n");
+			}
 
-			printf("%X: ",0x4a40000+32+i);
+			printf("%X: ", 0x4a40000 + 32 + i);
 		}
 		printf("%02X ", data[i]);
 	}
@@ -87,9 +86,9 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
 	wm->exp.type = EXP_WII_BOARD;
 
-	#ifdef WIIUSE_WIN32
+#ifdef WIIUSE_WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
-	#endif
+#endif
 
 	return 1;
 }
@@ -109,9 +108,9 @@ static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
 	if (raw < cal[0]) {
 		return 0.0f;
 	} else if (raw < cal[1]) {
-		return ((float)(raw-cal[0]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[1] - cal[0]);
+		return ((float)(raw - cal[0]) * WIIBOARD_MIDDLE_CALIB) / (float)(cal[1] - cal[0]);
 	} else if (raw < cal[2]) {
-		return ((float)(raw-cal[1]) * WIIBOARD_MIDDLE_CALIB)/(float)(cal[2] - cal[1]) + WIIBOARD_MIDDLE_CALIB;
+		return ((float)(raw - cal[1]) * WIIBOARD_MIDDLE_CALIB) / (float)(cal[2] - cal[1]) + WIIBOARD_MIDDLE_CALIB;
 	} else {
 		return WIIBOARD_MIDDLE_CALIB * 2.0f;
 	}
@@ -143,6 +142,5 @@ void wii_board_event(struct wii_board_t* wb, byte* msg) {
 /**
 	@todo not implemented!
 */
-void wiiuse_set_wii_board_calib(struct wiimote_t *wm)
-{
+void wiiuse_set_wii_board_calib(struct wiimote_t *wm) {
 }

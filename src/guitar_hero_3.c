@@ -86,8 +86,9 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 
 			return 0;
-		} else
+		} else {
 			data += 16;
+		}
 	}
 
 	/* joystick stuff */
@@ -101,9 +102,9 @@ int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, b
 	/* handshake done */
 	wm->exp.type = EXP_GUITAR_HERO_3;
 
-	#ifdef WIIUSE_WIN32
+#ifdef WIIUSE_WIN32
 	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
-	#endif
+#endif
 
 	return 1;
 }

@@ -36,12 +36,11 @@
 
 #include <stdio.h>                      /* for printf */
 
-#ifndef WIN32
-	#include <unistd.h>                     /* for usleep */
-#endif
-
 #include "wiiuse.h"                     /* for wiimote_t, classic_ctrl_t, etc */
 
+#ifndef WIIUSE_WIN32
+#include <unistd.h>                     /* for usleep */
+#endif
 
 #define MAX_WIIMOTES				4
 
@@ -58,59 +57,85 @@ void handle_event(struct wiimote_t* wm) {
 	printf("\n\n--- EVENT [id %i] ---\n", wm->unid);
 
 	/* if a button is pressed, report it */
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_A))		printf("A pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_B))		printf("B pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_UP))		printf("UP pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_DOWN))	printf("DOWN pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_LEFT))	printf("LEFT pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_RIGHT))	printf("RIGHT pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_MINUS))	printf("MINUS pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_PLUS))	printf("PLUS pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_ONE))		printf("ONE pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_TWO))		printf("TWO pressed\n");
-	if (IS_PRESSED(wm, WIIMOTE_BUTTON_HOME))	printf("HOME pressed\n");
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_A)) {
+		printf("A pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_B)) {
+		printf("B pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_UP)) {
+		printf("UP pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_DOWN))	{
+		printf("DOWN pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_LEFT))	{
+		printf("LEFT pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_RIGHT))	{
+		printf("RIGHT pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_MINUS))	{
+		printf("MINUS pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_PLUS))	{
+		printf("PLUS pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_ONE)) {
+		printf("ONE pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_TWO)) {
+		printf("TWO pressed\n");
+	}
+	if (IS_PRESSED(wm, WIIMOTE_BUTTON_HOME))	{
+		printf("HOME pressed\n");
+	}
 
 	/*
 	 *	Pressing minus will tell the wiimote we are no longer interested in movement.
 	 *	This is useful because it saves battery power.
 	 */
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_MINUS))
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_MINUS)) {
 		wiiuse_motion_sensing(wm, 0);
+	}
 
 	/*
 	 *	Pressing plus will tell the wiimote we are interested in movement.
 	 */
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_PLUS))
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_PLUS)) {
 		wiiuse_motion_sensing(wm, 1);
+	}
 
 	/*
 	 *	Pressing B will toggle the rumble
 	 *
 	 *	if B is pressed but is not held, toggle the rumble
 	 */
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_B))
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_B)) {
 		wiiuse_toggle_rumble(wm);
+	}
 
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_UP))
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_UP)) {
 		wiiuse_set_ir(wm, 1);
-	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN))
+	}
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN)) {
 		wiiuse_set_ir(wm, 0);
+	}
 
-    /*
-     * Motion+ support
-     */
-    if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_ONE))
-    {
-        if(WIIUSE_USING_EXP(wm))
-            wiiuse_set_motion_plus(wm, 2); // nunchuck pass-through
-        else
-            wiiuse_set_motion_plus(wm, 1); // standalone
-    }
+	/*
+	 * Motion+ support
+	 */
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_ONE)) {
+		if (WIIUSE_USING_EXP(wm)) {
+			wiiuse_set_motion_plus(wm, 2);    // nunchuck pass-through
+		} else {
+			wiiuse_set_motion_plus(wm, 1);    // standalone
+		}
+	}
 
-    if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_TWO))
-    {
-        wiiuse_set_motion_plus(wm, 0); // off
-    }
+	if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_TWO)) {
+		wiiuse_set_motion_plus(wm, 0); // off
+	}
 
 	/* if the accelerometer is turned on then print angles */
 	if (WIIUSE_USING_ACC(wm)) {
@@ -131,8 +156,9 @@ void handle_event(struct wiimote_t* wm) {
 		/* go through each of the 4 possible IR sources */
 		for (; i < 4; ++i) {
 			/* check if the source is visible */
-			if (wm->ir.dot[i].visible)
+			if (wm->ir.dot[i].visible) {
 				printf("IR source %i: (%u, %u)\n", i, wm->ir.dot[i].x, wm->ir.dot[i].y);
+			}
 		}
 
 		printf("IR cursor: (%u, %u)\n", wm->ir.x, wm->ir.y);
@@ -144,8 +170,12 @@ void handle_event(struct wiimote_t* wm) {
 		/* nunchuk */
 		struct nunchuk_t* nc = (nunchuk_t*)&wm->exp.nunchuk;
 
-		if (IS_PRESSED(nc, NUNCHUK_BUTTON_C))		printf("Nunchuk: C pressed\n");
-		if (IS_PRESSED(nc, NUNCHUK_BUTTON_Z))		printf("Nunchuk: Z pressed\n");
+		if (IS_PRESSED(nc, NUNCHUK_BUTTON_C)) {
+			printf("Nunchuk: C pressed\n");
+		}
+		if (IS_PRESSED(nc, NUNCHUK_BUTTON_Z)) {
+			printf("Nunchuk: Z pressed\n");
+		}
 
 		printf("nunchuk roll  = %f\n", nc->orient.roll);
 		printf("nunchuk pitch = %f\n", nc->orient.pitch);
@@ -157,21 +187,51 @@ void handle_event(struct wiimote_t* wm) {
 		/* classic controller */
 		struct classic_ctrl_t* cc = (classic_ctrl_t*)&wm->exp.classic;
 
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_ZL))			printf("Classic: ZL pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_B))			printf("Classic: B pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_Y))			printf("Classic: Y pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_A))			printf("Classic: A pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_X))			printf("Classic: X pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_ZR))			printf("Classic: ZR pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_LEFT))		printf("Classic: LEFT pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_UP))			printf("Classic: UP pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_RIGHT))		printf("Classic: RIGHT pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_DOWN))		printf("Classic: DOWN pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_FULL_L))		printf("Classic: FULL L pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_MINUS))		printf("Classic: MINUS pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_HOME))		printf("Classic: HOME pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_PLUS))		printf("Classic: PLUS pressed\n");
-		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_FULL_R))		printf("Classic: FULL R pressed\n");
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_ZL)) {
+			printf("Classic: ZL pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_B)) {
+			printf("Classic: B pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_Y)) {
+			printf("Classic: Y pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_A)) {
+			printf("Classic: A pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_X)) {
+			printf("Classic: X pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_ZR)) {
+			printf("Classic: ZR pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_LEFT)) {
+			printf("Classic: LEFT pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_UP)) {
+			printf("Classic: UP pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_RIGHT)) {
+			printf("Classic: RIGHT pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_DOWN)) {
+			printf("Classic: DOWN pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_FULL_L)) {
+			printf("Classic: FULL L pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_MINUS)) {
+			printf("Classic: MINUS pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_HOME)) {
+			printf("Classic: HOME pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_PLUS)) {
+			printf("Classic: PLUS pressed\n");
+		}
+		if (IS_PRESSED(cc, CLASSIC_CTRL_BUTTON_FULL_R)) {
+			printf("Classic: FULL R pressed\n");
+		}
 
 		printf("classic L button pressed:         %f\n", cc->l_shoulder);
 		printf("classic R button pressed:         %f\n", cc->r_shoulder);
@@ -183,15 +243,33 @@ void handle_event(struct wiimote_t* wm) {
 		/* guitar hero 3 guitar */
 		struct guitar_hero_3_t* gh3 = (guitar_hero_3_t*)&wm->exp.gh3;
 
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_STRUM_UP))		printf("Guitar: Strum Up pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_STRUM_DOWN))	printf("Guitar: Strum Down pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_YELLOW))		printf("Guitar: Yellow pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_GREEN))		printf("Guitar: Green pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_BLUE))			printf("Guitar: Blue pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_RED))			printf("Guitar: Red pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_ORANGE))		printf("Guitar: Orange pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_PLUS))			printf("Guitar: Plus pressed\n");
-		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_MINUS))		printf("Guitar: Minus pressed\n");
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_STRUM_UP)) {
+			printf("Guitar: Strum Up pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_STRUM_DOWN))	{
+			printf("Guitar: Strum Down pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_YELLOW)) {
+			printf("Guitar: Yellow pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_GREEN)) {
+			printf("Guitar: Green pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_BLUE)) {
+			printf("Guitar: Blue pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_RED)) {
+			printf("Guitar: Red pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_ORANGE)) {
+			printf("Guitar: Orange pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_PLUS)) {
+			printf("Guitar: Plus pressed\n");
+		}
+		if (IS_PRESSED(gh3, GUITAR_HERO_3_BUTTON_MINUS)) {
+			printf("Guitar: Minus pressed\n");
+		}
 
 		printf("Guitar whammy bar:          %f\n", gh3->whammy_bar);
 		printf("Guitar joystick angle:      %f\n", gh3->js.ang);
@@ -207,15 +285,14 @@ void handle_event(struct wiimote_t* wm) {
 		/* printf("Raw: TL:%d  TR:%d  BL:%d  BR:%d\n", wb->rtl, wb->rtr, wb->rbl, wb->rbr); */
 	}
 
-    if(wm->exp.type == EXP_MOTION_PLUS ||
-                wm->exp.type == EXP_MOTION_PLUS_NUNCHUK)
-        {
-            printf("Motion+ angular rates (deg/sec): pitch:%03.2f roll:%03.2f yaw:%03.2f\n",
-                   wm->exp.mp.angle_rate_gyro.pitch,
-                   wm->exp.mp.angle_rate_gyro.roll,
-                   wm->exp.mp.angle_rate_gyro.yaw);
-        }
-    }
+	if (wm->exp.type == EXP_MOTION_PLUS ||
+	        wm->exp.type == EXP_MOTION_PLUS_NUNCHUK) {
+		printf("Motion+ angular rates (deg/sec): pitch:%03.2f roll:%03.2f yaw:%03.2f\n",
+		       wm->exp.mp.angle_rate_gyro.pitch,
+		       wm->exp.mp.angle_rate_gyro.roll,
+		       wm->exp.mp.angle_rate_gyro.yaw);
+	}
+}
 
 /**
  *	@brief Callback that handles a read event.
@@ -241,8 +318,9 @@ void handle_read(struct wiimote_t* wm, byte* data, unsigned short len) {
 	printf("\n\n--- DATA READ [wiimote id %i] ---\n", wm->unid);
 	printf("finished read of size %i\n", len);
 	for (; i < len; ++i) {
-		if (!(i%16))
+		if (!(i % 16)) {
 			printf("\n");
+		}
 		printf("%x ", data[i]);
 	}
 	printf("\n\n");
@@ -294,6 +372,20 @@ void test(struct wiimote_t* wm, byte* data, unsigned short len) {
 	printf("test: %i [%x %x %x %x]\n", len, data[0], data[1], data[2], data[3]);
 }
 
+short any_wiimote_connected(wiimote** wm, int wiimotes) {
+	int i;
+	if (!wm) {
+		return 0;
+	}
+
+	for (i = 0; i < wiimotes; i++) {
+		if (wm[i] && WIIMOTE_IS_CONNECTED(wm[i])) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
 
 
 /**
@@ -326,7 +418,7 @@ int main(int argc, char** argv) {
 	 */
 	found = wiiuse_find(wiimotes, MAX_WIIMOTES, 5);
 	if (!found) {
-		printf ("No wiimotes found.\n");
+		printf("No wiimotes found.\n");
 		return 0;
 	}
 
@@ -340,9 +432,9 @@ int main(int argc, char** argv) {
 	 *	This will return the number of established connections to the found wiimotes.
 	 */
 	connected = wiiuse_connect(wiimotes, MAX_WIIMOTES);
-	if (connected)
+	if (connected) {
 		printf("Connected to %i wiimotes (of %i found).\n", connected, found);
-	else {
+	} else {
 		printf("Failed to connect to any wiimote.\n");
 		return 0;
 	}
@@ -358,14 +450,21 @@ int main(int argc, char** argv) {
 	wiiuse_rumble(wiimotes[0], 1);
 	wiiuse_rumble(wiimotes[1], 1);
 
-	#ifndef WIN32
-		usleep(200000);
-	#else
-		Sleep(200);
-	#endif
+#ifndef WIIUSE_WIN32
+	usleep(200000);
+#else
+	Sleep(200);
+#endif
 
 	wiiuse_rumble(wiimotes[0], 0);
 	wiiuse_rumble(wiimotes[1], 0);
+
+	printf("\nControls:\n");
+	printf("\tB toggles rumble.\n");
+	printf("\t+ to start Wiimote accelerometer reporting, - to stop\n");
+	printf("\tUP to start IR camera (sensor bar mode), DOWN to stop.\n");
+	printf("\t1 to start Motion+ reporting, 2 to stop.\n");
+	printf("\n\n");
 
 	/*
 	 *	Maybe I'm interested in the battery power of the 0th
@@ -390,7 +489,7 @@ int main(int argc, char** argv) {
 	 *	This function will set the event flag for each wiimote
 	 *	when the wiimote has things to report.
 	 */
-	while (1) {
+	while (any_wiimote_connected(wiimotes, MAX_WIIMOTES)) {
 		if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
 			/*
 			 *	This happens if something happened on any wiimote.
@@ -430,8 +529,8 @@ int main(int argc, char** argv) {
 						 *	threshold values.  By default they are the same
 						 *	as the wiimote.
 						 */
-						 /* wiiuse_set_nunchuk_orient_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 90.0f); */
-						 /* wiiuse_set_nunchuk_accel_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 100); */
+						/* wiiuse_set_nunchuk_orient_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 90.0f); */
+						/* wiiuse_set_nunchuk_accel_threshold((struct nunchuk_t*)&wiimotes[i]->exp.nunchuk, 100); */
 						printf("Nunchuk inserted.\n");
 						break;
 
@@ -449,15 +548,15 @@ int main(int argc, char** argv) {
 						printf("Guitar Hero 3 controller inserted.\n");
 						break;
 
-        		    case WIIUSE_MOTION_PLUS_ACTIVATED:
-		            	printf("Motion+ was activated\n");
-            			break;
+					case WIIUSE_MOTION_PLUS_ACTIVATED:
+						printf("Motion+ was activated\n");
+						break;
 
 					case WIIUSE_NUNCHUK_REMOVED:
 					case WIIUSE_CLASSIC_CTRL_REMOVED:
 					case WIIUSE_GUITAR_HERO_3_CTRL_REMOVED:
 					case WIIUSE_WII_BOARD_CTRL_REMOVED:
-                    case WIIUSE_MOTION_PLUS_REMOVED:
+					case WIIUSE_MOTION_PLUS_REMOVED:
 						/* some expansion was removed */
 						handle_ctrl_status(wiimotes[i]);
 						printf("An expansion was removed.\n");
