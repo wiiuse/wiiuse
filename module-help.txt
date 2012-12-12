@@ -1,4 +1,4 @@
-cmake version 2.8.3
+cmake version 2.8.6
 ------------------------------------------------------------------------------
 Introduction
 
@@ -645,6 +645,71 @@ a few.
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+  FindAdrienne
+       try to find Adrienne Electronics Corporation timecode card library
+
+       
+
+       SDK available from the manufacturer: http://www.adrielec.com/
+
+       Cache Variables: (probably not for direct use in your scripts)
+
+         ADRIENNE_INCLUDE_DIR
+         ADRIENNE_LIBRARY
+         ADRIENNE_RUNTIME_LIBRARY
+         ADRIENNE_INCLUDE_FILE
+
+       
+
+       Variables you might use in your CMakeLists.txt:
+
+         ADRIENNE_FOUND
+         ADRIENNE_INCLUDE_DIRS
+         ADRIENNE_LIBRARIES
+         ADRIENNE_RUNTIME_LIBRARIES - the AEC_NTTC.dll file
+         ADRIENNE_RUNTIME_LIBRARY_DIRS
+
+       
+
+         ADRIENNE_INCLUDE_FILENAME - this is probably AEC_NTTC.h, but it might also
+           be AECINTTC.H.
+
+       
+
+         ADRIENNE_INCLUDE_HAS_EXTERN_C - Some (most) versions of the header already
+           wrap their definitions in extern "C" { }, but some do not.
+
+       
+
+         ADRIENNE_DEFINITIONS - defines a quoted ADRIENNE_INCLUDE_FILENAME as above,
+           so you can write a line like #include ADRIENNE_INCLUDE_FILENAME
+           Also defines ADRIENNE_BEFORE_INCLUDE and ADRIENNE_AFTER_INCLUDE to handle
+           adding extern "C" { and } if the header file doesn't do so itself.
+
+       
+
+       Variables that might be set by the user in the gui/command line to
+       help find the library:
+
+         ADRIENNE_ROOT_DIR - root of an Adrienne CD, disk, or extracted/copied contents
+           thereof.
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Original Author: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
+
   FindBluez
        try to find Bluez
 
@@ -696,7 +761,7 @@ a few.
 
          CPPDOM_ROOT_DIR - A directory prefix to search
                            (a path that contains include/ as a subdirectory)
-         CPPDOM_ADDITIONAL_VERSIONS - Additional versions (outside of 0.7.8 to 1.0.0)
+         CPPDOM_ADDITIONAL_VERSIONS - Additional versions (outside of 0.7.8 to 1.2.0)
                                       to use when constructing search names and paths
 
        
@@ -713,11 +778,11 @@ a few.
        change this environment variable, because it cannot auto-detect this
        change and trigger an automatic re-run.
 
-       Original Author: 2009-2010 Ryan Pavlik <rpavlik@iastate.edu>
+       Original Author: 2009-2012 Ryan Pavlik <rpavlik@iastate.edu>
        <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
        University HCI Graduate Program/VRAC
 
-       Copyright Iowa State University 2009-2010.  Distributed under the
+       Copyright Iowa State University 2009-2012.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -751,6 +816,110 @@ a few.
        Copyright Iowa State University 2009-2010.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindDirectInput
+       try to find DirectInput library (part of DirectX SDK)
+
+       
+
+       Cache Variables: (probably not for direct use in your scripts)
+
+         DIRECTINPUT_DXGUID_LIBRARY
+         DIRECTINPUT_DXERR_LIBRARY
+         DIRECTINPUT_DINPUT_LIBRARY
+         DIRECTINPUT_INCLUDE_DIR
+
+       
+
+       Non-cache variables you should use in your CMakeLists.txt:
+
+         DIRECTINPUT_LIBRARIES
+         DIRECTINPUT_INCLUDE_DIRS
+         DIRECTINPUT_FOUND - if this is not true, do not attempt to use this library
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Original Author: 2011 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2011.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindDirectShow
+       Find Microsoft DirectShow sample files, library, and headers.
+
+       
+
+         DIRECTSHOW_INCLUDE_DIRS - where to find needed include file
+         DIRECTSHOW_BASECLASS_DIR- Directory containing the DirectShow baseclass sample code.
+         DIRECTSHOW_FOUND        - True if DirectShow found.
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Initially in VRPN - Distributed under the Boost Software License,
+       Version 1.0.
+
+       Almost entirely re-written by: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindDirectX
+       try to find part of DirectX SDK
+
+       
+
+       Cache Variables: (probably not for direct use in your scripts)
+
+         DIRECTX_INCLUDE_DIR
+
+       
+
+       Variables you should use in your CMakeLists.txt:
+
+         DIRECTX_DXGUID_LIBRARY
+         DIRECTX_DXERR_LIBRARY
+         DIRECTX_DINPUT_LIBRARY
+         DIRECTX_DINPUT_INCLUDE_DIR
+         DIRECTX_D3D9_LIBRARY
+         DIRECTX_D3DXOF_LIBRARY
+         DIRECTX_D3DX9_LIBRARIES
+         DIRECTX_INCLUDE_DIRS
+         DIRECTX_FOUND - if this is not true, do not attempt to use this library
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+         SelectLibraryConfigurations
+
+       
+
+       Original Author: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
 
   FindFlagpoll
        try to find Flagpoll application, and offer package-finding services
@@ -913,7 +1082,7 @@ a few.
 
          GMTL_ROOT_DIR - A directory prefix to search
                          (a path that contains include/ as a subdirectory)
-         GMTL_ADDITIONAL_VERSIONS - Additional versions (outside of 0.5.1 to 0.6.2)
+         GMTL_ADDITIONAL_VERSIONS - Additional versions (outside of 0.5.1 to 0.7.0)
                                     to use when constructing search names and paths
 
        
@@ -930,11 +1099,11 @@ a few.
        change this environment variable, because it cannot auto-detect this
        change and trigger an automatic re-run.
 
-       Original Author: 2009-2010 Ryan Pavlik <rpavlik@iastate.edu>
+       Original Author: 2009-2012 Ryan Pavlik <rpavlik@iastate.edu>
        <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
        University HCI Graduate Program/VRAC
 
-       Copyright Iowa State University 2009-2010.  Distributed under the
+       Copyright Iowa State University 2009-2012.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -1138,6 +1307,51 @@ a few.
        Copyright Iowa State University 2009-2010.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindIDLJ
+       try to find Java's IDLJ Interface Definition Language compiler.
+
+       
+
+       Ideally used with CMake 2.8.5 or newer for Java support using
+       FindJava.cmake and UseJava.cmake
+
+       Variables:
+
+         Java_IDLJ_COMMAND, executable for idlj
+         IDLJ_FOUND, If false, do not try to use this
+
+       
+
+       Function:
+
+         java_idlj(varname idlfile [extra idlj args]) - Generates
+           the Java source files from the IDL file you indicate, and
+           appends filenames suitable to add to a add_jar() call to the
+           variable you specified.
+
+       
+
+       Because the files generated from an IDL file are not entirely
+       predictable, java_idlj runs idlj in the cmake step, rather than the
+       build step, and triggers a CMake re-run when an idl file is modified.
+       Already up-to-date generated source is not re-generated, however.
+
+       Files are generated in a directory created specifically for the
+       particular IDL file and the particular call, in the build directory -
+       there should be no worries about overwriting files or picking up too
+       much with the wildcard.
+
+       You may wish to add the IDL file to your list of sources if you want
+       it to appear in your IDE, but it is not necessary.
+
+       Original Author: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
 
   FindJCCL12
        try to find JCCL 1.2 library
@@ -1451,6 +1665,37 @@ a few.
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+  FindMarkdown
+       try to find Markdown tool
+
+       
+
+       Cache Variables:
+
+         MARKDOWN_EXECUTABLE
+
+       
+
+       Non-cache variables you might use in your CMakeLists.txt:
+
+         MARKDOWN_FOUND
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Original Author: 2011 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2011.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
+
   FindOpenCV
        ------------------------------
 
@@ -1493,12 +1738,16 @@ a few.
 
          HDAPI_INCLUDE_DIR
          HDAPI_LIBRARY
+         HDAPI_LIBRARY_RELEASE
+         HDAPI_LIBRARY_DEBUG
          HDAPI_HDU_INCLUDE_DIR
          HDAPI_HDU_LIBRARY
          HDAPI_HDU_LIBRARY_RELEASE
          HDAPI_HDU_LIBRARY_DEBUG
          HLAPI_INCLUDE_DIR
          HLAPI_LIBRARY
+         HLAPI_LIBRARY_RELEASE
+         HLAPI_LIBRARY_DEBUG
          HLAPI_HLU_INCLUDE_DIR
          HLAPI_HLU_LIBRARY
          HLAPI_HLU_LIBRARY_RELEASE
@@ -1537,7 +1786,7 @@ a few.
 
        
 
-       Original Author: 2009-2010 Ryan Pavlik <rpavlik@iastate.edu>
+       Original Author: 2009-2012 Ryan Pavlik <rpavlik@iastate.edu>
        <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
        University HCI Graduate Program/VRAC
 
@@ -1578,6 +1827,118 @@ a few.
        University HCI Graduate Program/VRAC
 
        Copyright Iowa State University 2009-2010.  Distributed under the
+       Boost Software License, Version 1.0.  (See accompanying file
+       LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindPerformer
+       try to find the OpenGL Performer library
+
+       
+
+       Users may optionally supply:
+
+         PERFORMER_ROOT_DIR - a prefix to start searching.
+
+       
+
+       Cache Variables: (probably not for direct use in your scripts)
+
+         PERFORMER_INCLUDE_DIR
+         PERFORMER_LIBRARY
+         PERFORMER_PFUI_LIBRARY - doesn't get included in PERFORMER_LIBRARIES
+         PERFORMER_PFDU_UTIL_LIBRARY - doesn't get included in PERFORMER_LIBRARIES
+         PERFORMER_PFV_LIBRARY - doesn't get included in PERFORMER_LIBRARIES
+
+       
+
+       Non-cache variables you might use in your CMakeLists.txt:
+
+         PERFORMER_FOUND
+         PERFORMER_INCLUDE_DIRS
+         PERFORMER_LIBRARIES
+         PERFORMER_RUNTIME_LIBRARY_DIRS
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Original Author: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindPerlModules
+       try to find perl modules, passed as COMPONENTS
+
+       
+
+       Non-cache variable you might use in your CMakeLists.txt:
+
+         PERLMODULES_FOUND
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Original Author: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindQVRPN
+       try to find QVRPN library
+
+       
+
+       Of course, you may also just choose to make QVRPN a submodule of your
+       project itself.
+
+       Cache Variables:
+
+         QVRPN_LIBRARY
+         QVRPN_INCLUDE_DIR
+
+       
+
+       Non-cache variables you might use in your CMakeLists.txt:
+
+         QVRPN_FOUND
+         QVRPN_LIBRARIES
+         QVRPN_INCLUDE_DIRS
+
+       
+
+       QVRPN_ROOT_DIR is searched preferentially for these files
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Refactored from FindVRPN.cmake by: Juan Sebastian Casallas
+       <casallas@iastate.edu>
+
+       FindVRPN.cmake Original Author: 2009-2010 Ryan Pavlik
+       <rpavlik@iastate.edu> <abiryan@ryand.net>
+       http://academic.cleardefinition.com Iowa State University HCI Graduate
+       Program/VRAC
+
+       Copyright Iowa State University 2009-2012.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -2416,8 +2777,10 @@ a few.
        Non-cache variables you might use in your CMakeLists.txt:
 
          VRPN_FOUND
-         VRPN_SERVER_LIBRARIES
-         VRPN_LIBRARIES
+         VRPN_SERVER_LIBRARIES - server libraries
+         VRPN_LIBRARIES - client libraries
+         VRPN_CLIENT_DEFINITIONS - definitions if you only use the client library
+         VRPN_DEFINITIONS - Client-only definition if all we found was the client library.
          VRPN_INCLUDE_DIRS
 
        
@@ -2430,13 +2793,50 @@ a few.
 
        
 
-       Original Author: 2009-2010 Ryan Pavlik <rpavlik@iastate.edu>
+       Original Author: 2009-2012 Ryan Pavlik <rpavlik@iastate.edu>
        <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
        University HCI Graduate Program/VRAC
 
-       Copyright Iowa State University 2009-2010.  Distributed under the
+       Copyright Iowa State University 2009-2012.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindViewPoint
+       try to find Arrington Research ViewPoint EyeTracker SDK
+
+       
+
+       Cache Variables: (probably not for direct use in your scripts)
+
+         VIEWPOINT_INCLUDE_DIR
+         VIEWPOINT_LIBRARY
+         VIEWPOINT_RUNTIME_LIBRARY
+
+       
+
+       Non-cache variables you might use in your CMakeLists.txt:
+
+         VIEWPOINT_FOUND
+         VIEWPOINT_INCLUDE_DIRS
+         VIEWPOINT_LIBRARIES
+         VIEWPOINT_RUNTIME_LIBRARIES - aka the dll for installing
+         VIEWPOINT_RUNTIME_LIBRARY_DIRS
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Original Author: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
 
   FindVirtuoseAPI
        try to find Haption VirtuoseAPI library and include files
@@ -2577,6 +2977,48 @@ a few.
        Copyright Iowa State University 2009-2010.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  FindWindowsSDK
+       Find the Windows SDK aka Platform SDK
+
+       
+
+       Variables:
+
+         WINDOWSSDK_FOUND - if any version of the windows or platform SDK was found that is usable with the current version of visual studio
+         WINDOWSSDK_LATEST_DIR
+         WINDOWSSDK_LATEST_NAME
+         WINDOWSSDK_FOUND_PREFERENCE - if we found an entry indicating a "preferred" SDK listed for this visual studio version
+         WINDOWSSDK_PREFERRED_DIR
+         WINDOWSSDK_PREFERRED_NAME
+
+       
+
+         WINDOWSSDK_DIRS - contains no duplicates, ordered most recent first.
+         WINDOWSSDK_PREFERRED_FIRST_DIRS - contains no duplicates, ordered with preferred first, followed by the rest in descending recency
+
+       
+
+       Functions:
+
+         windowssdk_name_lookup(<directory> <output variable>) - Find the name corresponding with the SDK directory you pass in, or
+            NOTFOUND if not recognized. Your directory must be one of WINDOWSSDK_DIRS for this to work.
+
+       
+
+       Requires these CMake modules:
+
+         FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
+
+       
+
+       Original Author: 2012 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2012.  Distributed under the Boost
+       Software License, Version 1.0.  (See accompanying file LICENSE_1_0.txt
+       or copy at http://www.boost.org/LICENSE_1_0.txt)
 
   Findargp
        try to find the argp library/component of glibc
@@ -3002,20 +3444,20 @@ a few.
        These functions force a re-configure on each git commit so that you
        can trust the values of the variables in your build system.
 
-         get_git_head_revision(<refspecvar> <hashvar> [<additonal arguments to git describe> ...])
+         get_git_head_revision(<refspecvar> <hashvar> [<additional arguments to git describe> ...])
 
        
 
        Returns the refspec and sha hash of the current head revision
 
-         git_describe(<var> [<additonal arguments to git describe> ...])
+         git_describe(<var> [<additional arguments to git describe> ...])
 
        
 
        Returns the results of git describe on the source tree, and adjusting
        the output so that it tests false if an error occurs.
 
-         git_get_exact_tag(<var> [<additonal arguments to git describe> ...])
+         git_get_exact_tag(<var> [<additional arguments to git describe> ...])
 
        
 
@@ -3460,6 +3902,37 @@ a few.
        University HCI Graduate Program/VRAC
 
        Copyright Iowa State University 2009-2010.  Distributed under the
+       Boost Software License, Version 1.0.  (See accompanying file
+       LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+  UseMarkdown
+       Convert markdown source files to HTML as a custom target
+
+       
+
+         include(UseMarkdown)
+         add_markdown_target(<target_name> <directory to copy to> <markdownfile> [<markdownfile>...] [RENAME <newname>])
+           Relative paths for the destination directory are considered with
+           with respect to CMAKE_CURRENT_BINARY_DIR. The RENAME argument is only
+           valid with a single markdown file as input.
+
+       
+
+       
+
+         install_markdown_target(<target_name> [extra arguments to INSTALL(FILES ...) ])
+
+       
+
+       
+
+       Requires CMake 2.6 or newer (uses the 'function' command)
+
+       Original Author: 2011 Ryan Pavlik <rpavlik@iastate.edu>
+       <abiryan@ryand.net> http://academic.cleardefinition.com Iowa State
+       University HCI Graduate Program/VRAC
+
+       Copyright Iowa State University 2011-2012.  Distributed under the
        Boost Software License, Version 1.0.  (See accompanying file
        LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
