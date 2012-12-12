@@ -459,6 +459,13 @@ int main(int argc, char** argv) {
 	wiiuse_rumble(wiimotes[0], 0);
 	wiiuse_rumble(wiimotes[1], 0);
 
+	printf("\nControls:\n");
+	printf("\tB toggles rumble.\n");
+	printf("\t+ to start Wiimote accelerometer reporting, - to stop\n");
+	printf("\tUP to start IR camera (sensor bar mode), DOWN to stop.\n");
+	printf("\t1 to start Motion+ reporting, 2 to stop.\n");
+	printf("\n\n");
+
 	/*
 	 *	Maybe I'm interested in the battery power of the 0th
 	 *	wiimote.  This should be WIIMOTE_ID_1 but to be sure
