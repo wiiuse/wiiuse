@@ -73,7 +73,10 @@
 
 #define WIIUSE_MAJOR 0
 #define WIIUSE_MINOR 14
-#define WIIUSE_MICRO 0
+#define WIIUSE_MICRO 2
+
+#define WIIUSE_VERSION_TRANSFORM(MAJ, MIN, MICRO) (MAJ * 1000000 + MIN * 1000 + MICRO)
+#define WIIUSE_HAS_VERSION(MAJ, MIN, MICRO) ( WIIUSE_VERSION_TRANSFORM(MAJ, MIN, MICRO) <= WIIUSE_VERSION_TRANSFORM(WIIUSE_MAJOR, WIIUSE_MINOR, WIIUSE_MICRO) )
 
 #ifndef WIIUSE_PLATFORM
 	#if defined(_WIN32)
@@ -510,6 +513,8 @@ typedef struct joystick_t {
 
 	float ang;						/**< angle the joystick is being held		*/
 	float mag;						/**< magnitude of the joystick (range 0-1)	*/
+	float x;						/**< horizontal position of the joystick (range [-1, 1]	*/
+	float y;						/**< vertical position of the joystick (range [-1, 1]	*/
 } joystick_t;
 
 
