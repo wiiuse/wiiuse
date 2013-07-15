@@ -211,6 +211,7 @@ void propagate_event(struct wiimote_t* wm, byte event, byte* msg) {
 				/* don't execute the event callback */
 				return;
 			}
+		case WM_RPT_BTN_EXP_8:
 		case WM_RPT_BTN_EXP: {
 				/* button - expansion */
 				wiiuse_pressed_buttons(wm, msg);
