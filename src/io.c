@@ -205,6 +205,7 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
 void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 	/* send request to wiimote for accelerometer calibration */
 	byte buf[MAX_PAYLOAD];
+	int i;
 
 	/* step 0 - Reset wiimote */
 	{
@@ -254,9 +255,24 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 			wiiuse_set_ir(wm, 1);
 		}
 
-		WIIUSE_DEBUG("Asking for status ...\n");
-		wm->event = WIIUSE_CONNECT;
-		wiiuse_status(wm);
+		/*
+		 * try to ask for status 3 times, sometimes the first one gives bad data
+		 * and doesn't show expansions
+		 */
+		for(i = 0; i < 3; ++i)
+		{
+		    WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
+		    wm->event = WIIUSE_CONNECT;
+		    wiiuse_status(wm);
+
+		    wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD);
+
+		    if(buf[3] != 0)
+		        break;
+
+		    wiiuse_millisleep(500);
+		}
+		propagate_event(wm, WM_RPT_CTRL_STATUS, buf + 1);
 	}
 }
 
