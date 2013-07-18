@@ -645,47 +645,77 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 	byte* handshake_buf;
 	int gotIt = 0;
 
-	/*
-	 * phase 1 - write 0x55 to init expansion
-	 */
-    wm->expansion_state = 1;
-#ifdef WIIUSE_WIN32
-    /* increase the timeout until the handshake completes */
-    WIIUSE_DEBUG("write 0x55 - Setting timeout to expansion %i ms.", wm->exp_timeout);
-    wm->timeout = wm->exp_timeout;
-#endif
-    buf = 0x55;
-    wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
+	int attempt = 0;
+	int init_good = 0;
 
     /*
-     * phase 2 - write 0x00 to init expansion
+     * KLUDGE
+     * Sometimes we get the expansion in "half-connected" state
+     * with an ID like 0xffffffff and invalid data - in such case retry,
+     * hoping that it will sort itself out
      */
-    wm->expansion_state = 2;
-#ifdef WIIUSE_WIN32
+
+	while(attempt < 10 && !init_good)
+	{
+        /*
+         * phase 1 - write 0x55 to init expansion
+         */
+        wm->expansion_state = 1;
+    #ifdef WIIUSE_WIN32
         /* increase the timeout until the handshake completes */
-        WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
+        WIIUSE_DEBUG("write 0x55 - Setting timeout to expansion %i ms.", wm->exp_timeout);
         wm->timeout = wm->exp_timeout;
-#endif
-    buf = 0x00;
-    wiiuse_write_data(wm, WM_EXP_MEM_ENABLE2, &buf, 1);
+    #endif
+        buf = 0x55;
+        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
+        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
 
-    /*
-     * phase 3 - get expansion ID & calibration data
-     */
-    wm->expansion_state = 3;
-    if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
-        disable_expansion(wm);
+        /*
+         * phase 2 - write 0x00 to init expansion
+         */
+        wm->expansion_state = 2;
+    #ifdef WIIUSE_WIN32
+            /* increase the timeout until the handshake completes */
+            WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
+            wm->timeout = wm->exp_timeout;
+    #endif
+        buf = 0x00;
+        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE2, &buf, 1);
+        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
 
-    handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
-    /* tell the wiimote to send expansion data */
-    WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
-    wiiuse_read_data_sync(wm, 0, WM_EXP_MEM_CALIBR,  EXP_HANDSHAKE_LEN, handshake_buf);
+        /*
+         * phase 3 - get expansion ID & calibration data
+         */
+        wm->expansion_state = 3;
+        if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
+            disable_expansion(wm);
+
+        handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
+        /* tell the wiimote to send expansion data */
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
+        wiiuse_read_data_sync(wm, 0, WM_EXP_MEM_CALIBR,  EXP_HANDSHAKE_LEN, handshake_buf);
+
+        id = from_big_endian_uint32_t(handshake_buf + 220);
+
+        /*
+         * Check whether we have detected expansion, sometimes we get the expansion in "half-connected" state
+         * with an ID like 0xffffffff and invalid data - in such case retry
+         */
+
+        if(id != 0xffffffff)
+        {
+            init_good = 1;
+        }
+
+        attempt ++;
+
+        wiiuse_millisleep(500);
+	}
 
     /*
      * phase 4 - process the data, init the expansions
      */
     wm->expansion_state = 0;
-    id = from_big_endian_uint32_t(handshake_buf + 220);
     switch (id)
     {
         case EXP_ID_CODE_NUNCHUK:
