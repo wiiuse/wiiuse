@@ -183,6 +183,15 @@ void handle_event(struct wiimote_t* wm) {
 
 		printf("nunchuk joystick angle:     %f\n", nc->js.ang);
 		printf("nunchuk joystick magnitude: %f\n", nc->js.mag);
+
+		printf("nunchuk joystick vals:      %f, %f\n", nc->js.x, nc->js.y);
+		printf("nunchuk joystick calibration (min, center, max): x: %i, %i, %i  y: %i, %i, %i\n",
+		    nc->js.min.x,
+		    nc->js.center.x,
+		    nc->js.max.x,
+		    nc->js.min.y,
+		    nc->js.center.y,
+		    nc->js.max.y);
 	} else if (wm->exp.type == EXP_CLASSIC) {
 		/* classic controller */
 		struct classic_ctrl_t* cc = (classic_ctrl_t*)&wm->exp.classic;
