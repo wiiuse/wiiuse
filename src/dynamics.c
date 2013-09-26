@@ -145,9 +145,9 @@ static float applyCalibration(float inval, float minval, float maxval, float cen
 	if (inval == centerval) {
 		ret = 0;
 	} else if (inval < centerval) {
-		ret = (inval - centerval) / (centerval - minval + 1);
+		ret = (inval - minval) / (centerval - minval + 1.0f) - 1.0f;
 	} else {
-		ret = (inval - centerval) / (maxval - centerval + 1);
+		ret = (inval - centerval) / (maxval - centerval + 1.0f);
 	}
 	return ret;
 }
