@@ -98,6 +98,15 @@ int nunchuk_handshake(struct wiimote_t* wm, struct nunchuk_t* nc, byte* data, un
 	             nc->js.min.x, nc->js.max.x, nc->js.center.x,
 	             nc->js.min.y, nc->js.max.y, nc->js.center.y);
 
+    /* If the calibration data makes no sense, fake it. */
+    if (nc->js.max.x < nc->js.center.x) {
+        nc->js.max.x = 255;
+    }
+
+    if (nc->js.max.y < nc->js.center.y) {
+        nc->js.max.y = 255;
+    }
+
 	/* default the thresholds to the same as the wiimote */
 	nc->orient_threshold = wm->orient_threshold;
 	nc->accel_threshold = wm->accel_threshold;
