@@ -294,7 +294,7 @@ typedef enum ir_position_t {
  *	@param lvl		[out] Pointer to an int that will hold the level setting.
  *	If no level is set 'lvl' will be set to 0.
  */
-#define WIIUSE_GET_IR_SENSITIVITY(dev, lvl)									\
+#define WIIUSE_GET_IR_SENSITIVITY(wm, lvl)									\
 			do {														\
 				if ((wm->state & 0x0200) == 0x0200) 		*lvl = 1;	\
 				else if ((wm->state & 0x0400) == 0x0400) 	*lvl = 2;	\
