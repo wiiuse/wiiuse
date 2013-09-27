@@ -92,6 +92,7 @@ int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	found_devices = hci_inquiry(device_id, timeout, 128, NULL, &scan_info, IREQ_CACHE_FLUSH);
 	if (found_devices < 0) {
 		perror("hci_inquiry");
+		close(device_sock);
 		return 0;
 	}
 
