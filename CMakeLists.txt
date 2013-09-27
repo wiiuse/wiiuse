@@ -52,6 +52,10 @@ endif()
 if(WIN32)
 	find_package(WinHID REQUIRED)
 	include_directories(${WINHID_INCLUDE_DIRS})
+	if(MSVC)
+		# Minimum requirement is WinXP
+		add_definitions(-D_WIN32_WINNT=0x0501)
+	endif()
 endif()
 
 ###
