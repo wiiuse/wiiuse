@@ -31,6 +31,7 @@
  *	@brief Handles device I/O for *nix.
  */
 
+#include "wiiuse_internal.h"           /* for WM_RPT_CTRL_STATUS */
 #include "io.h"
 #include "events.h"
 #include "os.h"
@@ -304,6 +305,13 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 				/* propagate the event */
 				propagate_event(wm[i], read_buffer[0], read_buffer + 1);
 				evnt += (wm[i]->event != WIIUSE_NONE);
+			} else if (!WIIMOTE_IS_CONNECTED(wm[i])) {
+				/* freshly disconnected */
+				wm[i]->event = (r==0) ? WIIUSE_DISCONNECT : WIIUSE_UNEXPECTED_DISCONNECT;
+				evnt++;
+				/* propagate the event:
+				   Emit a controller-status type event. */
+				propagate_event(wm[i], WM_RPT_CTRL_STATUS, 0);
 			}
 		} else {
 			/* send out any waiting writes */
