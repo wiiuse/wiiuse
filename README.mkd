@@ -300,8 +300,7 @@ Other Links
 - Thread about MotionPlus: <http://forum.wiibrew.org/read.php?11,32585,32922>
 
 Original project:
-
-- <http://wiiuse.net/>
-- <http://wiiuse.sourceforge.net/>
-- <http://sourceforge.net/projects/wiiuse/>
-
+- SourceForge page: <http://sourceforge.net/projects/wiiuse/>
+- Archived pages of the original project:
+  - http://web.archive.org/web/*/http://wiiuse.net/
+  - http://web.archive.org/web/*/http://wiiuse.sourceforge.net/
