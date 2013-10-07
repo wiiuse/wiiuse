@@ -481,7 +481,7 @@ static void event_status(struct wiimote_t* wm, byte* msg) {
 	struct data_req_t* req = wm->data_req;
 
 	/* initial handshake is not finished yet, ignore this */
-	if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_HANDSHAKE)) {
+	if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_HANDSHAKE) || !msg) {
 		return;
 	}
 
