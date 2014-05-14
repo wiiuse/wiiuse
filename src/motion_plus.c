@@ -224,12 +224,16 @@ void wiiuse_set_motion_plus(struct wiimote_t *wm, int status) {
          */
         for(i = 0; i < 3; ++i)
         {
+            int rc = 0;
+            
             WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
             wm->event = WIIUSE_CONNECT;
-            wiiuse_status(wm);
 
-            wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD);
-
+            do {
+                wiiuse_status(wm);
+                rc = wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
+            } while(rc < 0);
+                
             if(buf[3] != 0)
                 break;
 

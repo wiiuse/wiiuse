@@ -55,6 +55,8 @@ extern "C" {
 	/* buf[0] will be the report type, buf+1 the rest of the report */
 	int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len);
 	int wiiuse_os_write(struct wiimote_t* wm, byte report_type, byte* buf, int len);
+
+        unsigned long wiiuse_os_ticks();
 	/** @} */
 
 #ifdef __cplusplus
