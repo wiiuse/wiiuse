@@ -544,10 +544,12 @@ int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data,
 
 	byte * bufPtr = buf;
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
-		return 0;
+            WIIUSE_ERROR("Attempt to write, but no wiimote available or not connected!");
+            return 0;
 	}
 	if (!data || !len) {
-		return 0;
+            WIIUSE_ERROR("Attempt to write, but no data or length == 0");
+            return 0;
 	}
 
 	WIIUSE_DEBUG("Writing %i bytes to memory location 0x%x...", len, addr);
