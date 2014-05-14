@@ -134,6 +134,8 @@ int wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int buffe
             if (buffer[0] == report) {
                 break;
             } else {
+                if(buffer[0] != 0x30) /* hack for chatty devices spamming the button report */
+                {
                     WIIUSE_DEBUG("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0], report);
                 }
             }

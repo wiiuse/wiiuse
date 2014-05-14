@@ -351,7 +351,7 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 
 		/* log the received data */
 #ifdef WITH_WIIUSE_DEBUG
-		{
+		if (buf[0] != 0x30) { /* hack for chatty Balance Boards that flood the logs with useless button reports */
 			int i;
 			printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
 			for (i = 1; i < rc; i++) {
