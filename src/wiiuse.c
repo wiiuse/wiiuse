@@ -834,7 +834,10 @@ void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold) {
 void wiiuse_wiiboard_use_alternate_report(struct wiimote_t *wm, int enabled)
 {
     if(wm->exp.type == EXP_WII_BOARD)
+    {
         wm->exp.wb.use_alternate_report = enabled;
+        wiiuse_set_report_type(wm);
+    }
     else
         printf("Alternate report can be set only on a Balance Board!\n");
 }
