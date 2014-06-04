@@ -335,7 +335,7 @@ unsigned long wiiuse_os_ticks()
     return ms;
 }
 
-
+/* code taken from http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows/5404467#5404467 */
 static LARGE_INTEGER getFILETIMEoffset()
 {
     SYSTEMTIME s;
