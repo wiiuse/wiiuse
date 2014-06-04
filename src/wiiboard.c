@@ -93,19 +93,21 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 
 	/* decrypt data */
 #ifdef WITH_WIIUSE_DEBUG
-	int i;
-	printf("DECRYPTED DATA WIIBOARD\n");
-	for (i = 0; i < len; ++i) {
-		if (i % 16 == 0) {
-			if (i != 0) {
-				printf("\n");
-			}
+    {
+	    int i;
+	    printf("DECRYPTED DATA WIIBOARD\n");
+	    for (i = 0; i < len; ++i) {
+		    if (i % 16 == 0) {
+			    if (i != 0) {
+				    printf("\n");
+			    }
 
-			printf("%X: ", 0x4a40000 + 32 + i);
-		}
-		printf("%02X ", data[i]);
-	}
-	printf("\n");
+			    printf("%X: ", 0x4a40000 + 32 + i);
+		    }
+		    printf("%02X ", data[i]);
+	    }
+	    printf("\n");
+    }
 #endif
 
 	bufptr = data + 4;
