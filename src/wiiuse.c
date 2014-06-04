@@ -339,7 +339,10 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
 	} else if (ir) {
 		buf[1] = WM_RPT_BTN_ACC_IR;
 	} else if(exp && balance_board) {
-	    buf[1] = WM_RPT_BTN_EXP_8;
+        if(wm->exp.wb.use_alternate_report)
+	        buf[1] = WM_RPT_BTN_EXP_8;
+        else
+            buf[1] = WM_RPT_BTN_EXP;
 	} else if (exp) {
 		buf[1] = WM_RPT_BTN_EXP;
 	} else if (motion) {
@@ -822,6 +825,19 @@ void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold) {
 	wm->accel_threshold = threshold;
 }
 
+/**
+ *	@brief	Switch the Balance Board to use report 0x34 instead of 0x32 
+ *
+ *	@param wm			Pointer to a wiimote_t structure.
+ *	@param enabled	    enabled != 0 -> use report 0x32
+ */
+void wiiuse_wiiboard_use_alternate_report(struct wiimote_t *wm, int enabled)
+{
+    if(wm->exp.type == EXP_WII_BOARD)
+        wm->exp.wb.use_alternate_report = enabled;
+    else
+        printf("Alternate report can be set only on a Balance Board!\n");
+}
 
 /**
  *	@brief Try to resync with the wiimote by starting a new handshake.

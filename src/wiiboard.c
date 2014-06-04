@@ -109,6 +109,7 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	    printf("\n");
     }
 #endif
+    memset(wb, 0, sizeof(struct wii_board_t));
 
 	bufptr = data + 4;
 	wb->ctr[0] = unbuffer_big_endian_uint16_t(&bufptr);
@@ -125,6 +126,8 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	wb->cbr[2] = unbuffer_big_endian_uint16_t(&bufptr);
 	wb->ctl[2] = unbuffer_big_endian_uint16_t(&bufptr);
 	wb->cbl[2] = unbuffer_big_endian_uint16_t(&bufptr);
+
+    wb->use_alternate_report = 0;
 
 	/* handshake done */
 	wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
@@ -186,5 +189,6 @@ void wii_board_event(struct wii_board_t* wb, byte* msg) {
 /**
 	@todo not implemented!
 */
-void wiiuse_set_wii_board_calib(struct wiimote_t *wm) {
+void wiiuse_set_wii_board_calib(struct wiimote_t *wm) 
+{
 }
