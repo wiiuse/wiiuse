@@ -49,67 +49,31 @@
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
 	byte * bufptr;
-
-        /* OK, let's try the Wii init sequence from: http://wiibrew.org/wiki/Wii_Balance_Board#Memory_and_Registers */
-
-        /*
-         * unknown init, calibration trigger?
-         */
-        byte buf[] = { 0xAA, 0xAA, 0xAA, 0x55, 0xAA, 0xAA, 0xAA};
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 1);
-        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 1);
-        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 1);
-        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
+        
         /*
          * read calibration
          */
         wiiuse_read_data_sync(wm, 0, WM_EXP_MEM_CALIBR,  EXP_HANDSHAKE_LEN, data);
 
-        /*
-         * few more magic packets
-         */
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 7);
-        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 1);
-        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 1);
-        wiiuse_millisleep(200); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 1);
-        wiiuse_millisleep(100); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
-        /*
-         * one  more magic packet and we should be done
-         */
-        wiiuse_write_data(wm, WM_EXP_BBOARD_INIT1, buf, 1);
-        wiiuse_millisleep(200); /* delay to let the wiimote time to react, makes the handshake more reliable */
-
-	/* decrypt data */
+	/* decode data */
 #ifdef WITH_WIIUSE_DEBUG
-    {
+        {
 	    int i;
 	    printf("DECRYPTED DATA WIIBOARD\n");
 	    for (i = 0; i < len; ++i) {
-		    if (i % 16 == 0) {
-			    if (i != 0) {
-				    printf("\n");
-			    }
+                if (i % 16 == 0) {
+                    if (i != 0) {
+                        printf("\n");
+                    }
 
-			    printf("%X: ", 0x4a40000 + 32 + i);
-		    }
-		    printf("%02X ", data[i]);
+                    printf("%X: ", 0x4a40000 + 32 + i);
+                }
+                printf("%02X ", data[i]);
 	    }
 	    printf("\n");
-    }
+        }
 #endif
-    memset(wb, 0, sizeof(struct wii_board_t));
+        memset(wb, 0, sizeof(struct wii_board_t));
 
 	bufptr = data + 4;
 	wb->ctr[0] = unbuffer_big_endian_uint16_t(&bufptr);
@@ -127,7 +91,7 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	wb->ctl[2] = unbuffer_big_endian_uint16_t(&bufptr);
 	wb->cbl[2] = unbuffer_big_endian_uint16_t(&bufptr);
 
-    wb->use_alternate_report = 0;
+        wb->use_alternate_report = 0;
 
 	/* handshake done */
 	wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
