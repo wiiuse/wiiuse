@@ -659,33 +659,26 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
     {
         /*
          * phase 1 - write 0x55 0x00 to init expansion without encryption
-         * Do this multiple times, some balance boards take time to start up
-         * and don't react correctly on the first init, leaving them in a weird
-         * state.
          */
 
-        int init_count = 0;
-        for(init_count = 0; init_count < 2; ++init_count)
-        {
-            wm->expansion_state = 1;        
+        wm->expansion_state = 1;        
 #ifdef WIIUSE_WIN32
-            /* increase the timeout until the handshake completes */
-            WIIUSE_DEBUG("write 0x55 - Setting timeout to expansion %i ms.", wm->exp_timeout);
-            wm->timeout = wm->exp_timeout;
+        /* increase the timeout until the handshake completes */
+        WIIUSE_DEBUG("write 0x55 - Setting timeout to expansion %i ms.", wm->exp_timeout);
+        wm->timeout = wm->exp_timeout;
 #endif
-            buf = 0x55;
-            wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
-            wiiuse_millisleep(50); /* delay to let the wiimote time to react, makes the handshake more reliable */
+        buf = 0x55;
+        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
+        wiiuse_millisleep(50); /* delay to let the wiimote time to react, makes the handshake more reliable */
         
 #ifdef WIIUSE_WIN32
-            /* increase the timeout until the handshake completes */
-            WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
-            wm->timeout = wm->exp_timeout;
+        /* increase the timeout until the handshake completes */
+        WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
+        wm->timeout = wm->exp_timeout;
 #endif
-            buf = 0x00;
-            wiiuse_write_data(wm, WM_EXP_MEM_ENABLE2, &buf, 1);
-            wiiuse_millisleep(150); /* delay to let the wiimote time to react, makes the handshake more reliable */            
-        }
+        buf = 0x00;
+        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE2, &buf, 1);
+        wiiuse_millisleep(150); /* delay to let the wiimote time to react, makes the handshake more reliable */            
         
         /*
          * phase 2 - get expansion ID & calibration data
