@@ -44,6 +44,7 @@
 #include "nunchuk.h"                    /* for nunchuk_disconnected, etc */
 #include "wiiboard.h"                   /* for wii_board_disconnected, etc */
 #include "motion_plus.h"                /* for motion_plus_disconnected, etc */
+#include "io.h"                         /* for wiiuse_read_data_sync, etc */
 
 #include "os.h"							/* for wiiuse_os_poll */
 
