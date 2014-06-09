@@ -49,6 +49,20 @@
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
 	byte * bufptr;
+
+        /*
+         * Hack for Balance board - initialize it in the "old" way, otherwise
+         * it could end up in some weird state
+         */
+        
+#ifdef WIIUSE_WIN32
+        /* increase the timeout until the handshake completes */
+        WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
+        wm->timeout = wm->exp_timeout;
+#endif
+        byte buf = 0x00;
+        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE, &buf, 1);
+        wiiuse_millisleep(50); /* delay to let the wiimote time to react, makes the handshake more reliable */
         
         /*
          * read calibration
