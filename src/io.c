@@ -405,7 +405,7 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 }
 
 static void wiiuse_disable_motion_plus1(struct wiimote_t *wm, byte *data, unsigned short len) {
-	byte val = 0x00;
+	byte val = 0x55;
 	wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus2);
 }
 
