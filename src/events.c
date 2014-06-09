@@ -670,7 +670,6 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 #endif
         buf = 0x55;
         wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
-        wiiuse_millisleep(50); /* delay to let the wiimote time to react, makes the handshake more reliable */
         
 #ifdef WIIUSE_WIN32
         /* increase the timeout until the handshake completes */
@@ -679,7 +678,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 #endif
         buf = 0x00;
         wiiuse_write_data(wm, WM_EXP_MEM_ENABLE2, &buf, 1);
-        wiiuse_millisleep(150); /* delay to let the wiimote time to react, makes the handshake more reliable */            
+        wiiuse_millisleep(500); /* delay to let the wiimote time to react, makes the handshake more reliable */            
         
         /*
          * phase 2 - get expansion ID & calibration data

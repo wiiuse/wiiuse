@@ -49,15 +49,7 @@
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
         byte * bufptr;
-        byte buf = 0;
-        
-        /*
-         * Hack for Balance board
-         */
-        
-        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
-        wiiuse_millisleep(50); /* delay to let the wiimote time to react, makes the handshake more reliable */
-        
+
         /*
          * read calibration
          */
