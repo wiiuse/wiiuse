@@ -48,27 +48,21 @@
  */
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
-	byte * bufptr;
-
+        byte * bufptr;
+        byte buf = 0;
+        
         /*
-         * Hack for Balance board - initialize it in the "old" way, otherwise
-         * it could end up in some weird state
+         * Hack for Balance board
          */
         
-#ifdef WIIUSE_WIN32
-        /* increase the timeout until the handshake completes */
-        WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
-        wm->timeout = wm->exp_timeout;
-#endif
-        byte buf = 0x00;
-        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE, &buf, 1);
+        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
         wiiuse_millisleep(50); /* delay to let the wiimote time to react, makes the handshake more reliable */
         
         /*
          * read calibration
          */
         wiiuse_read_data_sync(wm, 0, WM_EXP_MEM_CALIBR,  EXP_HANDSHAKE_LEN, data);
-
+        
 	/* decode data */
 #ifdef WITH_WIIUSE_DEBUG
         {
@@ -149,6 +143,7 @@ static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
  */
 void wii_board_event(struct wii_board_t* wb, byte* msg) {
 	byte * bufPtr = msg;
+        
 	wb->rtr = unbuffer_big_endian_uint16_t(&bufPtr);
 	wb->rbr = unbuffer_big_endian_uint16_t(&bufPtr);
 	wb->rtl = unbuffer_big_endian_uint16_t(&bufPtr);
