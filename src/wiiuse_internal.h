@@ -216,10 +216,11 @@
 #define EXP_ID_CODE_MOTION_PLUS_CLASSIC     0xA4200705 /** Motion Plus ID in Classic control. passthrough */
 
 /* decrypted M+ codes at 0x04A600FA */
-#define EXP_ID_CODE_INACTIVE_MOTION_PLUS        0xA6200005 /** Inactive Motion Plus ID */
-#define EXP_ID_CODE_NLA_MOTION_PLUS             0xA6200405 /** No longer active Motion Plus ID */
-#define EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK     0xA6200505 /** No longer active Motion Plus ID in Nunchuck passthrough mode */
-#define EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC     0xA6200705 /** No longer active Motion Plus ID in Classic control. passthrough */
+#define EXP_ID_CODE_INACTIVE_MOTION_PLUS          0xA6200005 /** Inactive Motion Plus ID */
+#define EXP_ID_CODE_INACTIVE_MOTION_PLUS_BUILTIN  0xA4200005 /** Inactive Motion Plus ID in Wii Remote Plus */
+#define EXP_ID_CODE_NLA_MOTION_PLUS               0xA6200405 /** No longer active Motion Plus ID */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK       0xA6200505 /** No longer active Motion Plus ID in Nunchuck passthrough mode */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC       0xA6200705 /** No longer active Motion Plus ID in Classic control. passthrough */
 
 #define EXP_HANDSHAKE_LEN					224
 

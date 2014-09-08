@@ -113,7 +113,7 @@
 	// refine search & set timeout
 	[inquiry setSearchCriteria:kBluetoothServiceClassMajorAny
 			  majorDeviceClass:WM_DEV_MAJOR_CLASS
-			  minorDeviceClass:WM_DEV_MINOR_CLASS];
+			  minorDeviceClass:kBluetoothDeviceClassMinorAny];
 	[inquiry setUpdateNewDeviceNames: NO];
 	if(timeout > 0)
 		[inquiry setInquiryLength:timeout];
