@@ -151,16 +151,25 @@
  * 00000000 00100101 00000100
  */
 #ifdef WIIUSE_MAC
-	#define WM_DEV_MINOR_CLASS				0x01
+	#define WM_DEV_MINOR_CLASS				0x01	// Regular wiimote
 	#define WM_DEV_MAJOR_CLASS				0x05
 	#define WM_DEV_MAJOR_SERVICE			0x01
+
+	#define WM_PLUS_DEV_MINOR_CLASS			0x02	// For the newer RVL-CNT-01-TR (MotionPlus Inside)
+	#define WM_PLUS_DEV_MAJOR_CLASS			0x05
+	#define WM_PLUS_DEV_MAJOR_SERVICE		0x00
 #else
-	#define WM_DEV_CLASS_0				0x04
+	#define WM_DEV_CLASS_0				0x04	// Regular wiimote
 	#define WM_DEV_CLASS_1				0x25
 	#define WM_DEV_CLASS_2				0x00
+
+	#define WM_PLUS_DEV_CLASS_0			0x08	// For the newer RVL-CNT-01-TR (MotionPlus Inside)
+	#define WM_PLUS_DEV_CLASS_1			0x05
+	#define WM_PLUS_DEV_CLASS_2			0x00
 #endif
 #define WM_VENDOR_ID				0x057E
-#define WM_PRODUCT_ID				0x0306
+#define WM_PRODUCT_ID				0x0306	// Regular wiimote
+#define WM_PLUS_PRODUCT_ID			0x0330	// For the newer RVL-CNT-01-TR (MotionPlus Inside)
 
 /* controller status stuff */
 #define WM_MAX_BATTERY_CODE			0xC8
@@ -216,11 +225,10 @@
 #define EXP_ID_CODE_MOTION_PLUS_CLASSIC     0xA4200705 /** Motion Plus ID in Classic control. passthrough */
 
 /* decrypted M+ codes at 0x04A600FA */
-#define EXP_ID_CODE_INACTIVE_MOTION_PLUS          0xA6200005 /** Inactive Motion Plus ID */
-#define EXP_ID_CODE_INACTIVE_MOTION_PLUS_BUILTIN  0xA4200005 /** Inactive Motion Plus ID in Wii Remote Plus */
-#define EXP_ID_CODE_NLA_MOTION_PLUS               0xA6200405 /** No longer active Motion Plus ID */
-#define EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK       0xA6200505 /** No longer active Motion Plus ID in Nunchuck passthrough mode */
-#define EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC       0xA6200705 /** No longer active Motion Plus ID in Classic control. passthrough */
+#define EXP_ID_CODE_INACTIVE_MOTION_PLUS        0xA6200005 /** Inactive Motion Plus ID */
+#define EXP_ID_CODE_NLA_MOTION_PLUS             0xA6200405 /** No longer active Motion Plus ID */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK     0xA6200505 /** No longer active Motion Plus ID in Nunchuck passthrough mode */
+#define EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC     0xA6200705 /** No longer active Motion Plus ID in Classic control. passthrough */
 
 #define EXP_HANDSHAKE_LEN					224
 

@@ -73,10 +73,7 @@
 
 #define WIIUSE_MAJOR 0
 #define WIIUSE_MINOR 14
-#define WIIUSE_MICRO 2
-
-#define WIIUSE_VERSION_TRANSFORM(MAJ, MIN, MICRO) (MAJ * 1000000 + MIN * 1000 + MICRO)
-#define WIIUSE_HAS_VERSION(MAJ, MIN, MICRO) ( WIIUSE_VERSION_TRANSFORM(MAJ, MIN, MICRO) <= WIIUSE_VERSION_TRANSFORM(WIIUSE_MAJOR, WIIUSE_MINOR, WIIUSE_MICRO) )
+#define WIIUSE_MICRO 0
 
 #ifndef WIIUSE_PLATFORM
 	#if defined(_WIN32)
@@ -294,7 +291,7 @@ typedef enum ir_position_t {
  *	@param lvl		[out] Pointer to an int that will hold the level setting.
  *	If no level is set 'lvl' will be set to 0.
  */
-#define WIIUSE_GET_IR_SENSITIVITY(wm, lvl)									\
+#define WIIUSE_GET_IR_SENSITIVITY(dev, lvl)									\
 			do {														\
 				if ((wm->state & 0x0200) == 0x0200) 		*lvl = 1;	\
 				else if ((wm->state & 0x0400) == 0x0400) 	*lvl = 2;	\
@@ -717,6 +714,14 @@ typedef enum WIIUSE_EVENT_TYPE {
 } WIIUSE_EVENT_TYPE;
 
 /**
+ *	@brief Type of wiimote peripheral
+ */
+typedef enum WIIUSE_WIIMOTE_TYPE {
+	WIIUSE_WIIMOTE_REGULAR = 0,
+	WIIUSE_WIIMOTE_MOTION_PLUS_INSIDE,
+} WIIUSE_WIIMOTE_TYPE;
+
+/**
  *	@brief Main Wiimote device structure.
  *
  *  You need one of these to do pretty much anything with this library.
@@ -786,6 +791,7 @@ typedef struct wiimote_t {
 
 	WCONST WIIUSE_EVENT_TYPE event;			/**< type of event that occurred				*/
 	WCONST byte motion_plus_id[6];
+    WCONST WIIUSE_WIIMOTE_TYPE type;
 } wiimote;
 
 /** @brief Data passed to a callback during wiiuse_update() */
