@@ -60,6 +60,7 @@ void wiiuse_probe_motion_plus(struct wiimote_t *wm) {
 	id = from_big_endian_uint32_t(buf + 2);
 
 	if (id != EXP_ID_CODE_INACTIVE_MOTION_PLUS &&
+	        id != EXP_ID_CODE_INACTIVE_MOTION_PLUS_BUILTIN &&
 	        id != EXP_ID_CODE_NLA_MOTION_PLUS &&
 	        id != EXP_ID_CODE_NLA_MOTION_PLUS_NUNCHUK &&
 	        id != EXP_ID_CODE_NLA_MOTION_PLUS_CLASSIC) {
