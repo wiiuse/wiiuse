@@ -309,8 +309,9 @@ void wiiuse_motion_sensing(struct wiimote_t* wm, int status) {
  *	the current state of the device.
  */
 int wiiuse_set_report_type(struct wiimote_t* wm) {
-	byte buf[2];
-	int motion, exp, ir;
+
+    byte buf[2];
+	int motion, exp, ir, balance_board;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
 		return 0;
@@ -327,6 +328,7 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
 	motion = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_ACC);
 	exp = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP);
 	ir = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR);
+	balance_board = exp && (wm->exp.type == EXP_WII_BOARD);
 
 	if (motion && ir && exp)	{
 		buf[1] = WM_RPT_BTN_ACC_IR_EXP;
@@ -338,6 +340,8 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
 		buf[1] = WM_RPT_BTN_IR_EXP;
 	} else if (ir) {
 		buf[1] = WM_RPT_BTN_ACC_IR;
+	} else if(exp && balance_board) {
+	    buf[1] = WM_RPT_BTN_EXP_8;
 	} else if (exp) {
 		buf[1] = WM_RPT_BTN_EXP;
 	} else if (motion) {

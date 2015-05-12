@@ -183,7 +183,9 @@ static void wiiuse_set_motion_plus_clear1(struct wiimote_t *wm, byte *data, unsi
  *
  */
 void wiiuse_set_motion_plus(struct wiimote_t *wm, int status) {
-	byte val;
+    byte buf[MAX_PAYLOAD];
+    byte val;
+	int i;
 
 	if (!WIIMOTE_IS_SET(wm, WIIMOTE_STATE_MPLUS_PRESENT) ||
 	        WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP_HANDSHAKE)) {
@@ -191,13 +193,50 @@ void wiiuse_set_motion_plus(struct wiimote_t *wm, int status) {
 	}
 
 	if (status) {
+	    WIIUSE_DEBUG("Enabling Motion+\n");
+
 		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
 		val = (status == 1) ? 0x04 : 0x05;
-		wiiuse_write_data_cb(wm, WM_EXP_MOTION_PLUS_ENABLE, &val, 1, wiiuse_motion_plus_handshake);
+		wiiuse_write_data(wm, WM_EXP_MOTION_PLUS_ENABLE, &val, 1);
+
+		wiiuse_millisleep(500); /* wait for M+ switch over */
+		wiiuse_motion_plus_handshake(wm, NULL, 0);
+
 	} else {
+	    WIIUSE_DEBUG("Disabling Motion+\n");
+
 		disable_expansion(wm);
 		val = 0x55;
-		wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_set_motion_plus_clear1);
+		/* wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_set_motion_plus_clear1); */
+		wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &val, 1);
+		wiiuse_millisleep(500); /* wait for M+ switch over */
+
+		val = 0x0;
+		wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &val, 1);
+		wiiuse_millisleep(500); /* wait for M+ switch over */
+
+	    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
+	    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+	    wiiuse_set_ir_mode(wm);
+
+	    /*
+         * try to ask for status 3 times, sometimes the first one(s) gives bad data
+         * and doesn't show expansions - likely because the device didn't settle yet
+         */
+        for(i = 0; i < 3; ++i)
+        {
+            WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
+            wm->event = WIIUSE_CONNECT;
+            wiiuse_status(wm);
+
+            wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD);
+
+            if(buf[3] != 0)
+                break;
+
+            wiiuse_millisleep(500);
+        }
+        propagate_event(wm, WM_RPT_CTRL_STATUS, buf + 1);
 	}
 }
 

@@ -122,6 +122,7 @@
 #define WM_RPT_WRITE				0x22
 #define WM_RPT_BTN					0x30
 #define WM_RPT_BTN_ACC				0x31
+#define WM_RPT_BTN_EXP_8            0x32
 #define WM_RPT_BTN_ACC_IR			0x33
 #define WM_RPT_BTN_EXP				0x34
 #define WM_RPT_BTN_ACC_EXP			0x35
