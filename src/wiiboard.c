@@ -32,6 +32,7 @@
  */
 
 
+#include "io.h"
 #include "wiiboard.h"
 
 #include <stdio.h>                      /* for printf */

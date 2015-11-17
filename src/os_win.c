@@ -56,6 +56,8 @@ extern "C" {
 #	endif
 #endif
 
+static int clock_gettime(int X, struct timeval *tv);
+
 int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 	GUID device_id;
 	HANDLE dev;
@@ -336,7 +338,7 @@ unsigned long wiiuse_os_ticks()
     struct timeval tp;
 
     clock_gettime(0, &tp);
-    ms = 1000 * tp.tv_sec + tp.tv_usec / 1e3;
+    ms = (unsigned long) (1000 * tp.tv_sec + tp.tv_usec / 1e3);
     return ms;
 }
 
@@ -393,8 +395,8 @@ static int clock_gettime(int X, struct timeval *tv)
 
     t.QuadPart -= offset.QuadPart;
     microseconds = (double)t.QuadPart / frequencyToMicroseconds;
-    t.QuadPart = microseconds;
-    tv->tv_sec = t.QuadPart / 1000000;
+    t.QuadPart = (LONGLONG) microseconds;
+    tv->tv_sec = (long) t.QuadPart / 1000000;
     tv->tv_usec = t.QuadPart % 1000000;
     return (0);
 }
