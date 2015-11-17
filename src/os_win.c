@@ -242,9 +242,11 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 		if (r == WAIT_TIMEOUT) {
 			/* timeout - cancel and continue */
 
+            /*
 			if (*buf) {
 				WIIUSE_WARNING("Packet ignored.  This may indicate a problem (timeout is %i ms).", wm->timeout);
 			}
+            */
 
 			CancelIo(wm->dev_handle);
 			ResetEvent(wm->hid_overlap.hEvent);
