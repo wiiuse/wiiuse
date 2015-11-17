@@ -50,7 +50,7 @@ void wiiuse_probe_motion_plus(struct wiimote_t *wm) {
 	wiiuse_read_data_sync(wm, 0, WM_EXP_MOTION_PLUS_IDENT, 6, buf);
 
 	/* check error code */
-	if (buf[4] & 0x0f) {
+	if ((buf[5] & 0x0f) == 0) {
 		WIIUSE_DEBUG("No Motion+ available, stopping probe.");
 		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_MPLUS_PRESENT);
 		return;

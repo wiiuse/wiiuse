@@ -257,6 +257,20 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 		wiiuse_set_report_type(wm);
 		wiiuse_millisleep(500);
 
+        /*
+           Ensure MP is off, because it will screw up the expansion handshake otherwise.
+           We cannot rely on the Wiimote having been powercycled between uses
+           because Windows/Mayflash Dolphin Bar and even Linux now allow pairing 
+           it permanently - thus it remains on and connected between the application
+           starts and in an unknown state when we arrive here => problem.
+
+           This won't affect regular expansions (Nunchuck) if MP is not present, 
+           they get initialized twice in the worst case, which is harmless. 
+        */
+
+        byte val = 0x55;
+        wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &val, 1);
+
 		WIIUSE_DEBUG("Wiimote reset!\n");
 	}
 
@@ -296,15 +310,13 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 		 */
 		for(i = 0; i < 3; ++i)
 		{
-                    int rc = 0;
+            int rc = 0;
                     
 		    WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
 		    wm->event = WIIUSE_CONNECT;
 
-                    do {                      
-                        wiiuse_status(wm);
-                        rc = wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
-                    } while(rc < 0);
+            wiiuse_status(wm);
+            rc = wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
 
 		    if(buf[3] != 0)
 		        break;
