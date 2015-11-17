@@ -115,21 +115,41 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 *    @param wm             Pointer to a wiimote_t structure.
 *    @param buffer         Pre-allocated memory to store the received data
 *    @param bufferLength   size of buffer in bytes
+*    @param timeout_ms     timeout in ms, 0 = wait forever
 *
 *    Synchronous/blocking, this function will not return until it receives the specified
-*    report from the Wiimote.
+*    report from the Wiimote or timeout occurs.
+*
+*    Returns 1 on success, -1 on failure.
 *
 */
-void wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength) {
-	for (;;) {
-		if (wiiuse_os_read(wm, buffer, bufferLength) > 0) {
-			if (buffer[0] == report) {
-				break;
-			} else {
-				WIIUSE_DEBUG("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0], report);
-			}
-		}
-	}
+int wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength, unsigned long timeout_ms) {
+    
+    int result            = 1;
+    unsigned long elapsed = 0;
+    unsigned long start   = wiiuse_os_ticks();
+    
+    for (;;) {
+        if (wiiuse_os_read(wm, buffer, bufferLength) > 0) {
+            if (buffer[0] == report) {
+                break;
+            } else {
+                if(buffer[0] != 0x30) /* hack for chatty devices spamming the button report */
+                {
+                    WIIUSE_DEBUG("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0], report);
+                }
+            }
+        }
+
+        elapsed = wiiuse_os_ticks() - start;
+        if (elapsed > timeout_ms && timeout_ms > 0)
+        {
+            result = -1;
+            break;
+        }        
+    }
+
+    return result;
 }
 
 /**
@@ -152,6 +172,7 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
 	unsigned last_report;
 	byte *output;
 	unsigned int i;
+        int done = 0;
 
 	/*
 	 * address in big endian first, the leading byte will
@@ -165,25 +186,39 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
 	/* length in big endian */
 	to_big_endian_uint16_t(pkt + 4, size);
 
-	/* send */
-	wiiuse_send(wm, WM_CMD_READ_DATA, pkt, sizeof(pkt));
+        done = 0;
+        while(!done)
+        {
+            /* send */        
+            wiiuse_send(wm, WM_CMD_READ_DATA, pkt, sizeof(pkt));
 
-	/* calculate how many 16B packets we have to get back */
-	n_full_reports = size / 16;
-	last_report = size % 16;
-	output = data;
+            /* calculate how many 16B packets we have to get back */
+            n_full_reports = size / 16;
+            last_report = size % 16;
+            output = data;
 
-	for (i = 0; i < n_full_reports; ++i) {
-		wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD);
-		memmove(output, buf + 6, 16);
-		output += 16;
-	}
+            for (i = 0; i < n_full_reports; ++i) {
+                int rc = wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
 
-	/* read the last incomplete packet */
-	if (last_report) {
-		wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD);
-		memmove(output, buf + 6, last_report);
-	}
+                if(rc < 0)
+                    /* oops, time out, abort and retry */
+                    break;
+                
+                memmove(output, buf + 6, 16);
+                output += 16;
+            }
+
+            /* read the last incomplete packet */
+            if (last_report) {
+                int rc = wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
+
+                if(rc)
+                    done = 1;
+                    
+                memmove(output, buf + 6, last_report);
+            } else
+                done = 1;
+        }
 }
 
 /**
@@ -205,6 +240,7 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
 void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 	/* send request to wiimote for accelerometer calibration */
 	byte buf[MAX_PAYLOAD];
+	int i;
 
 	/* step 0 - Reset wiimote */
 	{
@@ -254,9 +290,28 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 			wiiuse_set_ir(wm, 1);
 		}
 
-		WIIUSE_DEBUG("Asking for status ...\n");
-		wm->event = WIIUSE_CONNECT;
-		wiiuse_status(wm);
+		/*
+		 * try to ask for status 3 times, sometimes the first one gives bad data
+		 * and doesn't show expansions
+		 */
+		for(i = 0; i < 3; ++i)
+		{
+                    int rc = 0;
+                    
+		    WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
+		    wm->event = WIIUSE_CONNECT;
+
+                    do {                      
+                        wiiuse_status(wm);
+                        rc = wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
+                    } while(rc < 0);
+
+		    if(buf[3] != 0)
+		        break;
+
+		    wiiuse_millisleep(500);
+		}
+		propagate_event(wm, WM_RPT_CTRL_STATUS, buf + 1);
 	}
 }
 
@@ -350,7 +405,7 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 }
 
 static void wiiuse_disable_motion_plus1(struct wiimote_t *wm, byte *data, unsigned short len) {
-	byte val = 0x00;
+	byte val = 0x55;
 	wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus2);
 }
 

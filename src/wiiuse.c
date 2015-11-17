@@ -309,8 +309,9 @@ void wiiuse_motion_sensing(struct wiimote_t* wm, int status) {
  *	the current state of the device.
  */
 int wiiuse_set_report_type(struct wiimote_t* wm) {
-	byte buf[2];
-	int motion, exp, ir;
+
+    byte buf[2];
+	int motion, exp, ir, balance_board;
 
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
 		return 0;
@@ -327,6 +328,7 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
 	motion = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_ACC);
 	exp = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP);
 	ir = WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR);
+	balance_board = exp && (wm->exp.type == EXP_WII_BOARD);
 
 	if (motion && ir && exp)	{
 		buf[1] = WM_RPT_BTN_ACC_IR_EXP;
@@ -338,6 +340,11 @@ int wiiuse_set_report_type(struct wiimote_t* wm) {
 		buf[1] = WM_RPT_BTN_IR_EXP;
 	} else if (ir) {
 		buf[1] = WM_RPT_BTN_ACC_IR;
+	} else if(exp && balance_board) {
+        if(wm->exp.wb.use_alternate_report)
+	        buf[1] = WM_RPT_BTN_EXP_8;
+        else
+            buf[1] = WM_RPT_BTN_EXP;
 	} else if (exp) {
 		buf[1] = WM_RPT_BTN_EXP;
 	} else if (motion) {
@@ -542,10 +549,12 @@ int wiiuse_write_data(struct wiimote_t* wm, unsigned int addr, const byte* data,
 
 	byte * bufPtr = buf;
 	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
-		return 0;
+            WIIUSE_ERROR("Attempt to write, but no wiimote available or not connected!");
+            return 0;
 	}
 	if (!data || !len) {
-		return 0;
+            WIIUSE_ERROR("Attempt to write, but no data or length == 0");
+            return 0;
 	}
 
 	WIIUSE_DEBUG("Writing %i bytes to memory location 0x%x...", len, addr);
@@ -818,6 +827,22 @@ void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold) {
 	wm->accel_threshold = threshold;
 }
 
+/**
+ *	@brief	Switch the Balance Board to use report 0x34 instead of 0x32 
+ *
+ *	@param wm			Pointer to a wiimote_t structure.
+ *	@param enabled	    enabled != 0 -> use report 0x32
+ */
+void wiiuse_wiiboard_use_alternate_report(struct wiimote_t *wm, int enabled)
+{
+    if(wm->exp.type == EXP_WII_BOARD)
+    {
+        wm->exp.wb.use_alternate_report = enabled;
+        wiiuse_set_report_type(wm);
+    }
+    else
+        printf("Alternate report can be set only on a Balance Board!\n");
+}
 
 /**
  *	@brief Try to resync with the wiimote by starting a new handshake.

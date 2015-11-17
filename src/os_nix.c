@@ -46,6 +46,7 @@
 
 #include <stdio.h>                      /* for perror */
 #include <string.h>                     /* for memset */
+#include <time.h>                       /* for clock_gettime */
 #include <sys/socket.h>                 /* for connect, socket */
 #include <sys/time.h>                   /* for struct timeval */
 #include <unistd.h>                     /* for close, write */
@@ -368,7 +369,7 @@ int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 
 		/* log the received data */
 #ifdef WITH_WIIUSE_DEBUG
-		{
+		if (buf[0] != 0x30) { /* hack for chatty Balance Boards that flood the logs with useless button reports */
 			int i;
 			printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
 			for (i = 1; i < rc; i++) {
@@ -407,6 +408,14 @@ void wiiuse_init_platform_fields(struct wiimote_t* wm) {
 void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
 	wm->out_sock = -1;
 	wm->in_sock = -1;
+}
+
+unsigned long wiiuse_os_ticks()
+{
+    struct timespec tp;
+    clock_gettime(CLOCK_REALTIME, &tp);
+    unsigned long ms = 1000 * tp.tv_sec + tp.tv_nsec / 1e6;
+    return ms;
 }
 
 

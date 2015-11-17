@@ -72,8 +72,8 @@
 #define WIIUSE_H_INCLUDED
 
 #define WIIUSE_MAJOR 0
-#define WIIUSE_MINOR 14
-#define WIIUSE_MICRO 2
+#define WIIUSE_MINOR 15
+#define WIIUSE_MICRO 0
 
 #define WIIUSE_VERSION_TRANSFORM(MAJ, MIN, MICRO) (MAJ * 1000000 + MIN * 1000 + MICRO)
 #define WIIUSE_HAS_VERSION(MAJ, MIN, MICRO) ( WIIUSE_VERSION_TRANSFORM(MAJ, MIN, MICRO) <= WIIUSE_VERSION_TRANSFORM(WIIUSE_MAJOR, WIIUSE_MINOR, WIIUSE_MICRO) )
@@ -624,6 +624,7 @@ typedef struct wii_board_t {
 	uint16_t  cbr[3]; /* /Calibration */
 	/** @} */
 	uint8_t update_calib;
+    uint8_t use_alternate_report;
 } wii_board_t;
 
 
@@ -918,6 +919,7 @@ extern "C" {
 	WIIUSE_EXPORT extern void wiiuse_resync(struct wiimote_t* wm);
 	WIIUSE_EXPORT extern void wiiuse_set_timeout(struct wiimote_t** wm, int wiimotes, byte normal_timeout, byte exp_timeout);
 	WIIUSE_EXPORT extern void wiiuse_set_accel_threshold(struct wiimote_t* wm, int threshold);
+    WIIUSE_EXPORT extern void wiiuse_wiiboard_use_alternate_report(struct wiimote_t *wm, int enabled);
 
 	/* io.c */
 	WIIUSE_EXPORT extern int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout);

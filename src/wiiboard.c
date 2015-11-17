@@ -48,23 +48,32 @@
  */
 
 int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len) {
-	byte * bufptr;
-	/* decrypt data */
-#ifdef WITH_WIIUSE_DEBUG
-	int i;
-	printf("DECRYPTED DATA WIIBOARD\n");
-	for (i = 0; i < len; ++i) {
-		if (i % 16 == 0) {
-			if (i != 0) {
-				printf("\n");
-			}
+        byte * bufptr;
 
-			printf("%X: ", 0x4a40000 + 32 + i);
-		}
-		printf("%02X ", data[i]);
-	}
-	printf("\n");
+        /*
+         * read calibration
+         */
+        wiiuse_read_data_sync(wm, 0, WM_EXP_MEM_CALIBR,  EXP_HANDSHAKE_LEN, data);
+        
+	/* decode data */
+#ifdef WITH_WIIUSE_DEBUG
+        {
+	    int i;
+	    printf("DECRYPTED DATA WIIBOARD\n");
+	    for (i = 0; i < len; ++i) {
+                if (i % 16 == 0) {
+                    if (i != 0) {
+                        printf("\n");
+                    }
+
+                    printf("%X: ", 0x4a40000 + 32 + i);
+                }
+                printf("%02X ", data[i]);
+	    }
+	    printf("\n");
+        }
 #endif
+        memset(wb, 0, sizeof(struct wii_board_t));
 
 	bufptr = data + 4;
 	wb->ctr[0] = unbuffer_big_endian_uint16_t(&bufptr);
@@ -81,6 +90,8 @@ int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data
 	wb->cbr[2] = unbuffer_big_endian_uint16_t(&bufptr);
 	wb->ctl[2] = unbuffer_big_endian_uint16_t(&bufptr);
 	wb->cbl[2] = unbuffer_big_endian_uint16_t(&bufptr);
+
+        wb->use_alternate_report = 0;
 
 	/* handshake done */
 	wm->event = WIIUSE_WII_BOARD_CTRL_INSERTED;
@@ -124,6 +135,7 @@ static float do_interpolate(uint16_t raw, uint16_t cal[3]) {
  */
 void wii_board_event(struct wii_board_t* wb, byte* msg) {
 	byte * bufPtr = msg;
+        
 	wb->rtr = unbuffer_big_endian_uint16_t(&bufPtr);
 	wb->rbr = unbuffer_big_endian_uint16_t(&bufPtr);
 	wb->rtl = unbuffer_big_endian_uint16_t(&bufPtr);
@@ -142,5 +154,6 @@ void wii_board_event(struct wii_board_t* wb, byte* msg) {
 /**
 	@todo not implemented!
 */
-void wiiuse_set_wii_board_calib(struct wiimote_t *wm) {
+void wiiuse_set_wii_board_calib(struct wiimote_t *wm) 
+{
 }

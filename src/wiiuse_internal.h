@@ -96,7 +96,6 @@
  *
  ********************/
 
-
 /** @addtogroup internal_general Internal: API for General Internal Use */
 /** @{ */
 /* Communication channels */
@@ -122,6 +121,7 @@
 #define WM_RPT_WRITE				0x22
 #define WM_RPT_BTN					0x30
 #define WM_RPT_BTN_ACC				0x31
+#define WM_RPT_BTN_EXP_8            0x32
 #define WM_RPT_BTN_ACC_IR			0x33
 #define WM_RPT_BTN_EXP				0x34
 #define WM_RPT_BTN_ACC_EXP			0x35
@@ -175,20 +175,23 @@
 #define WM_MAX_BATTERY_CODE			0xC8
 
 /* offsets in wiimote memory */
-#define WM_MEM_OFFSET_CALIBRATION	0x16
-#define WM_EXP_MEM_BASE				0x04A40000
-#define WM_EXP_ID				0x04A400FA
-#define WM_EXP_MEM_ENABLE			0x04A40040
-#define WM_EXP_MEM_ENABLE1			0x04A400F0
-#define WM_EXP_MEM_ENABLE2			0x04A400FB
-#define WM_EXP_MEM_CALIBR			0x04A40020
-#define WM_EXP_MOTION_PLUS_IDENT    0x04A600FA
-#define WM_EXP_MOTION_PLUS_ENABLE   		0x04A600FE
-#define WM_EXP_MOTION_PLUS_INIT     0x04A600F0
-#define WM_REG_IR				0x04B00030
-#define WM_REG_IR_BLOCK1			0x04B00000
-#define WM_REG_IR_BLOCK2			0x04B0001A
-#define WM_REG_IR_MODENUM			0x04B00033
+#define WM_MEM_OFFSET_CALIBRATION               0x16
+#define WM_EXP_MEM_BASE                         0x04A40000
+#define WM_EXP_ID                               0x04A400FA
+#define WM_EXP_MEM_ENABLE                       0x04A40040
+#define WM_EXP_MEM_ENABLE1                      0x04A400F0
+#define WM_EXP_MEM_ENABLE2                      0x04A400FB
+#define WM_EXP_MEM_CALIBR                       0x04A40020
+#define WM_EXP_MOTION_PLUS_IDENT                0x04A600FA
+#define WM_EXP_MOTION_PLUS_ENABLE               0x04A600FE
+#define WM_EXP_MOTION_PLUS_INIT                 0x04A600F0
+#define WM_REG_IR                               0x04B00030
+#define WM_REG_IR_BLOCK1                        0x04B00000
+#define WM_REG_IR_BLOCK2                        0x04B0001A
+#define WM_REG_IR_MODENUM                       0x04B00033
+
+/* unknown Wii Balance Board offsets used for init */
+#define WM_EXP_BBOARD_INIT1                     0x04A400F1
 
 
 #define WM_IR_TYPE_BASIC			0x01
@@ -269,6 +272,8 @@
 
 #define SMOOTH_ROLL						0x01
 #define SMOOTH_PITCH					0x02
+
+#define WIIUSE_READ_TIMEOUT   5000
 
 /** @} */
 #include "wiiuse.h"
