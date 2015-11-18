@@ -96,11 +96,11 @@ void calculate_orientation(struct accel_t* ac, struct vec3b_t* accel, struct ori
 	/* 
         If it is over 1g then it is probably accelerating and not reliable 
         Formulas from: http://husstechlabs.com/projects/atb1/using-the-accelerometer/
-    */
+    */    
 
 	if (abs(accel->x - ac->cal_zero.x) <= ac->cal_g.x) {
 		/* roll */
-		float roll = RAD_TO_DEGREE(atan2f(x, sqrtf(y*y + z*z)));
+		float roll = RAD_TO_DEGREE(atan2f(x, z));
 
 		orient->roll = roll;
 		orient->a_roll = roll;
