@@ -36,6 +36,7 @@ elseif(APPLE)
 		os_mac/os_mac_find.m)
 	set(MAC_SOURCES
 		os_mac/os_mac.h
+		os_mac/os_mac.c
 		${MAC_OBJC_SOURCES})
 	list(APPEND SOURCES ${MAC_SOURCES})
 	# make sure we use the gcc for Objective-C files as well so that the
