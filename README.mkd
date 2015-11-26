@@ -58,6 +58,7 @@ Additional Contributors:
 - Gabriele Randelli and the WiiC project <http://wiic.sourceforge.net/>
 - Juan Sebastian Casallas <https://github.com/jscasallas/wiiuse>
 - Lysann Schlegel <https://github.com/lysannkessler/wiiuse>
+- Thomas Geissl <https://github.com/thomasgeissl>
 
 
 License
