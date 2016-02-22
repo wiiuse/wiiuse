@@ -44,8 +44,10 @@ set(WINHID_ROOT_DIR
 
 if(CMAKE_SIZEOF_VOID_P MATCHES "8")
 	set(_arch amd64)
+	set(_arch2 x64)
 else()
 	set(_arch i386)
+	set(_arch2 x86)
 endif()
 
 if(MSVC)
@@ -54,8 +56,12 @@ if(MSVC)
 	prefix_list_glob(_prefixed
 		"*/"
 		"$ENV{SYSTEMDRIVE}/WinDDK/"
-		"c:/WinDDK/")
+		"c:/WinDDK/"
+		"$ENV{SYSTEMDRIVE}/Program Files (x86)/Windows Kits/8.1"
+		"c:/Program Files (x86)/Windows Kits/8.1")
+
 	clean_directory_list(_prefixed)
+
 	find_library(WINHID_LIBRARY
 		NAMES
 		hid
@@ -69,26 +75,31 @@ if(MSVC)
 		"lib/wnet/${_arch}" # Win Server 2003 min requirement
 		"lib/wlh/${_arch}" # Win Vista ("Long Horn") min requirement
 		"lib/win7/${_arch}" # Win 7 min requirement
+		"lib/winv6.3/um/${_arch2}" # Win 8.1
 		)
 		# Might want to look close to the library first for the includes.
 	get_filename_component(_libdir "${WINHID_LIBRARY}" PATH)
 	get_filename_component(_basedir "${_libdir}/../../.." ABSOLUTE)
+	get_filename_component(_basedir2 "${_libdir}/../../../.." ABSOLUTE)
 
 	find_path(WINHID_CRT_INCLUDE_DIR # otherwise you get weird compile errors
 		NAMES
 		stdio.h
 		HINTS
 		"${_basedir}"
+		"${_basedir2}"
 		PATHS
 		"${WINHID_ROOT_DIR}"
 		PATH_SUFFIXES
 		inc/crt
 		NO_DEFAULT_PATH)
+
 	find_path(WINHID_INCLUDE_DIR
 		NAMES
 		hidsdi.h
 		HINTS
 		"${_basedir}"
+		"${_basedir2}"
 		PATHS
 		"${WINHID_ROOT_DIR}"
 		PATH_SUFFIXES
@@ -96,7 +107,15 @@ if(MSVC)
 		inc/api
 		inc/w2k
 		inc/wxp
-		inc/wnet)
+		inc/wnet
+		Include/shared
+	)
+
+	# kludge to set the value to something sensible for Win8.1 kit which doesn't
+	# have stdio.h :(
+	if(NOT ${WINHID_CRT_INCLUDE_DIR})
+		set(WINHID_CRT_INCLUDE_DIR ${WINHID_INCLUDE_DIR})
+	endif()
 else()
 	find_library(WINHID_LIBRARY
 		NAMES
@@ -107,6 +126,7 @@ else()
 		PATH_SUFFIXES
 		lib
 		lib/w32api)
+
 	find_path(WINHID_INCLUDE_DIR
 		NAMES
 		hidsdi.h
@@ -146,7 +166,7 @@ if(WINHID_FOUND)
 			endif()
 			set(WINHID_MIN_WINDOWS_VER "${_winreq}" CACHE INTERNAL "" FORCE)
 		endif()
-		
+
 		set(WINHID_INCLUDE_DIRS
 			"${WINHID_CRT_INCLUDE_DIR}"
 			"${WINHID_INCLUDE_DIR}")
