@@ -55,7 +55,7 @@ add_definitions(-DWIIUSE_COMPILE_LIB)
 add_library(wiiuse ${WIIUSE_LIB_TYPE} ${SOURCES} ${API})
 
 if(WIN32)
-	target_link_libraries(wiiuse ws2_32 setupapi ${WINHID_LIBRARIES})
+	target_link_libraries(wiiuse ws2_32 setupapi hid)
 elseif(LINUX)
 	target_link_libraries(wiiuse m rt ${BLUEZ_LIBRARIES})
 elseif(APPLE)
