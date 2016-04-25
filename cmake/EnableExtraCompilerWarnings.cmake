@@ -50,9 +50,14 @@ macro(_enable_extra_compiler_warnings_flags)
 			set(_flags "${_flags} -Wextra")
 		endif()
 
-		check_cxx_compiler_flag(-Weffc++ SUPPORTS_WEFFCXX_FLAG)
-		if(SUPPORTS_WEFFCXX_FLAG)
-			set(_flags "${_flags} -Weffc++")
+		if(SUPPORTS_WALL_FLAG)
+			# At least GCC includes -Wmaybe-uninitialized in -Wall, which
+			# unneccesarily whines about boost::optional (by it's nature
+			# it's a "maybe" warning - prone to noisy false-positives)
+			check_cxx_compiler_flag(-Wno-maybe-uninitialized SUPPORTS_WNO_MAYBE_UNINITIALIZED_FLAG)
+			if(SUPPORTS_WNO_MAYBE_UNINITIALIZED_FLAG)
+				set(_flags "${_flags} -Wno-maybe-uninitialized")
+			endif()
 		endif()
 	endif()
 endmacro()
