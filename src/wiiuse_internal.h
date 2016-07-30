@@ -167,9 +167,9 @@
 	#define WM_PLUS_DEV_CLASS_1			0x05
 	#define WM_PLUS_DEV_CLASS_2			0x00
 #endif
-#define WM_VENDOR_ID				0x057E
-#define WM_PRODUCT_ID				0x0306	// Regular wiimote
-#define WM_PLUS_PRODUCT_ID			0x0330	// For the newer RVL-CNT-01-TR (MotionPlus Inside)
+#define WM_VENDOR_ID				    0x057E
+#define WM_PRODUCT_ID				    0x0306	// Regular wiimote
+#define WM_PRODUCT_ID_TR		        0x0330  // RVL-CNT-01-TR Wiimote (with MotionPlus built-in)
 
 /* controller status stuff */
 #define WM_MAX_BATTERY_CODE			0xC8
