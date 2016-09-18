@@ -3,6 +3,6 @@ set -ev
 
 mkdir -p build
 cd build
-cmake -DCMAKE_VERBOSE_MAKEFILE=ON ..
+cmake ..
 make
 #make install
