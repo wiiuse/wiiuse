@@ -42,7 +42,7 @@ button on the web interface should make this even simpler.
 Authors
 -------
 
-Fork Maintainer: Ryan Pavlik <rpavlik@iastate.edu> or <abiryan@ryand.net>
+Mostly-absentee (but delegating!) Fork Maintainer: Ryan Pavlik <ryan.pavlik@gmail.com> or <abiryan@ryand.net>
 
 Original Author: Michael Laforest < para > < thepara (--AT--) g m a i l [--DOT--] com >
 
