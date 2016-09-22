@@ -11,7 +11,7 @@ Mailing list: <wiiuse@librelist.com> - just email to subscribe. See
 
 Changelog: <https://github.com/rpavlik/wiiuse/blob/master/CHANGELOG.mkd>
 
-[![Build Status](https://travis-ci.org/janoc/wiiuse.svg?branch=master)](https://travis-ci.org/janoc/master)
+[![Build Status](https://travis-ci.org/rpavlik/wiiuse.svg?branch=master)](https://travis-ci.org/rpavlik/master)
 
 About
 -----
