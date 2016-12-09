@@ -88,7 +88,7 @@ for the Nintendo Wii remote with their third party application.
 
 Platforms and Dependencies
 --------------------------
-Wiiuse currently operates on both Linux and Windows. You will need:
+Wiiuse currently operates on Linux, Windows and Mac. You will need:
 
 ### For Linux: ###
 
@@ -112,7 +112,7 @@ Wiiuse currently operates on both Linux and Windows. You will need:
 - Mac OS X 10.2 or newer (to have the Mac OS X Bluetooth protocol stack)
 
 
-### For either platform: ###
+### For any platform: ###
 
 - If compiling, [CMake](http://cmake.org) is needed to generate a makefile/project
 
@@ -127,7 +127,7 @@ You need SDL and OpenGL installed to compile the (optional) SDL example.
 
 	$ cd build
 
-	$ ccmake .. [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DCMAKE_BUILD_TYPE=Release]
+	$ ccmake .. [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DCMAKE_BUILD_TYPE=Release] [-DBUILD_EXAMPLE_SDL=NO]
 
 	OR
 
@@ -193,10 +193,16 @@ and calibration takes some time.
 
 ### Mac OS X
 
-Sometimes you may not be able to connect to the device, even if it is discoverable.
-If that happens open the Bluetooth Preferences, select the Nintendo device on the
-list and remove it (by clicking on the minus sign). Close the Preference Pane and
-try again.
+Wiiuse can only connect to a device if it is in discoverable mode. Enable discoverable
+mode by pressing the button on the inside of the battery cover.
+
+Wiiuse may not be able to connect to the device if it has been paired to the
+operating system. Unpair it by opening Bluetooth Preferences (Apple > System
+Preferences > Bluetooth), selecting the device (e.g., "Nintentdo RVL-CNT-01"), and
+pressing the X next to the device (alternatively: right-click and select "Remove"). It is
+not enough to simply disconnect it.
+
+Enable discoverable mode and try again.
 
 Acknowledgements by Michael Laforest
 ------------------------------------
