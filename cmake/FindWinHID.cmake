@@ -44,6 +44,7 @@ set(WINHID_ROOT_DIR
 	PATH
 	"Directory to search")
 
+
 set(_deps_check)
 set(_need_crt_dir)
 if(MSVC)
@@ -71,8 +72,12 @@ if(MSVC)
 		"*/"
 		"$ENV{SYSTEMDRIVE}/WinDDK/"
 		"$ENV{ProgramFiles}/Windows Kits/"
-		"c:/WinDDK/")
+		"c:/WinDDK/"
+		"$ENV{SYSTEMDRIVE}/Program Files (x86)/Windows Kits/8.1"
+		"c:/Program Files (x86)/Windows Kits/8.1")
+
 	clean_directory_list(_prefixed)
+
 	find_library(WINHID_LIBRARY
 		NAMES
 		hid
@@ -91,6 +96,7 @@ if(MSVC)
 		"lib/win7/um/${_arch8}" # Win 7 min requirement
 		"lib/win8/${_arch}" # Win 8 min requirement
 		"lib/win8/um/${_arch8}" # Win 8 min requirement
+		"lib/winv6.3/um/${_arch8}" # Win 8.1
 		)
 	# Might want to look close to the library first for the includes.
 	if(WINHID_LIBRARY)
@@ -100,13 +106,19 @@ if(MSVC)
 			set(WINHID_LIBRARY_FROM_WINDOWSSDK ON)
 			get_windowssdk_include_dirs(${_USED_WINSDK} WINHID_INCLUDE_HINTS)
 		endif()
+		get_filename_component(_basedir "${WINHID_LIBRARY_DIR}/../../.." ABSOLUTE)
+		get_filename_component(_basedir2 "${WINHID_LIBRARY_DIR}/../../../.." ABSOLUTE)
 	endif()
+		
+
 
 	find_library(WINHID_SETUPAPI_LIBRARY
 		NAMES
 		setupapi
 		HINTS
 		"${WINHID_LIBRARY_DIR}"
+		"${_basedir}"
+		"${_basedir2}"
 		PATHS
 		"${WINHID_ROOT_DIR}"
 		${WINSDK_LIBDIRS}
@@ -148,11 +160,14 @@ if(MSVC)
 			set(_need_crt_dir ON)
 		endif()
 	endif()
+	
 	find_path(WINHID_INCLUDE_DIR
 		NAMES
 		hidsdi.h
 		HINTS
 		${WINHID_INCLUDE_HINTS}
+		"${_basedir}"
+		"${_basedir2}"
 		PATHS
 		"${WINHID_ROOT_DIR}"
 		PATH_SUFFIXES
@@ -166,7 +181,6 @@ else()
 	# This is the non-MSVC path.
 	if(MINGW)
 		include(MinGWSearchPathExtras)
-
 		find_library(WINHID_LIBRARY
 			NAMES
 			libhid
@@ -209,6 +223,13 @@ else()
 			lib
 			lib/w32api)
 	endif()
+	
+	# kludge to set the value to something sensible for Win8.1 kit which doesn't
+	# have stdio.h :(
+	if(NOT ${WINHID_CRT_INCLUDE_DIR})
+		set(WINHID_CRT_INCLUDE_DIR ${WINHID_INCLUDE_DIR})
+	endif()
+	
 	find_path(WINHID_INCLUDE_DIR
 		NAMES
 		hidsdi.h

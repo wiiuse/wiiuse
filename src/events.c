@@ -640,7 +640,7 @@ static void handle_expansion(struct wiimote_t* wm, byte* msg) {
  *	a handshake with the expansion.
  */
 void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
-    int id;
+    uint32_t id;
     byte val = 0;
     byte buf = 0x00;
     byte* handshake_buf;
@@ -662,7 +662,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
          * phase 1 - write 0x55 0x00 to init expansion without encryption
          */
 
-        wm->expansion_state = 1;        
+        wm->expansion_state = 1;
 #ifdef WIIUSE_WIN32
         /* increase the timeout until the handshake completes */
         WIIUSE_DEBUG("write 0x55 - Setting timeout to expansion %i ms.", wm->exp_timeout);
@@ -670,7 +670,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 #endif
         buf = 0x55;
         wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &buf, 1);
-        
+
 #ifdef WIIUSE_WIN32
         /* increase the timeout until the handshake completes */
         WIIUSE_DEBUG("write 0x00 - Setting timeout to expansion %i ms.", wm->exp_timeout);
@@ -678,8 +678,8 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
 #endif
         buf = 0x00;
         wiiuse_write_data(wm, WM_EXP_MEM_ENABLE2, &buf, 1);
-        wiiuse_millisleep(500); /* delay to let the wiimote time to react, makes the handshake more reliable */            
-        
+        wiiuse_millisleep(500); /* delay to let the wiimote time to react, makes the handshake more reliable */
+
         /*
          * phase 2 - get expansion ID & calibration data
          */
@@ -687,7 +687,7 @@ void handshake_expansion(struct wiimote_t* wm, byte* data, uint16_t len) {
         if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_EXP))
             disable_expansion(wm);
 
-        handshake_buf = malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
+        handshake_buf = (byte *) malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
         /* tell the wiimote to send expansion data */
         WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_EXP);
         wiiuse_read_data_sync(wm, 0, WM_EXP_MEM_CALIBR,  EXP_HANDSHAKE_LEN, handshake_buf);

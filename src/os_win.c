@@ -115,7 +115,8 @@ int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 		attr.Size = sizeof(attr);
 		i = HidD_GetAttributes(dev, &attr);
 
-		if ((attr.VendorID == WM_VENDOR_ID) && (attr.ProductID == WM_PRODUCT_ID || attr.ProductID == WM_PLUS_PRODUCT_ID)) {
+		if ((attr.VendorID == WM_VENDOR_ID) && ((attr.ProductID == WM_PRODUCT_ID) || (attr.ProductID == WM_PRODUCT_ID_TR)))
+		{
 			/* this is a wiimote */
 			wm[found]->dev_handle = dev;
 
