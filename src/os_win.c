@@ -120,7 +120,7 @@ int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
 			/* this is a wiimote */
 			wm[found]->dev_handle = dev;
 
-			if(attr.ProductID == WM_PLUS_PRODUCT_ID)
+			if(attr.ProductID == WM_PRODUCT_ID_TR)
 				wm[found]->type = WIIUSE_WIIMOTE_MOTION_PLUS_INSIDE;
 
 			wm[found]->hid_overlap.hEvent = CreateEvent(NULL, 1, 1, "");
