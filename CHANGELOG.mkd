@@ -9,8 +9,11 @@ Original project:
 - <http://wiiuse.sourceforge.net/>
 - <http://sourceforge.net/projects/wiiuse/>
 
-v0.15 -- ???
-------------
+v0.15 -- 20-Nov-2018
+--------------------
+
+**Roll-up release of accumulated changes - library has been "stable" now
+for some time**
 
 Added:
 
