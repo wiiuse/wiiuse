@@ -5,6 +5,7 @@
 #
 # Non-cache variables you might use in your CMakeLists.txt:
 #  CPPCHECK_FOUND
+#  CPPCHECK_VERSION
 #  CPPCHECK_POSSIBLEERROR_ARG
 #  CPPCHECK_UNUSEDFUNC_ARG
 #  CPPCHECK_STYLE_ARG
@@ -107,7 +108,7 @@ if(CPPCHECK_EXECUTABLE)
 	if("${CPPCHECK_STYLE_ARG}" STREQUAL "--enable=style")
 
 		_cppcheck_set_arg_var(CPPCHECK_UNUSEDFUNC_ARG
-			"--enable=unusedFunctions")
+			"--enable=unusedFunction")
 		_cppcheck_set_arg_var(CPPCHECK_INFORMATION_ARG "--enable=information")
 		_cppcheck_set_arg_var(CPPCHECK_MISSINGINCLUDE_ARG
 			"--enable=missingInclude")
@@ -148,6 +149,11 @@ endif()
 
 set(CPPCHECK_ALL
 	"${CPPCHECK_EXECUTABLE} ${CPPCHECK_POSSIBLEERROR_ARG} ${CPPCHECK_UNUSEDFUNC_ARG} ${CPPCHECK_STYLE_ARG} ${CPPCHECK_QUIET_ARG} ${CPPCHECK_INCLUDEPATH_ARG} some/include/path")
+
+execute_process(COMMAND "${CPPCHECK_EXECUTABLE}" --version
+  OUTPUT_VARIABLE CPPCHECK_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REGEX REPLACE ".* ([0-9]\\.([0-9]\\.[0-9])?)" "\\1"
+    CPPCHECK_VERSION "${CPPCHECK_VERSION}")
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(cppcheck
