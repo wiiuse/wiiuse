@@ -1,7 +1,7 @@
 WiiUse Changelog
 ================
 
-Fork, located at <http://github.com/rpavlik/wiiuse>
+Fork, located at <http://github.com/wiiuse/wiiuse>
 
 Original project:
 
@@ -41,6 +41,8 @@ Fixed:
 - Improved reliability on Windows when running an app twice without dis-connecting
 	the Wiimote (came as a part of the MotionPlus support.)
 
+- Build system fixes.
+
 Changed:
 
 - Improved header includes using feedback from (include-what-you-use)[iwyu]
@@ -52,10 +54,15 @@ Changed:
 	a jumble of function-style macros and raw type punning. This should
 	fix all aliasing warnings.
 
+- Cleaned up README and CHANGELOG.
+
+- Migrated repo to its own organization on GitHUb.
+
 [iwyu]:http://code.google.com/p/include-what-you-use/
 
 v0.14 -- 2 May 2011
 -------------------
+
 Added:
 
 - Support for redirecting or disabling messages: function
@@ -92,9 +99,9 @@ Changed:
 - Renamed bundled workaround stdint.h header for Visual Studio,	which
 	we still have to use on MSVC 2010 for some unknown reason. (rp)
 
-
 v0.13.1 -- 11 November 2010
 ---------------------------
+
 Fixed:
 
 - Fix crashers due to unchecked pointer use.
@@ -103,7 +110,9 @@ Fixed:
 
 v0.13 -- 11 November 2010
 -------------------------
+
 Added:
+
 - Support for Wii Balance Board ("wiiboard"): your code can
 	`#ifdef EXP_WII_BOARD` (support based in part on code from TU-Delft)
 
@@ -132,6 +141,7 @@ Changed:
 
 v0.12 -- 2 Apr 2008
 -------------------
+
 Added:
 
 - API function `wiiuse_set_ir_sensitivity()`
@@ -191,6 +201,7 @@ Fixed:
 
 v0.10 -- 11 Feb 2008
 --------------------
+
 Added:
 
 - Real dynamic linking (by noisehole)
@@ -237,6 +248,7 @@ Removed:
 
 v0.9 -- 3 Nov 2007
 ------------------
+
 Fixed:
 
 - Can now use `include/wiiuse.h` in C++ projects.
@@ -247,6 +259,7 @@ Fixed:
 
 v0.8 -- 27 Oct 2007
 -------------------
+
 Changed:
 
 - Bumped API version to 8
@@ -266,6 +279,7 @@ Fixed:
 
 v0.7 -- 19 Oct 2007
 -------------------
+
 Changed:
 
 - Bumped API version to 7
@@ -294,6 +308,7 @@ Fixed:
 
 v0.6 -- 16 Oct 2007
 -------------------
+
 Changed:
 
 - Bumped API version to 0.6.
@@ -310,6 +325,7 @@ Added:
 
 v0.5 -- 13 Oct 2007
 -------------------
+
 Changed:
 
 - Bumped API version to 0.5.
@@ -328,6 +344,7 @@ Fixed:
 
 v0.4 -- 08 Oct 2007
 -------------------
+
 Changed:
 
 - Bumped API version to 0.4.
@@ -365,9 +382,9 @@ Fixed:
 
 - Sometimes classic controller would only report infinite angle and magnitude for joysticks.
 
-
 v0.3 -- 10 Sept 2007
 --------------------
+
 Changed:
 
 - Moved license to GPLv3.
@@ -394,6 +411,7 @@ Fixed:
 
 v0.2 -- 25 Aug 2007
 -------------------
+
 Changed:
 
 - Bumped API version to 0.2.

@@ -1,20 +1,24 @@
-WiiUse README
-=============
+# WiiUse README
 
-Semi-Official Fork, located at <http://github.com/rpavlik/wiiuse>
+Semi-Official Fork, located at <http://github.com/wiiuse/wiiuse>
 
-Issue/bug tracker: <https://github.com/rpavlik/wiiuse/issues>
+Issue/bug tracker: <https://github.com/wiiuse/wiiuse/issues>
 
 Mailing list: <wiiuse@librelist.com> - just email to subscribe. See
 <http://librelist.com/browser/wiiuse/> for archives and
 <http://librelist.com/> for more information.
 
-Changelog: <https://github.com/rpavlik/wiiuse/blob/master/CHANGELOG.mkd>
+Changelog: <https://github.com/wiiuse/wiiuse/blob/master/CHANGELOG.mkd>
 
-[![Build Status](https://travis-ci.org/rpavlik/wiiuse.svg?branch=master)](https://travis-ci.org/rpavlik/master)
+[![Build Status](https://travis-ci.com/wiiuse/wiiuse.svg?branch=master)](https://travis-ci.com/wiiuse/wiiuse/master)
 
-About
------
+**NOTE**: This library sees little change not because it is dead,
+but because it is effectively "complete".
+That being said, if you think there are changes that it could use,
+and are willing to step up to assist with maintenance,
+please file an issue.
+
+## About
 
 Wiiuse is a library written in C that connects with several Nintendo
 Wii remotes. Supports motion sensing, IR tracking, nunchuk, classic
@@ -38,9 +42,7 @@ button on the web interface should make this even simpler.
 
 [1]: http://graphics.tudelft.nl/Projects/WiiBalanceBoard
 
-
-Authors
--------
+## Authors
 
 Mostly-absentee (but delegating!) Fork Maintainer: Ryan Pavlik <ryan.pavlik@gmail.com> or <abiryan@ryand.net>
 
@@ -62,113 +64,92 @@ Additional Contributors:
 - Lysann Schlegel <https://github.com/lysannkessler/wiiuse>
 - Thomas Geissl <https://github.com/thomasgeissl>
 
+## License
 
-License
--------
+> This program is free software: you can redistribute it and/or modify
+> it under the terms of the GNU General Public License as published by
+> the Free Software Foundation, either version 3 of the License, or
+> (at your option) any later version.
+>
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
+>
+> You should have received a copy of the GNU General Public License
+> along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+## Audience
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Audience
---------
 This project is intended for developers who wish to include support
 for the Nintendo Wii remote with their third party application.
 
+## Platforms and Dependencies
 
-Platforms and Dependencies
---------------------------
 Wiiuse currently operates on Linux, Windows and Mac. You will need:
 
-### For Linux: ###
+### For Linux
 
 - The kernel must support bluetooth
-
 - The BlueZ bluetooth drivers must be installed
-
 - If compiling, you'll need the BlueZ dev files (Debian/Ubuntu package
-	libbluetooth-dev)
+  `libbluetooth-dev`)
 
-
-### For Windows: ###
+### For Windows
 
 - Bluetooth driver (tested with Microsoft's stack with Windows XP SP2)
 
 - If compiling, Microsoft Windows Driver Development Kit (DDK)
 
-
-### For Mac: ###
+### For Mac
 
 - Mac OS X 10.2 or newer (to have the Mac OS X Bluetooth protocol stack)
 
-
-### For any platform: ###
+### For all platforms
 
 - If compiling, [CMake](http://cmake.org) is needed to generate a makefile/project
 
+## Compiling
 
-Compiling
----------
 You need SDL and OpenGL installed to compile the (optional) SDL example.
 
-### Linux & Mac: ###
+### Linux & Mac
 
-	$ mkdir build
+    mkdir build
+    cd build
+    ccmake .. [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DCMAKE_BUILD_TYPE=Release] [-DBUILD_EXAMPLE_SDL=NO]
 
-	$ cd build
+OR
 
-	$ ccmake .. [-DCMAKE_INSTALL_PREFIX=/usr/local] [-DCMAKE_BUILD_TYPE=Release] [-DBUILD_EXAMPLE_SDL=NO]
-
-	OR
-
-	$ cmake-gui ..
-
-	$ make [target]
+    cmake-gui ..
+    make [target]
 
 If `target` is omitted then everything is compiled.
 
 Where `target` can be any of the following:
 
 - *wiiuse* - Compiles `libwiiuse.so`
-
 - *wiiuseexample* - Compiles `wiiuse-example`
-
 - *wiiuseexample-sdl* - Compiles `wiiuse-sdl`
-
 - *doc* - Generates doxygen-based API documentation in HTML and PDF
-	format in `docs-generated`
+  format in `docs-generated`
 
-Become root.
+For a system-wide install, become root (or run with `sudo`) and:
 
-	# make install
+    make install
 
-`libwiiuse.so` is installed to `CMAKE_INSTALL_PREFIX/lib`
-`wiiuse-example` and `wiiuse-sdl` are installed to `CMAKE_INSTALL_PREFIX/bin`
+- `libwiiuse.so` is installed to `CMAKE_INSTALL_PREFIX/lib`
+- `wiiuse-example` and `wiiuse-sdl` are installed to `CMAKE_INSTALL_PREFIX/bin`
 
-
-### Windows: ###
+### Windows
 
 The CMake GUI can be used to generate a Visual Studio solution.
 
-You need the install the Windows DDK (driver development kit) to compile
-wiiuse. You can download this from here:
-<http://www.microsoft.com/whdc/devtools/ddk/default.mspx>
+You may need to install the Windows SDK (in recent versions) or
+DDK (driver development kit - for old Windows SDK only) to compile
+wiiuse.
 
-You might also need to install the latest Windows SDK.
-
-
-Using the Library
------------------
+## Using the Library
 
 To use the library in your own program you must first compile wiiuse as
 a module. Include `include/wiiuse.h` in any file that uses wiiuse.
@@ -177,19 +158,16 @@ For Linux you must link `libwiiuse.so` ( `-lwiiuse` ). For Windows you
 must link `wiiuse.lib`. When your program runs it will need
 `wiiuse.dll`.
 
-
-Known Issues
-------------
+## Known Issues
 
 On Windows using more than one wiimote (usually more than two wiimotes)
 may cause significant latency.
 
-If you are going to use Motion+, make sure to call wiiuse_poll or wiiuse_update
-in a loop for some 10-15 seconds before enabling it. Ideally you should be checking 
-the status of any expansion (nunchuk) you may have connected as well. 
-Otherwise the extra expansion may not initialize correctly - the initialization 
+If you are going to use Motion+, make sure to call `wiiuse_poll` or `wiiuse_update`
+in a loop for some 10-15 seconds before enabling it. Ideally you should be checking
+the status of any expansion (nunchuk) you may have connected as well.
+Otherwise the extra expansion may not initialize correctly - the initialization
 and calibration takes some time.
-
 
 ### Mac OS X
 
@@ -198,14 +176,14 @@ mode by pressing the button on the inside of the battery cover.
 
 Wiiuse may not be able to connect to the device if it has been paired to the
 operating system. Unpair it by opening Bluetooth Preferences (Apple > System
-Preferences > Bluetooth), selecting the device (e.g., "Nintentdo RVL-CNT-01"), and
+Preferences > Bluetooth), selecting the device (e.g., "Nintendo RVL-CNT-01"), and
 pressing the X next to the device (alternatively: right-click and select "Remove"). It is
 not enough to simply disconnect it.
 
 Enable discoverable mode and try again.
 
-Acknowledgements by Michael Laforest
-------------------------------------
+## Acknowledgements by Michael Laforest (Original Author)
+
 <http://wiibrew.org/>
 
 > This site and their users have contributed an immense amount of
@@ -223,8 +201,8 @@ BlueZ
 
 Thanks to Brent for letting me borrow his Guitar Hero 3 controller.
 
-Known Forks/Derivative Versions
--------------------------------
+## Known Forks/Derivative Versions
+
 The last "old upstream" version of WiiUse was 0.12. A number of projects
 forked or embedded that version or earlier, making their own improvements.
 A (probably incomplete) list follows, split between those whose improvements
@@ -234,82 +212,56 @@ goal is to integrate all appropriate improvements (under the GPL 3+) back
 into this mainline community-maintained "master fork" - contributions are
 greatly appreciated.
 
-### Forks that have been fully integrated: ###
+### Forks that have been fully integrated
+
 - [TU Delft's version with Balance Board support](http://graphics.tudelft.nl/Projects/WiiBalanceBoard)
+  - Added balance board support only.
+  - Integrated into mainline 0.13.
 
-	- Added balance board support only.
+### Forks not yet fully integrated
 
-	- Integrated into mainline 0.13.
-
-### Forks not yet fully integrated: ###
 - [libogc/WPAD/DevKitPro](http://wiibrew.org/wiki/Libogc)
-
-	- Started before the disappearance of the original upstream
-
-	- Focused on Wiimote use with Wii hardware
-
-	- Functions renamed, copyright statements removed
-
-	- Additional functionality unknown?
-
-	- git-svn mirror found here: <https://github.com/xloem/libogc-wiiuse>
-
+  - Started before the disappearance of the original upstream
+  - Focused on Wiimote use with Wii hardware
+  - Functions renamed, copyright statements removed
+  - Additional functionality unknown?
+  - git-svn mirror found here: <https://github.com/xloem/libogc-wiiuse>
 - [fwiine](http://sourceforge.net/projects/fwiine/files/wiiuse/0.13/)
-
-	- Created an 0.13 version with some very preliminary MotionPlus support.
-
-	- Integrated into branch `fwiine-motionplus`, not yet merged pending
-		alternate MotionPlus merge from WiiC by Jan Ciger.
-
+  - Created an 0.13 version with some very preliminary MotionPlus support.
+  - Integrated into branch `fwiine-motionplus`, not yet merged pending
+    alternate MotionPlus merge from WiiC by Jan Ciger.
 - [DolphinEmu](http://code.google.com/p/dolphin-emu/source/checkout)
-
-	- Embedded, converted to C++, drastically changed over time and
-		mostly unrecognizable now.
-
-	- A mostly intact version is here:
-		<http://code.google.com/p/dolphin-emu/source/browse/?name=2.0#git%2FExternals%2FWiiUseSrc%2FSrc>
-
-	- Added Mac support
-
-	- Added code to handle finding and pairing wiimotes on windows, see:
-		<http://code.google.com/p/dolphin-emu/source/browse/Source/Core/Core/Src/HW/WiimoteReal/IOWin.cpp>
-
-	- Fully modified version of the IO code is here:
-		<http://code.google.com/p/dolphin-emu/source/browse/#git%2FSource%2FCore%2FCore%2FSrc%2FHW%2FWiimoteReal>
-
+  - Embedded, converted to C++, drastically changed over time and
+    mostly unrecognizable now.
+  - A mostly intact version is here:
+    <http://code.google.com/p/dolphin-emu/source/browse/?name=2.0#git%2FExternals%2FWiiUseSrc%2FSrc>
+  - Added Mac support
+  - Added code to handle finding and pairing wiimotes on windows, see:
+    <http://code.google.com/p/dolphin-emu/source/browse/Source/Core/Core/Src/HW/WiimoteReal/IOWin.cpp>
+  - Fully modified version of the IO code is here:
+    <http://code.google.com/p/dolphin-emu/source/browse/#git%2FSource%2FCore%2FCore%2FSrc%2FHW%2FWiimoteReal>
 - [paulburton on github](https://github.com/paulburton/wiiuse)
-
-	- Added balance board support - skipped in favor of the TU Delft version.
-
-	- Added static library support - not yet added to the mainline.
-
+  - Added balance board support - skipped in favor of the TU Delft version.
+  - Added static library support - not yet added to the mainline.
 - [KzMz on github)](https://github.com/KzMz/wiiuse_fork)
-
-	- Started work on speaker support.
-
+  - Started work on speaker support.
 - [WiiC](http://wiic.sourceforge.net/)
-
-	- Dramatically changed, C++ API added.
-
-	- MotionPlus support added.
- 
-	- Added Mac support. 
-
+  - Dramatically changed, C++ API added.
+  - MotionPlus support added.
+  - Added Mac support.
 - DolphinEmu PPA: used to have a WiiUse 0.13
+  - Added Mac support.
+  - Unknown other changes - not yet investigated.
+  - Source package zipped up and available here:
+    <https://github.com/wiiuse/wiiuse/downloads>
 
-	- Added Mac support.
+## Other Links
 
-	- Unknown other changes - not yet investigated.
-
-	- Source package zipped up and available here:
-		<https://github.com/rpavlik/wiiuse/downloads>
-
-Other Links
------------
 - Thread about MotionPlus: <http://forum.wiibrew.org/read.php?11,32585,32922>
 
 Original project:
+
 - SourceForge page: <http://sourceforge.net/projects/wiiuse/>
 - Archived pages of the original project:
-  - http://web.archive.org/web/*/http://wiiuse.net/
-  - http://web.archive.org/web/*/http://wiiuse.sourceforge.net/
+  - <http://web.archive.org/web/*/http://wiiuse.net/>
+  - <http://web.archive.org/web/*/http://wiiuse.sourceforge.net/>
