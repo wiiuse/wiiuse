@@ -1,3 +1,7 @@
+if(NOT MSVC)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+endif()
+
 set(SOURCES
 	classic.c
 	dynamics.c
