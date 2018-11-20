@@ -62,6 +62,7 @@ Additional Contributors:
 - Gabriele Randelli and the WiiC project <http://wiic.sourceforge.net/>
 - Juan Sebastian Casallas <https://github.com/jscasallas/wiiuse>
 - Lysann Schlegel <https://github.com/lysannkessler/wiiuse>
+- Franklin Ta <https://github.com/fta2012>
 - Thomas Geissl <https://github.com/thomasgeissl>
 - Mattes D <https://github.com/madmaxoft>
 - Chadwick Boulay <https://github.com/cboulay>
