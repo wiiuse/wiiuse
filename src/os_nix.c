@@ -344,7 +344,6 @@ int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
 
 int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
 	int rc;
-	int i;
 
 	rc = read(wm->in_sock, buf, len);
 
