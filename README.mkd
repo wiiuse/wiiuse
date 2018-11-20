@@ -50,6 +50,7 @@ Original Author: Michael Laforest < para > < thepara (--AT--) g m a i l [--DOT--
 
 Additional Contributors:
 
+- Jan Ciger - Reviatech SAS <https://github.com/janoc> <jan.ciger@reviatech.com>
 - dhewg
 - Christopher Sawczuk @ TU-Delft (initial Balance Board support)
 - Paul Burton <https://github.com/paulburton/wiiuse>
@@ -58,11 +59,12 @@ Additional Contributors:
 - hartsantler <http://code.google.com/p/rpythonic/>
 - admiral0 and fwiine project <http://sourceforge.net/projects/fwiine/files/wiiuse/0.13/>
 - Jeff Baker/Inv3rsion, LLC. <http://www.inv3rsion.com/>
-- Jan Ciger - Reviatech SAS <jan.ciger@reviatech.com>
 - Gabriele Randelli and the WiiC project <http://wiic.sourceforge.net/>
 - Juan Sebastian Casallas <https://github.com/jscasallas/wiiuse>
 - Lysann Schlegel <https://github.com/lysannkessler/wiiuse>
 - Thomas Geissl <https://github.com/thomasgeissl>
+- Chadwick Boulay <https://github.com/cboulay>
+- Florian Baumgartl <https://github.com/Baumgartl>
 
 ## License
 
