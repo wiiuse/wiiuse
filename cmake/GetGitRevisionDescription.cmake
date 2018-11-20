@@ -18,6 +18,12 @@
 # and adjusting the output so that it tests false if there was no exact
 # matching tag.
 #
+#  git_local_changes(<var>)
+#
+# Returns either "CLEAN" or "DIRTY" with respect to uncommitted changes.
+# Uses the return code of "git diff-index --quiet HEAD --".
+# Does not regard untracked files.
+#
 # Requires CMake 2.6 or newer (uses the 'function' command)
 #
 # Original Author:
@@ -40,7 +46,7 @@ set(__get_git_revision_description YES)
 get_filename_component(_gitdescmoddir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 function(get_git_head_revision _refspecvar _hashvar)
-	set(GIT_PARENT_DIR "${CMAKE_SOURCE_DIR}")
+	set(GIT_PARENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 	set(GIT_DIR "${GIT_PARENT_DIR}/.git")
 	while(NOT EXISTS "${GIT_DIR}")	# .git dir not found, search parent directories
 		set(GIT_PREVIOUS_PARENT "${GIT_PARENT_DIR}")
@@ -53,6 +59,13 @@ function(get_git_head_revision _refspecvar _hashvar)
 		endif()
 		set(GIT_DIR "${GIT_PARENT_DIR}/.git")
 	endwhile()
+	# check if this is a submodule
+	if(NOT IS_DIRECTORY ${GIT_DIR})
+		file(READ ${GIT_DIR} submodule)
+		string(REGEX REPLACE "gitdir: (.*)\n$" "\\1" GIT_DIR_RELATIVE ${submodule})
+		get_filename_component(SUBMODULE_DIR ${GIT_DIR} PATH)
+		get_filename_component(GIT_DIR ${SUBMODULE_DIR}/${GIT_DIR_RELATIVE} ABSOLUTE)
+	endif()
 	set(GIT_DATA "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/git-data")
 	if(NOT EXISTS "${GIT_DATA}")
 		file(MAKE_DIRECTORY "${GIT_DATA}")
@@ -103,7 +116,7 @@ function(git_describe _var)
 		${hash}
 		${ARGN}
 		WORKING_DIRECTORY
-		"${CMAKE_SOURCE_DIR}"
+		"${CMAKE_CURRENT_SOURCE_DIR}"
 		RESULT_VARIABLE
 		res
 		OUTPUT_VARIABLE
@@ -120,4 +133,36 @@ endfunction()
 function(git_get_exact_tag _var)
 	git_describe(out --exact-match ${ARGN})
 	set(${_var} "${out}" PARENT_SCOPE)
+endfunction()
+
+function(git_local_changes _var)
+	if(NOT GIT_FOUND)
+		find_package(Git QUIET)
+	endif()
+	get_git_head_revision(refspec hash)
+	if(NOT GIT_FOUND)
+		set(${_var} "GIT-NOTFOUND" PARENT_SCOPE)
+		return()
+	endif()
+	if(NOT hash)
+		set(${_var} "HEAD-HASH-NOTFOUND" PARENT_SCOPE)
+		return()
+	endif()
+
+	execute_process(COMMAND
+		"${GIT_EXECUTABLE}"
+		diff-index --quiet HEAD --
+		WORKING_DIRECTORY
+		"${CMAKE_CURRENT_SOURCE_DIR}"
+		RESULT_VARIABLE
+		res
+		OUTPUT_VARIABLE
+		out
+		ERROR_QUIET
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+	if(res EQUAL 0)
+		set(${_var} "CLEAN" PARENT_SCOPE)
+	else()
+		set(${_var} "DIRTY" PARENT_SCOPE)
+	endif()
 endfunction()
