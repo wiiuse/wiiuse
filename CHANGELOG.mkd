@@ -16,7 +16,7 @@ Added:
 
 - Callback API with constant-size wiimote_callback_data_t.
   Added to more easily support a ctypes python binding, generated
-  by and included with RPythonic http://code.google.com/p/rpythonic/
+  by and included with RPythonic <http://code.google.com/p/rpythonic/>
   Thanks to hartsantler for this feature.
 
 - Ability to build as a static library - must define WIIUSE_STATIC in
@@ -34,7 +34,7 @@ Added:
 Fixed:
 
 - Properly disable rumbling when told to. Thanks to Jeff Baker from
-  (Inv3rsion, LLC.)(http://www.inv3rsion.com/)
+  [Inv3rsion, LLC.](http://www.inv3rsion.com/)
 
 - Builds properly now on mingw (both cross-compile and native).
 
@@ -166,7 +166,6 @@ Changed:
 
 - `wiiuse_read_data()` generates an event `WIIUSE_READ_DATA` rather than
   executing a callback
-
 
 v0.11 -- 25 Feb 2008
 --------------------
@@ -354,7 +353,6 @@ Changed:
 - Changed all functions named `wiimote_*()` to `wiiuse_*()`
 
 - Renamed many macros from `WIIMOTE_*` to `WIIUSE_*`
-
 
 Added:
 
