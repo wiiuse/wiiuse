@@ -30,7 +30,7 @@ option(CPACK_MONOLITHIC_INSTALL "Only produce a single component installer, rath
 ###
 
 # Locally-developed modules dist'ed with this app - always have this first.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(UseBackportedModules)
 include(DoxygenTargets)
 
