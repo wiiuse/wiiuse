@@ -31,10 +31,10 @@
  *	@brief Handles device I/O for *nix.
  */
 
+#include "wiiuse_internal.h" /* for WM_RPT_CTRL_STATUS */
 #include "events.h"
 #include "io.h"
 #include "os.h"
-#include "wiiuse_internal.h" /* for WM_RPT_CTRL_STATUS */
 
 #ifdef WIIUSE_BLUEZ
 

@@ -34,8 +34,8 @@
  *	that are sent from the wiimote to us.
  */
 
-#include "events.h"
 #include "wiiuse_internal.h"
+#include "events.h"
 
 #include "classic.h"       /* for classic_ctrl_disconnected, etc */
 #include "dynamics.h"      /* for calculate_gforce, etc */
