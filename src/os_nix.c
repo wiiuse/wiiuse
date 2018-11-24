@@ -423,10 +423,11 @@ int wiiuse_os_write(struct wiimote_t *wm, byte report_type, byte *buf, int len)
     int rc;
     byte write_buffer[MAX_PAYLOAD];
 
-    write_buffer[0] = WM_SET_REPORT | WM_BT_OUTPUT;
+    write_buffer[0] = WM_SET_DATA | WM_BT_OUTPUT;
     write_buffer[1] = report_type;
     memcpy(write_buffer + 2, buf, len);
-    rc = write(wm->out_sock, write_buffer, len + 2);
+
+    rc = write(wm->in_sock, write_buffer, len + 2);
 
     if (rc < 0)
     {
