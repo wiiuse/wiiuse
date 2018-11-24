@@ -41,17 +41,17 @@
 extern "C" {
 #endif
 
-	/** @defgroup internal_mp Internal: MotionPlus */
-	/** @{ */
-	void motion_plus_disconnected(struct motion_plus_t* mp);
+/** @defgroup internal_mp Internal: MotionPlus */
+/** @{ */
+void motion_plus_disconnected(struct motion_plus_t *mp);
 
-	void motion_plus_event(struct motion_plus_t* mp, int exp_type, byte* msg);
+void motion_plus_event(struct motion_plus_t *mp, int exp_type, byte *msg);
 
-	void wiiuse_motion_plus_handshake(struct wiimote_t *wm, byte *data, unsigned short len);
+void wiiuse_motion_plus_handshake(struct wiimote_t *wm, byte *data, unsigned short len);
 
-	void wiiuse_probe_motion_plus(struct wiimote_t *wm);
+void wiiuse_probe_motion_plus(struct wiimote_t *wm);
 
-	/** @} */
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -33,13 +33,13 @@
 
 #include "guitar_hero_3.h"
 
-#include "dynamics.h"                   /* for calc_joystick_state */
-#include "events.h"                     /* for handshake_expansion */
+#include "dynamics.h" /* for calc_joystick_state */
+#include "events.h"   /* for handshake_expansion */
 
-#include <stdlib.h>                     /* for malloc */
-#include <string.h>                     /* for memset */
+#include <stdlib.h> /* for malloc */
+#include <string.h> /* for memset */
 
-static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now);
+static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t *gh3, short now);
 
 /**
  *	@brief Handle the handshake data from the guitar.
@@ -50,76 +50,78 @@ static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now
  *
  *	@return	Returns 1 if handshake was successful, 0 if not.
  */
-int guitar_hero_3_handshake(struct wiimote_t* wm, struct guitar_hero_3_t* gh3, byte* data, unsigned short len) {
+int guitar_hero_3_handshake(struct wiimote_t *wm, struct guitar_hero_3_t *gh3, byte *data, unsigned short len)
+{
 
-	/*
-	 *	The good fellows that made the Guitar Hero 3 controller
-	 *	failed to factory calibrate the devices.  There is no
-	 *	calibration data on the device.
-	 */
+    /*
+     *	The good fellows that made the Guitar Hero 3 controller
+     *	failed to factory calibrate the devices.  There is no
+     *	calibration data on the device.
+     */
 
-	gh3->btns = 0;
-	gh3->btns_held = 0;
-	gh3->btns_released = 0;
-	gh3->whammy_bar = 0.0f;
+    gh3->btns          = 0;
+    gh3->btns_held     = 0;
+    gh3->btns_released = 0;
+    gh3->whammy_bar    = 0.0f;
 
-	/*
-	TODO: If we're not using anything from calibration data, why are we
-	even bothering here?
-	*/
-	if (data[0] == 0xFF) {
-		/*
-		 *	Sometimes the data returned here is not correct.
-		 *	This might happen because the wiimote is lagging
-		 *	behind our initialization sequence.
-		 *	To fix this just request the handshake again.
-		 *
-		 *	Other times it's just the first 16 bytes are 0xFF,
-		 *	but since the next 16 bytes are the same, just use
-		 *	those.
-		 */
-		if (data[16] == 0xFF) {
-			/* get the calibration data */
-			byte* handshake_buf = (byte*)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
+    /*
+    TODO: If we're not using anything from calibration data, why are we
+    even bothering here?
+    */
+    if (data[0] == 0xFF)
+    {
+        /*
+         *	Sometimes the data returned here is not correct.
+         *	This might happen because the wiimote is lagging
+         *	behind our initialization sequence.
+         *	To fix this just request the handshake again.
+         *
+         *	Other times it's just the first 16 bytes are 0xFF,
+         *	but since the next 16 bytes are the same, just use
+         *	those.
+         */
+        if (data[16] == 0xFF)
+        {
+            /* get the calibration data */
+            byte *handshake_buf = (byte *)malloc(EXP_HANDSHAKE_LEN * sizeof(byte));
 
-			WIIUSE_DEBUG("Guitar Hero 3 handshake appears invalid, trying again.");
-			wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
+            WIIUSE_DEBUG("Guitar Hero 3 handshake appears invalid, trying again.");
+            wiiuse_read_data_cb(wm, handshake_expansion, handshake_buf, WM_EXP_MEM_CALIBR, EXP_HANDSHAKE_LEN);
 
-			return 0;
-		} else {
-			data += 16;
-		}
-	}
+            return 0;
+        } else
+        {
+            data += 16;
+        }
+    }
 
-	/* joystick stuff */
-	gh3->js.max.x = GUITAR_HERO_3_JS_MAX_X;
-	gh3->js.min.x = GUITAR_HERO_3_JS_MIN_X;
-	gh3->js.center.x = GUITAR_HERO_3_JS_CENTER_X;
-	gh3->js.max.y = GUITAR_HERO_3_JS_MAX_Y;
-	gh3->js.min.y = GUITAR_HERO_3_JS_MIN_Y;
-	gh3->js.center.y = GUITAR_HERO_3_JS_CENTER_Y;
+    /* joystick stuff */
+    gh3->js.max.x    = GUITAR_HERO_3_JS_MAX_X;
+    gh3->js.min.x    = GUITAR_HERO_3_JS_MIN_X;
+    gh3->js.center.x = GUITAR_HERO_3_JS_CENTER_X;
+    gh3->js.max.y    = GUITAR_HERO_3_JS_MAX_Y;
+    gh3->js.min.y    = GUITAR_HERO_3_JS_MIN_Y;
+    gh3->js.center.y = GUITAR_HERO_3_JS_CENTER_Y;
 
-	/* handshake done */
-	wm->exp.type = EXP_GUITAR_HERO_3;
+    /* handshake done */
+    wm->exp.type = EXP_GUITAR_HERO_3;
 
 #ifdef WIIUSE_WIN32
-	wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
+    wm->timeout = WIIMOTE_DEFAULT_TIMEOUT;
 #endif
 
-	return 1;
+    return 1;
 }
-
 
 /**
  *	@brief The guitar disconnected.
  *
  *	@param cc		A pointer to a classic_ctrl_t structure.
  */
-void guitar_hero_3_disconnected(struct guitar_hero_3_t* gh3) {
-	memset(gh3, 0, sizeof(struct guitar_hero_3_t));
+void guitar_hero_3_disconnected(struct guitar_hero_3_t *gh3)
+{
+    memset(gh3, 0, sizeof(struct guitar_hero_3_t));
 }
-
-
 
 /**
  *	@brief Handle guitar event.
@@ -127,17 +129,18 @@ void guitar_hero_3_disconnected(struct guitar_hero_3_t* gh3) {
  *	@param cc		A pointer to a classic_ctrl_t structure.
  *	@param msg		The message specified in the event packet.
  */
-void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg) {
+void guitar_hero_3_event(struct guitar_hero_3_t *gh3, byte *msg)
+{
 
-	guitar_hero_3_pressed_buttons(gh3, from_big_endian_uint16_t(msg + 4));
+    guitar_hero_3_pressed_buttons(gh3, from_big_endian_uint16_t(msg + 4));
 
-	/* whammy bar */
-	gh3->whammy_bar = (msg[3] - GUITAR_HERO_3_WHAMMY_BAR_MIN) / (float)(GUITAR_HERO_3_WHAMMY_BAR_MAX - GUITAR_HERO_3_WHAMMY_BAR_MIN);
+    /* whammy bar */
+    gh3->whammy_bar = (msg[3] - GUITAR_HERO_3_WHAMMY_BAR_MIN)
+                      / (float)(GUITAR_HERO_3_WHAMMY_BAR_MAX - GUITAR_HERO_3_WHAMMY_BAR_MIN);
 
-	/* joy stick */
-	calc_joystick_state(&gh3->js, msg[0], msg[1]);
+    /* joy stick */
+    calc_joystick_state(&gh3->js, msg[0], msg[1]);
 }
-
 
 /**
  *	@brief Find what buttons are pressed.
@@ -145,16 +148,17 @@ void guitar_hero_3_event(struct guitar_hero_3_t* gh3, byte* msg) {
  *	@param cc		A pointer to a classic_ctrl_t structure.
  *	@param msg		The message byte specified in the event packet.
  */
-static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t* gh3, short now) {
-	/* message is inverted (0 is active, 1 is inactive) */
-	now = ~now & GUITAR_HERO_3_BUTTON_ALL;
+static void guitar_hero_3_pressed_buttons(struct guitar_hero_3_t *gh3, short now)
+{
+    /* message is inverted (0 is active, 1 is inactive) */
+    now = ~now & GUITAR_HERO_3_BUTTON_ALL;
 
-	/* pressed now & were pressed, then held */
-	gh3->btns_held = (now & gh3->btns);
+    /* pressed now & were pressed, then held */
+    gh3->btns_held = (now & gh3->btns);
 
-	/* were pressed or were held & not pressed now, then released */
-	gh3->btns_released = ((gh3->btns | gh3->btns_held) & ~now);
+    /* were pressed or were held & not pressed now, then released */
+    gh3->btns_released = ((gh3->btns | gh3->btns_held) & ~now);
 
-	/* buttons pressed now */
-	gh3->btns = now;
+    /* buttons pressed now */
+    gh3->btns = now;
 }

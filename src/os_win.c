@@ -31,11 +31,10 @@
  *	@brief Handles device I/O for Windows.
  */
 
-
 #include <time.h>
 
-#include "io.h"
 #include "events.h"
+#include "io.h"
 #include "os.h"
 
 #ifdef WIIUSE_WIN32
@@ -46,292 +45,323 @@
 
 #ifdef __MINGW32__
 /* this prototype is missing from the mingw headers so we must add it
-	or suffer linker errors. */
-#	ifdef __cplusplus
+        or suffer linker errors. */
+#ifdef __cplusplus
 extern "C" {
-#	endif
-	WINHIDSDI BOOL WINAPI HidD_SetOutputReport(HANDLE, PVOID, ULONG);
-#	ifdef __cplusplus
+#endif
+WINHIDSDI BOOL WINAPI HidD_SetOutputReport(HANDLE, PVOID, ULONG);
+#ifdef __cplusplus
 }
-#	endif
+#endif
 #endif
 
 static int clock_gettime(int X, struct timeval *tv);
 
-int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
-	GUID device_id;
-	HANDLE dev;
-	HDEVINFO device_info;
-	int i, index;
-	DWORD len;
-	SP_DEVICE_INTERFACE_DATA device_data;
-	PSP_DEVICE_INTERFACE_DETAIL_DATA detail_data = NULL;
-	HIDD_ATTRIBUTES	attr;
-	int found = 0;
+int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
+{
+    GUID device_id;
+    HANDLE dev;
+    HDEVINFO device_info;
+    int i, index;
+    DWORD len;
+    SP_DEVICE_INTERFACE_DATA device_data;
+    PSP_DEVICE_INTERFACE_DETAIL_DATA detail_data = NULL;
+    HIDD_ATTRIBUTES attr;
+    int found = 0;
 
-	(void) timeout; /* unused */
+    (void)timeout; /* unused */
 
-	device_data.cbSize = sizeof(device_data);
-	index = 0;
+    device_data.cbSize = sizeof(device_data);
+    index              = 0;
 
-	/* get the device id */
-	HidD_GetHidGuid(&device_id);
+    /* get the device id */
+    HidD_GetHidGuid(&device_id);
 
-	/* get all hid devices connected */
-	device_info = SetupDiGetClassDevs(&device_id, NULL, NULL, (DIGCF_DEVICEINTERFACE | DIGCF_PRESENT));
+    /* get all hid devices connected */
+    device_info = SetupDiGetClassDevs(&device_id, NULL, NULL, (DIGCF_DEVICEINTERFACE | DIGCF_PRESENT));
 
-	for (;; ++index) {
+    for (;; ++index)
+    {
 
-		if (detail_data) {
-			free(detail_data);
-			detail_data = NULL;
-		}
+        if (detail_data)
+        {
+            free(detail_data);
+            detail_data = NULL;
+        }
 
-		/* query the next hid device info */
-		if (!SetupDiEnumDeviceInterfaces(device_info, NULL, &device_id, index, &device_data)) {
-			break;
-		}
+        /* query the next hid device info */
+        if (!SetupDiEnumDeviceInterfaces(device_info, NULL, &device_id, index, &device_data))
+        {
+            break;
+        }
 
-		/* get the size of the data block required */
-		i = SetupDiGetDeviceInterfaceDetail(device_info, &device_data, NULL, 0, &len, NULL);
-		detail_data = (SP_DEVICE_INTERFACE_DETAIL_DATA_A*)malloc(len);
-		detail_data->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
+        /* get the size of the data block required */
+        i                   = SetupDiGetDeviceInterfaceDetail(device_info, &device_data, NULL, 0, &len, NULL);
+        detail_data         = (SP_DEVICE_INTERFACE_DETAIL_DATA_A *)malloc(len);
+        detail_data->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
 
-		/* query the data for this device */
-		if (!SetupDiGetDeviceInterfaceDetail(device_info, &device_data, detail_data, len, NULL, NULL)) {
-			continue;
-		}
+        /* query the data for this device */
+        if (!SetupDiGetDeviceInterfaceDetail(device_info, &device_data, detail_data, len, NULL, NULL))
+        {
+            continue;
+        }
 
-		/* open the device */
-		dev = CreateFile(detail_data->DevicePath,
-		                 (GENERIC_READ | GENERIC_WRITE),
-		                 (FILE_SHARE_READ | FILE_SHARE_WRITE),
-		                 NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
-		if (dev == INVALID_HANDLE_VALUE) {
-			continue;
-		}
+        /* open the device */
+        dev = CreateFile(detail_data->DevicePath, (GENERIC_READ | GENERIC_WRITE),
+                         (FILE_SHARE_READ | FILE_SHARE_WRITE), NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED,
+                         NULL);
+        if (dev == INVALID_HANDLE_VALUE)
+        {
+            continue;
+        }
 
-		/* get device attributes */
-		attr.Size = sizeof(attr);
-		i = HidD_GetAttributes(dev, &attr);
+        /* get device attributes */
+        attr.Size = sizeof(attr);
+        i         = HidD_GetAttributes(dev, &attr);
 
-		if ((attr.VendorID == WM_VENDOR_ID) && ((attr.ProductID == WM_PRODUCT_ID) || (attr.ProductID == WM_PRODUCT_ID_TR)))
-		{
-			/* this is a wiimote */
-			wm[found]->dev_handle = dev;
+        if ((attr.VendorID == WM_VENDOR_ID)
+            && ((attr.ProductID == WM_PRODUCT_ID) || (attr.ProductID == WM_PRODUCT_ID_TR)))
+        {
+            /* this is a wiimote */
+            wm[found]->dev_handle = dev;
 
-			if(attr.ProductID == WM_PRODUCT_ID_TR)
-				wm[found]->type = WIIUSE_WIIMOTE_MOTION_PLUS_INSIDE;
+            if (attr.ProductID == WM_PRODUCT_ID_TR)
+                wm[found]->type = WIIUSE_WIIMOTE_MOTION_PLUS_INSIDE;
 
-			wm[found]->hid_overlap.hEvent = CreateEvent(NULL, 1, 1, "");
-			wm[found]->hid_overlap.Offset = 0;
-			wm[found]->hid_overlap.OffsetHigh = 0;
+            wm[found]->hid_overlap.hEvent     = CreateEvent(NULL, 1, 1, "");
+            wm[found]->hid_overlap.Offset     = 0;
+            wm[found]->hid_overlap.OffsetHigh = 0;
 
-			WIIMOTE_ENABLE_STATE(wm[found], WIIMOTE_STATE_DEV_FOUND);
-			WIIMOTE_ENABLE_STATE(wm[found], WIIMOTE_STATE_CONNECTED);
+            WIIMOTE_ENABLE_STATE(wm[found], WIIMOTE_STATE_DEV_FOUND);
+            WIIMOTE_ENABLE_STATE(wm[found], WIIMOTE_STATE_CONNECTED);
 
-			/* try to set the output report to see if the device is actually connected */
-			if (!wiiuse_set_report_type(wm[found])) {
-				WIIMOTE_DISABLE_STATE(wm[found], WIIMOTE_STATE_CONNECTED);
-				continue;
-			}
+            /* try to set the output report to see if the device is actually connected */
+            if (!wiiuse_set_report_type(wm[found]))
+            {
+                WIIMOTE_DISABLE_STATE(wm[found], WIIMOTE_STATE_CONNECTED);
+                continue;
+            }
 
-			/* do the handshake */
-			wiiuse_handshake(wm[found], NULL, 0);
+            /* do the handshake */
+            wiiuse_handshake(wm[found], NULL, 0);
 
-			WIIUSE_INFO("Connected to wiimote [id %i].", wm[found]->unid);
+            WIIUSE_INFO("Connected to wiimote [id %i].", wm[found]->unid);
 
-			++found;
-			if (found >= max_wiimotes) {
-				break;
-			}
-		} else {
-			/* not a wiimote */
-			CloseHandle(dev);
-		}
-	}
+            ++found;
+            if (found >= max_wiimotes)
+            {
+                break;
+            }
+        } else
+        {
+            /* not a wiimote */
+            CloseHandle(dev);
+        }
+    }
 
-	if (detail_data) {
-		free(detail_data);
-	}
+    if (detail_data)
+    {
+        free(detail_data);
+    }
 
-	SetupDiDestroyDeviceInfoList(device_info);
+    SetupDiDestroyDeviceInfoList(device_info);
 
-	return found;
+    return found;
 }
 
+int wiiuse_os_connect(struct wiimote_t **wm, int wiimotes)
+{
+    int connected = 0;
+    int i         = 0;
 
-int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes) {
-	int connected = 0;
-	int i = 0;
+    for (; i < wiimotes; ++i)
+    {
+        if (!wm[i])
+        {
+            continue;
+        }
+        if (WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_CONNECTED))
+        {
+            ++connected;
+        }
+    }
 
-	for (; i < wiimotes; ++i) {
-		if (!wm[i]) {
-			continue;
-		}
-		if (WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_CONNECTED)) {
-			++connected;
-		}
-	}
-
-	return connected;
+    return connected;
 }
 
+void wiiuse_os_disconnect(struct wiimote_t *wm)
+{
+    if (!wm || WIIMOTE_IS_CONNECTED(wm))
+    {
+        return;
+    }
 
-void wiiuse_os_disconnect(struct wiimote_t* wm) {
-	if (!wm || WIIMOTE_IS_CONNECTED(wm)) {
-		return;
-	}
+    CloseHandle(wm->dev_handle);
+    wm->dev_handle = 0;
 
-	CloseHandle(wm->dev_handle);
-	wm->dev_handle = 0;
+    ResetEvent(&wm->hid_overlap);
 
-	ResetEvent(&wm->hid_overlap);
+    wm->event = WIIUSE_NONE;
 
-	wm->event = WIIUSE_NONE;
-
-	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
-	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
+    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
+    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
 }
 
+int wiiuse_os_poll(struct wiimote_t **wm, int wiimotes)
+{
+    int i;
+    byte read_buffer[MAX_PAYLOAD];
+    int evnt = 0;
 
-int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes) {
-	int i;
-	byte read_buffer[MAX_PAYLOAD];
-	int evnt = 0;
+    if (!wm)
+    {
+        return 0;
+    }
 
-	if (!wm) {
-		return 0;
-	}
+    for (i = 0; i < wiimotes; ++i)
+    {
+        wm[i]->event = WIIUSE_NONE;
 
-	for (i = 0; i < wiimotes; ++i) {
-		wm[i]->event = WIIUSE_NONE;
+        /* clear out the buffer */
+        memset(read_buffer, 0, sizeof(read_buffer));
+        /* read */
+        if (wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer)))
+        {
+            /* propagate the event */
+            propagate_event(wm[i], read_buffer[0], read_buffer + 1);
+            evnt += (wm[i]->event != WIIUSE_NONE);
+        } else
+        {
+            /* send out any waiting writes */
+            wiiuse_send_next_pending_write_request(wm[i]);
+            idle_cycle(wm[i]);
+        }
+    }
 
-		/* clear out the buffer */
-		memset(read_buffer, 0, sizeof(read_buffer));
-		/* read */
-		if (wiiuse_os_read(wm[i], read_buffer, sizeof(read_buffer))) {
-			/* propagate the event */
-			propagate_event(wm[i], read_buffer[0], read_buffer + 1);
-			evnt += (wm[i]->event != WIIUSE_NONE);
-		} else {
-			/* send out any waiting writes */
-			wiiuse_send_next_pending_write_request(wm[i]);
-			idle_cycle(wm[i]);
-		}
-	}
-
-	return evnt;
+    return evnt;
 }
 
-int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len) {
-	DWORD b, r;
+int wiiuse_os_read(struct wiimote_t *wm, byte *buf, int len)
+{
+    DWORD b, r;
 
-	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
-		return 0;
-	}
+    if (!wm || !WIIMOTE_IS_CONNECTED(wm))
+    {
+        return 0;
+    }
 
-	if (!ReadFile(wm->dev_handle, buf, len, &b, &wm->hid_overlap)) {
-		/* partial read */
-		b = GetLastError();
+    if (!ReadFile(wm->dev_handle, buf, len, &b, &wm->hid_overlap))
+    {
+        /* partial read */
+        b = GetLastError();
 
-		if ((b == ERROR_HANDLE_EOF) || (b == ERROR_DEVICE_NOT_CONNECTED)) {
-			/* remote disconnect */
-			wiiuse_disconnected(wm);
-			return 0;
-		}
+        if ((b == ERROR_HANDLE_EOF) || (b == ERROR_DEVICE_NOT_CONNECTED))
+        {
+            /* remote disconnect */
+            wiiuse_disconnected(wm);
+            return 0;
+        }
 
-		r = WaitForSingleObject(wm->hid_overlap.hEvent, wm->timeout);
-		if (r == WAIT_TIMEOUT) {
-			/* timeout - cancel and continue */
+        r = WaitForSingleObject(wm->hid_overlap.hEvent, wm->timeout);
+        if (r == WAIT_TIMEOUT)
+        {
+            /* timeout - cancel and continue */
 
             /*
-			if (*buf) {
-				WIIUSE_WARNING("Packet ignored.  This may indicate a problem (timeout is %i ms).", wm->timeout);
-			}
+                        if (*buf) {
+                                WIIUSE_WARNING("Packet ignored.  This may indicate a problem (timeout is %i
+               ms).", wm->timeout);
+                        }
             */
 
-			CancelIo(wm->dev_handle);
-			ResetEvent(wm->hid_overlap.hEvent);
-			return 0;
-		} else if (r == WAIT_FAILED) {
-			WIIUSE_WARNING("A wait error occurred on reading from wiimote %i.", wm->unid);
-			return 0;
-		}
+            CancelIo(wm->dev_handle);
+            ResetEvent(wm->hid_overlap.hEvent);
+            return 0;
+        } else if (r == WAIT_FAILED)
+        {
+            WIIUSE_WARNING("A wait error occurred on reading from wiimote %i.", wm->unid);
+            return 0;
+        }
 
-		if (!GetOverlappedResult(wm->dev_handle, &wm->hid_overlap, &b, 0)) {
-			return 0;
-		}
+        if (!GetOverlappedResult(wm->dev_handle, &wm->hid_overlap, &b, 0))
+        {
+            return 0;
+        }
 
-		/* log the received data */
+/* log the received data */
 #ifdef WITH_WIIUSE_DEBUG
-		{
-			DWORD i;
-			printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
-			for (i = 1; i < b; i++) {
-				printf("%.2x ", buf[i]);
-			}
-			printf("\n");
-		}
+        {
+            DWORD i;
+            printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
+            for (i = 1; i < b; i++)
+            {
+                printf("%.2x ", buf[i]);
+            }
+            printf("\n");
+        }
 #endif
-	}
+    }
 
-	ResetEvent(wm->hid_overlap.hEvent);
-	return 1;
+    ResetEvent(wm->hid_overlap.hEvent);
+    return 1;
 }
 
+int wiiuse_os_write(struct wiimote_t *wm, byte report_type, byte *buf, int len)
+{
+    DWORD bytes;
+    int i;
+    byte write_buffer[MAX_PAYLOAD];
 
-int wiiuse_os_write(struct wiimote_t* wm, byte report_type, byte* buf, int len) {
-	DWORD bytes;
-	int i;
-	byte write_buffer[MAX_PAYLOAD];
+    if (!wm || !WIIMOTE_IS_CONNECTED(wm))
+    {
+        return 0;
+    }
 
-	if (!wm || !WIIMOTE_IS_CONNECTED(wm)) {
-		return 0;
-	}
+    write_buffer[0] = report_type;
+    memcpy(write_buffer + 1, buf, len);
 
-	write_buffer[0] = report_type;
-	memcpy(write_buffer + 1, buf, len);
+    switch (wm->stack)
+    {
+    case WIIUSE_STACK_UNKNOWN:
+    {
+        /* try to auto-detect the stack type */
+        if (i = WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap))
+        {
+            /* bluesoleil will always return 1 here, even if it's not connected */
+            wm->stack = WIIUSE_STACK_BLUESOLEIL;
+            return i;
+        }
 
-	switch (wm->stack) {
-		case WIIUSE_STACK_UNKNOWN: {
-				/* try to auto-detect the stack type */
-				if (i = WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap)) {
-					/* bluesoleil will always return 1 here, even if it's not connected */
-					wm->stack = WIIUSE_STACK_BLUESOLEIL;
-					return i;
-				}
+        if (i = HidD_SetOutputReport(wm->dev_handle, write_buffer, len + 1))
+        {
+            wm->stack = WIIUSE_STACK_MS;
+            return i;
+        }
 
-				if (i = HidD_SetOutputReport(wm->dev_handle, write_buffer, len + 1)) {
-					wm->stack = WIIUSE_STACK_MS;
-					return i;
-				}
+        WIIUSE_ERROR("Unable to determine bluetooth stack type.");
+        return 0;
+    }
 
-				WIIUSE_ERROR("Unable to determine bluetooth stack type.");
-				return 0;
-			}
+    case WIIUSE_STACK_MS:
+        return HidD_SetOutputReport(wm->dev_handle, write_buffer, len + 1);
 
-		case WIIUSE_STACK_MS:
-			return HidD_SetOutputReport(wm->dev_handle, write_buffer, len + 1);
+    case WIIUSE_STACK_BLUESOLEIL:
+        return WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap);
+    }
 
-		case WIIUSE_STACK_BLUESOLEIL:
-			return WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap);
-	}
-
-	return 0;
+    return 0;
 }
 
-void wiiuse_init_platform_fields(struct wiimote_t* wm) {
-	wm->dev_handle = 0;
-	wm->stack = WIIUSE_STACK_UNKNOWN;
-	wm->normal_timeout = WIIMOTE_DEFAULT_TIMEOUT;
-	wm->exp_timeout = WIIMOTE_EXP_TIMEOUT;
-	wm->timeout = wm->normal_timeout;
+void wiiuse_init_platform_fields(struct wiimote_t *wm)
+{
+    wm->dev_handle     = 0;
+    wm->stack          = WIIUSE_STACK_UNKNOWN;
+    wm->normal_timeout = WIIMOTE_DEFAULT_TIMEOUT;
+    wm->exp_timeout    = WIIMOTE_EXP_TIMEOUT;
+    wm->timeout        = wm->normal_timeout;
 }
 
-void wiiuse_cleanup_platform_fields(struct wiimote_t* wm) {
-	wm->dev_handle = 0;
-}
+void wiiuse_cleanup_platform_fields(struct wiimote_t *wm) { wm->dev_handle = 0; }
 
 unsigned long wiiuse_os_ticks()
 {
@@ -339,23 +369,24 @@ unsigned long wiiuse_os_ticks()
     struct timeval tp;
 
     clock_gettime(0, &tp);
-    ms = (unsigned long) (1000 * tp.tv_sec + tp.tv_usec / 1e3);
+    ms = (unsigned long)(1000 * tp.tv_sec + tp.tv_usec / 1e3);
     return ms;
 }
 
-/* code taken from http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows/5404467#5404467 */
+/* code taken from http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows/5404467#5404467
+ */
 static LARGE_INTEGER getFILETIMEoffset()
 {
     SYSTEMTIME s;
     FILETIME f;
     LARGE_INTEGER t;
 
-    s.wYear = 1970;
-    s.wMonth = 1;
-    s.wDay = 1;
-    s.wHour = 0;
-    s.wMinute = 0;
-    s.wSecond = 0;
+    s.wYear         = 1970;
+    s.wMonth        = 1;
+    s.wDay          = 1;
+    s.wHour         = 0;
+    s.wMinute       = 0;
+    s.wSecond       = 0;
     s.wMilliseconds = 0;
     SystemTimeToFileTime(&s, &f);
     t.QuadPart = f.dwHighDateTime;
@@ -366,28 +397,33 @@ static LARGE_INTEGER getFILETIMEoffset()
 
 static int clock_gettime(int X, struct timeval *tv)
 {
-    LARGE_INTEGER           t;
-    FILETIME            f;
-    double                  microseconds;
-    static LARGE_INTEGER    offset;
-    static double           frequencyToMicroseconds;
-    static int              initialized = 0;
-    static BOOL             usePerformanceCounter = 0;
+    LARGE_INTEGER t;
+    FILETIME f;
+    double microseconds;
+    static LARGE_INTEGER offset;
+    static double frequencyToMicroseconds;
+    static int initialized            = 0;
+    static BOOL usePerformanceCounter = 0;
 
-    if (!initialized) {
+    if (!initialized)
+    {
         LARGE_INTEGER performanceFrequency;
-        initialized = 1;
+        initialized           = 1;
         usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
-        if (usePerformanceCounter) {
+        if (usePerformanceCounter)
+        {
             QueryPerformanceCounter(&offset);
             frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
-        } else {
-            offset = getFILETIMEoffset();
+        } else
+        {
+            offset                  = getFILETIMEoffset();
             frequencyToMicroseconds = 10.;
         }
     }
-    if (usePerformanceCounter) QueryPerformanceCounter(&t);
-    else {
+    if (usePerformanceCounter)
+        QueryPerformanceCounter(&t);
+    else
+    {
         GetSystemTimeAsFileTime(&f);
         t.QuadPart = f.dwHighDateTime;
         t.QuadPart <<= 32;
@@ -396,9 +432,9 @@ static int clock_gettime(int X, struct timeval *tv)
 
     t.QuadPart -= offset.QuadPart;
     microseconds = (double)t.QuadPart / frequencyToMicroseconds;
-    t.QuadPart = (LONGLONG) microseconds;
-    tv->tv_sec = (long) t.QuadPart / 1000000;
-    tv->tv_usec = t.QuadPart % 1000000;
+    t.QuadPart   = (LONGLONG)microseconds;
+    tv->tv_sec   = (long)t.QuadPart / 1000000;
+    tv->tv_usec  = t.QuadPart % 1000000;
     return (0);
 }
 #endif /* ifdef WIIUSE_WIN32 */

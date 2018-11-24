@@ -40,24 +40,23 @@
 extern "C" {
 #endif
 
+/** @defgroup internal_io Internal: Platform-specific Device I/O */
+/** @{ */
+void wiiuse_init_platform_fields(struct wiimote_t *wm);
+void wiiuse_cleanup_platform_fields(struct wiimote_t *wm);
 
-	/** @defgroup internal_io Internal: Platform-specific Device I/O */
-	/** @{ */
-	void wiiuse_init_platform_fields(struct wiimote_t* wm);
-	void wiiuse_cleanup_platform_fields(struct wiimote_t* wm);
+int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout);
 
-	int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout);
+int wiiuse_os_connect(struct wiimote_t **wm, int wiimotes);
+void wiiuse_os_disconnect(struct wiimote_t *wm);
 
-	int wiiuse_os_connect(struct wiimote_t** wm, int wiimotes);
-	void wiiuse_os_disconnect(struct wiimote_t* wm);
+int wiiuse_os_poll(struct wiimote_t **wm, int wiimotes);
+/* buf[0] will be the report type, buf+1 the rest of the report */
+int wiiuse_os_read(struct wiimote_t *wm, byte *buf, int len);
+int wiiuse_os_write(struct wiimote_t *wm, byte report_type, byte *buf, int len);
 
-	int wiiuse_os_poll(struct wiimote_t** wm, int wiimotes);
-	/* buf[0] will be the report type, buf+1 the rest of the report */
-	int wiiuse_os_read(struct wiimote_t* wm, byte* buf, int len);
-	int wiiuse_os_write(struct wiimote_t* wm, byte report_type, byte* buf, int len);
-
-        unsigned long wiiuse_os_ticks();
-	/** @} */
+unsigned long wiiuse_os_ticks();
+/** @} */
 
 #ifdef __cplusplus
 }
