@@ -88,6 +88,32 @@ Additional Contributors:
 This project is intended for developers who wish to include support
 for the Nintendo Wii remote with their third party application.
 
+## Supported Hardware
+
+### Official Nintendo controllers:
+
+- Wiimotes:
+  - Gen 1.0 - Original Wiimote without Motion Plus (Bluetooth name: RVL-CNT-01)
+  - Gen 1.5 - Same as gen 1 but has integrated Motion Plus (Bluetooth name: RVL-CNT-01)
+  - Gen 2.0 - New Wiimote (since about 2011), has integrated Motion
+    Plus and different firmware (Bluetooth name: RVL-CNT-01-TR)
+
+- Wii Balance Board (Bluetooth name: RVL-WBC-01)
+
+- Expansions:
+  - Nunchuk
+  - Classic controller
+  - Guitar controller
+  - Motion Plus dongle (for the gen 1 Wiimote)
+
+### Clones and 3rdparty devices
+
+3rdparty controllers (wiimotes, nunchuks etc.) may or may not work -
+some manufacturers take major liberties with the protocols so it is
+impossible to guarantee functionality. However, most will probably
+just work.
+
+
 ## Platforms and Dependencies
 
 Wiiuse currently operates on Linux, Windows and Mac. You will need:
@@ -262,6 +288,8 @@ greatly appreciated.
 ## Other Links
 
 - Thread about MotionPlus: <http://forum.wiibrew.org/read.php?11,32585,32922>
+- Possible alternative using the Linux kernel support for the Wiimote
+  and the standard Linux input system: <https://github.com/dvdhrm/xwiimote>
 
 Original project:
 

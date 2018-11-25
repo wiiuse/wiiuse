@@ -9,6 +9,16 @@ Original project:
 - <http://wiiuse.sourceforge.net/>
 - <http://sourceforge.net/projects/wiiuse/>
 
+v0.15.2 -- 25-Nov-2018
+--------------------
+
+Fixed the L2CAP channel setup on Linux, now we use only the
+interrupt/data channel (0x13) and not the control channel (0x11). This
+finally fixes the RVL-CNT-01-TR (gen 2) Wiimote. The control channel
+is still kept open, in case something needs it in the future.
+
+Cleaned the indentation by running the code through clang-format.
+
 v0.15.1 -- 20-Nov-2018
 --------------------
 
