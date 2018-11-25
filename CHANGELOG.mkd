@@ -9,6 +9,15 @@ Original project:
 - <http://wiiuse.sourceforge.net/>
 - <http://sourceforge.net/projects/wiiuse/>
 
+v0.15.3 -- 25-Nov-2018
+--------------------
+
+Fixed:
+
+- Fixed forgotten version number
+- Fixed library installation prefix on 64bit systems
+
+
 v0.15.2 -- 25-Nov-2018
 --------------------
 

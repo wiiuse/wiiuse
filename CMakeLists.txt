@@ -45,8 +45,11 @@ if(NOT WIN32 AND NOT APPLE)
 	set(LINUX YES)
 	find_package(Bluez REQUIRED)
 	include_directories(${BLUEZ_INCLUDE_DIRS})
+
+        include("GNUInstallDirs")
 else()
-	set(LINUX NO)
+        set(LINUX NO)
+        set(CMAKE_INSTALL_LIBDIR "lib")
 endif()
 
 if(WIN32)
