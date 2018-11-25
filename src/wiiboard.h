@@ -40,14 +40,14 @@
 extern "C" {
 #endif
 
-	/** @defgroup internal_wiiboard Internal: Wii Balance Board */
-	/** @{ */
-	int wii_board_handshake(struct wiimote_t* wm, struct wii_board_t* wb, byte* data, uint16_t len);
+/** @defgroup internal_wiiboard Internal: Wii Balance Board */
+/** @{ */
+int wii_board_handshake(struct wiimote_t *wm, struct wii_board_t *wb, byte *data, uint16_t len);
 
-	void wii_board_disconnected(struct wii_board_t* wb);
+void wii_board_disconnected(struct wii_board_t *wb);
 
-	void wii_board_event(struct wii_board_t* wb, byte* msg);
-	/** @} */
+void wii_board_event(struct wii_board_t *wb, byte *msg);
+/** @} */
 #ifdef __cplusplus
 }
 #endif

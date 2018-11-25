@@ -32,13 +32,13 @@
  */
 
 #include "io.h"
-#include "events.h"                     /* for propagate_event */
-#include "ir.h"                         /* for wiiuse_set_ir_mode */
+#include "events.h" /* for propagate_event */
+#include "ir.h"     /* for wiiuse_set_ir_mode */
 #include "wiiuse_internal.h"
 
-#include "os.h"                         /* for wiiuse_os_* */
+#include "os.h" /* for wiiuse_os_* */
 
-#include <stdlib.h>                     /* for free, malloc */
+#include <stdlib.h> /* for free, malloc */
 
 /**
  *  @brief Find a wiimote or wiimotes.
@@ -62,8 +62,9 @@
  *
  *  This function is declared in wiiuse.h
  */
-int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
-	return wiiuse_os_find(wm, max_wiimotes, timeout);
+int wiiuse_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
+{
+    return wiiuse_os_find(wm, max_wiimotes, timeout);
 }
 
 /**
@@ -87,9 +88,7 @@ int wiiuse_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
  *
  *  This function is declared in wiiuse.h
  */
-int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
-	return wiiuse_os_connect(wm, wiimotes);
-}
+int wiiuse_connect(struct wiimote_t **wm, int wiimotes) { return wiiuse_os_connect(wm, wiimotes); }
 
 /**
  *  @brief Disconnect a wiimote.
@@ -106,9 +105,7 @@ int wiiuse_connect(struct wiimote_t** wm, int wiimotes) {
  *
  *  This function is declared in wiiuse.h
  */
-void wiiuse_disconnect(struct wiimote_t* wm) {
-	wiiuse_os_disconnect(wm);
-}
+void wiiuse_disconnect(struct wiimote_t *wm) { wiiuse_os_disconnect(wm); }
 
 /**
 *    @brief Wait until specified report arrives and return it
@@ -124,20 +121,27 @@ void wiiuse_disconnect(struct wiimote_t* wm) {
 *    Returns 1 on success, -1 on failure.
 *
 */
-int wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength, unsigned long timeout_ms) {
-    
+int wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength,
+                       unsigned long timeout_ms)
+{
+
     int result            = 1;
     unsigned long elapsed = 0;
     unsigned long start   = wiiuse_os_ticks();
-    
-    for (;;) {
-        if (wiiuse_os_read(wm, buffer, bufferLength) > 0) {
-            if (buffer[0] == report) {
+
+    for (;;)
+    {
+        if (wiiuse_os_read(wm, buffer, bufferLength) > 0)
+        {
+            if (buffer[0] == report)
+            {
                 break;
-            } else {
-                if(buffer[0] != 0x30) /* hack for chatty devices spamming the button report */
+            } else
+            {
+                if (buffer[0] != 0x30) /* hack for chatty devices spamming the button report */
                 {
-                    WIIUSE_DEBUG("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0], report);
+                    WIIUSE_DEBUG("(id %i) dropping report 0x%x, waiting for 0x%x", wm->unid, buffer[0],
+                                 report);
                 }
             }
         }
@@ -147,7 +151,7 @@ int wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int buffe
         {
             result = -1;
             break;
-        }        
+        }
     }
 
     return result;
@@ -166,60 +170,63 @@ int wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int buffe
 *    amount of data from the Wiimote.
 *
 */
-void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data) {
-	byte pkt[6];
-	byte buf[MAX_PAYLOAD];
-	unsigned n_full_reports;
-	unsigned last_report;
-	byte *output;
-	unsigned int i;
-        int done = 0;
+void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data)
+{
+    byte pkt[6];
+    byte buf[MAX_PAYLOAD];
+    unsigned n_full_reports;
+    unsigned last_report;
+    byte *output;
+    unsigned int i;
+    int done = 0;
 
-	/*
-	 * address in big endian first, the leading byte will
-	 * be overwritten (only 3 bytes are sent)
-	 */
-	to_big_endian_uint32_t(pkt, addr);
+    /*
+     * address in big endian first, the leading byte will
+     * be overwritten (only 3 bytes are sent)
+     */
+    to_big_endian_uint32_t(pkt, addr);
 
-	/* read from registers or memory */
-	pkt[0] = (memory != 0) ? 0x00 : 0x04;
+    /* read from registers or memory */
+    pkt[0] = (memory != 0) ? 0x00 : 0x04;
 
-	/* length in big endian */
-	to_big_endian_uint16_t(pkt + 4, size);
+    /* length in big endian */
+    to_big_endian_uint16_t(pkt + 4, size);
 
-        done = 0;
-        while(!done)
+    done = 0;
+    while (!done)
+    {
+        /* send */
+        wiiuse_send(wm, WM_CMD_READ_DATA, pkt, sizeof(pkt));
+
+        /* calculate how many 16B packets we have to get back */
+        n_full_reports = size / 16;
+        last_report    = size % 16;
+        output         = data;
+
+        for (i = 0; i < n_full_reports; ++i)
         {
-            /* send */        
-            wiiuse_send(wm, WM_CMD_READ_DATA, pkt, sizeof(pkt));
+            int rc = wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
 
-            /* calculate how many 16B packets we have to get back */
-            n_full_reports = size / 16;
-            last_report = size % 16;
-            output = data;
+            if (rc < 0)
+                /* oops, time out, abort and retry */
+                break;
 
-            for (i = 0; i < n_full_reports; ++i) {
-                int rc = wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
-
-                if(rc < 0)
-                    /* oops, time out, abort and retry */
-                    break;
-                
-                memmove(output, buf + 6, 16);
-                output += 16;
-            }
-
-            /* read the last incomplete packet */
-            if (last_report) {
-                int rc = wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
-
-                if(rc)
-                    done = 1;
-                    
-                memmove(output, buf + 6, last_report);
-            } else
-                done = 1;
+            memmove(output, buf + 6, 16);
+            output += 16;
         }
+
+        /* read the last incomplete packet */
+        if (last_report)
+        {
+            int rc = wiiuse_wait_report(wm, WM_RPT_READ, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
+
+            if (rc)
+                done = 1;
+
+            memmove(output, buf + 6, last_report);
+        } else
+            done = 1;
+    }
 }
 
 /**
@@ -238,94 +245,96 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
 
 #ifdef WIIUSE_SYNC_HANDSHAKE
 
-void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
-	/* send request to wiimote for accelerometer calibration */
-	byte buf[MAX_PAYLOAD];
-	int i;
+void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len)
+{
+    /* send request to wiimote for accelerometer calibration */
+    byte buf[MAX_PAYLOAD];
+    int i;
 
-	/* step 0 - Reset wiimote */
-	{
-		//wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
+    /* step 0 - Reset wiimote */
+    {
+        // wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
 
-		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
-		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
-		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_ACC);
-		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
-		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_RUMBLE);
-		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP);
-		WIIMOTE_DISABLE_FLAG(wm, WIIUSE_CONTINUOUS);
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_CONNECTED);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_ACC);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_RUMBLE);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP);
+        WIIMOTE_DISABLE_FLAG(wm, WIIUSE_CONTINUOUS);
 
-		wiiuse_set_report_type(wm);
-		wiiuse_millisleep(500);
+        wiiuse_set_report_type(wm);
+        wiiuse_millisleep(500);
 
         /*
-           Ensure MP is off, because it will screw up the expansion handshake otherwise.
-           We cannot rely on the Wiimote having been powercycled between uses
-           because Windows/Mayflash Dolphin Bar and even Linux now allow pairing 
-           it permanently - thus it remains on and connected between the application
-           starts and in an unknown state when we arrive here => problem.
+          Ensure MP is off, because it will screw up the expansion handshake otherwise.
+          We cannot rely on the Wiimote having been powercycled between uses
+          because Windows/Mayflash Dolphin Bar and even Linux now allow pairing
+          it permanently - thus it remains on and connected between the application
+          starts and in an unknown state when we arrive here => problem.
 
-           This won't affect regular expansions (Nunchuck) if MP is not present, 
-           they get initialized twice in the worst case, which is harmless. 
+          This won't affect regular expansions (Nunchuck) if MP is not present,
+          they get initialized twice in the worst case, which is harmless.
         */
 
         byte val = 0x55;
         wiiuse_write_data(wm, WM_EXP_MEM_ENABLE1, &val, 1);
 
-		WIIUSE_DEBUG("Wiimote reset!\n");
-	}
+        WIIUSE_DEBUG("Wiimote reset!\n");
+    }
 
-	/* step 1 - calibration of accelerometers */
-	{
-		struct accel_t* accel = &wm->accel_calib;
+    /* step 1 - calibration of accelerometers */
+    {
+        struct accel_t *accel = &wm->accel_calib;
 
-		wiiuse_read_data_sync(wm, 1, WM_MEM_OFFSET_CALIBRATION, 8, buf);
+        wiiuse_read_data_sync(wm, 1, WM_MEM_OFFSET_CALIBRATION, 8, buf);
 
-		/* received read data */
-		accel->cal_zero.x = buf[0];
-		accel->cal_zero.y = buf[1];
-		accel->cal_zero.z = buf[2];
+        /* received read data */
+        accel->cal_zero.x = buf[0];
+        accel->cal_zero.y = buf[1];
+        accel->cal_zero.z = buf[2];
 
-		accel->cal_g.x = buf[4] - accel->cal_zero.x;
-		accel->cal_g.y = buf[5] - accel->cal_zero.y;
-		accel->cal_g.z = buf[6] - accel->cal_zero.z;
+        accel->cal_g.x = buf[4] - accel->cal_zero.x;
+        accel->cal_g.y = buf[5] - accel->cal_zero.y;
+        accel->cal_g.z = buf[6] - accel->cal_zero.z;
 
-		WIIUSE_DEBUG("Calibrated wiimote acc\n");
-	}
+        WIIUSE_DEBUG("Calibrated wiimote acc\n");
+    }
 
-	/* step 2 - re-enable IR and ask for status */
-	{
-		WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE);
-		WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
+    /* step 2 - re-enable IR and ask for status */
+    {
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
 
-		/* now enable IR if it was set before the handshake completed */
-		if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR)) {
-			WIIUSE_DEBUG("Handshake finished, enabling IR.");
-			WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
-			wiiuse_set_ir(wm, 1);
-		}
+        /* now enable IR if it was set before the handshake completed */
+        if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR))
+        {
+            WIIUSE_DEBUG("Handshake finished, enabling IR.");
+            WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
+            wiiuse_set_ir(wm, 1);
+        }
 
-		/*
-		 * try to ask for status 3 times, sometimes the first one gives bad data
-		 * and doesn't show expansions
-		 */
-		for(i = 0; i < 3; ++i)
-		{
+        /*
+         * try to ask for status 3 times, sometimes the first one gives bad data
+         * and doesn't show expansions
+         */
+        for (i = 0; i < 3; ++i)
+        {
             int rc = 0;
-                    
-		    WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
-		    wm->event = WIIUSE_CONNECT;
+
+            WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
+            wm->event = WIIUSE_CONNECT;
 
             wiiuse_status(wm);
             rc = wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
 
-		    if(buf[3] != 0)
-		        break;
+            if (buf[3] != 0)
+                break;
 
-		    wiiuse_millisleep(500);
-		}
-		propagate_event(wm, WM_RPT_CTRL_STATUS, buf + 1);
-	}
+            wiiuse_millisleep(500);
+        }
+        propagate_event(wm, WM_RPT_CTRL_STATUS, buf + 1);
+    }
 }
 
 #else
@@ -333,102 +342,112 @@ void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
 static void wiiuse_disable_motion_plus1(struct wiimote_t *wm, byte *data, unsigned short len);
 static void wiiuse_disable_motion_plus2(struct wiimote_t *wm, byte *data, unsigned short len);
 
-void wiiuse_handshake(struct wiimote_t* wm, byte* data, uint16_t len) {
-	if (!wm)	{
-		return;
-	}
+void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len)
+{
+    if (!wm)
+    {
+        return;
+    }
 
-	switch (wm->handshake_state) {
-		case 0: {
-				byte* buf;
+    switch (wm->handshake_state)
+    {
+    case 0:
+    {
+        byte *buf;
 
-				/* continuous reporting off, report to buttons only */
-				WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
-				wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
+        /* continuous reporting off, report to buttons only */
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
+        wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
 
-				WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_ACC);
-				WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
-				WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_RUMBLE);
-				WIIMOTE_DISABLE_FLAG(wm, WIIUSE_CONTINUOUS);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_ACC);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_RUMBLE);
+        WIIMOTE_DISABLE_FLAG(wm, WIIUSE_CONTINUOUS);
 
-				wiiuse_set_report_type(wm);
+        wiiuse_set_report_type(wm);
 
-				/* send request to wiimote for accelerometer calibration */
-				buf = (byte*)malloc(sizeof(byte) * 8);
-				wiiuse_read_data_cb(wm, wiiuse_handshake, buf, WM_MEM_OFFSET_CALIBRATION, 7);
-				wm->handshake_state++;
+        /* send request to wiimote for accelerometer calibration */
+        buf = (byte *)malloc(sizeof(byte) * 8);
+        wiiuse_read_data_cb(wm, wiiuse_handshake, buf, WM_MEM_OFFSET_CALIBRATION, 7);
+        wm->handshake_state++;
 
-				wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
+        wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
 
-				break;
-			}
+        break;
+    }
 
-		case 1: {
-				struct read_req_t* req = wm->read_req;
-				struct accel_t* accel = &wm->accel_calib;
-				byte val;
+    case 1:
+    {
+        struct read_req_t *req = wm->read_req;
+        struct accel_t *accel  = &wm->accel_calib;
+        byte val;
 
-				/* received read data */
-				accel->cal_zero.x = req->buf[0];
-				accel->cal_zero.y = req->buf[1];
-				accel->cal_zero.z = req->buf[2];
+        /* received read data */
+        accel->cal_zero.x = req->buf[0];
+        accel->cal_zero.y = req->buf[1];
+        accel->cal_zero.z = req->buf[2];
 
-				accel->cal_g.x = req->buf[4] - accel->cal_zero.x;
-				accel->cal_g.y = req->buf[5] - accel->cal_zero.y;
-				accel->cal_g.z = req->buf[6] - accel->cal_zero.z;
+        accel->cal_g.x = req->buf[4] - accel->cal_zero.x;
+        accel->cal_g.y = req->buf[5] - accel->cal_zero.y;
+        accel->cal_g.z = req->buf[6] - accel->cal_zero.z;
 
-				/* done with the buffer */
-				free(req->buf);
+        /* done with the buffer */
+        free(req->buf);
 
-				/* handshake is done */
-				WIIUSE_DEBUG("Handshake finished. Calibration: Idle: X=%x Y=%x Z=%x\t+1g: X=%x Y=%x Z=%x",
-				             accel->cal_zero.x, accel->cal_zero.y, accel->cal_zero.z,
-				             accel->cal_g.x, accel->cal_g.y, accel->cal_g.z);
+        /* handshake is done */
+        WIIUSE_DEBUG("Handshake finished. Calibration: Idle: X=%x Y=%x Z=%x\t+1g: X=%x Y=%x Z=%x",
+                     accel->cal_zero.x, accel->cal_zero.y, accel->cal_zero.z, accel->cal_g.x, accel->cal_g.y,
+                     accel->cal_g.z);
 
-				/* M+ off */
-				val = 0x55;
-				wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus1);
+        /* M+ off */
+        val = 0x55;
+        wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus1);
 
-				break;
-			}
+        break;
+    }
 
-		case 2: {
-				/* request the status of the wiimote to check for any expansion */
-				WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
-				WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE);
-				wm->handshake_state++;
+    case 2:
+    {
+        /* request the status of the wiimote to check for any expansion */
+        WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE);
+        WIIMOTE_ENABLE_STATE(wm, WIIMOTE_STATE_HANDSHAKE_COMPLETE);
+        wm->handshake_state++;
 
-				/* now enable IR if it was set before the handshake completed */
-				if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR)) {
-					WIIUSE_DEBUG("Handshake finished, enabling IR.");
-					WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
-					wiiuse_set_ir(wm, 1);
-				}
+        /* now enable IR if it was set before the handshake completed */
+        if (WIIMOTE_IS_SET(wm, WIIMOTE_STATE_IR))
+        {
+            WIIUSE_DEBUG("Handshake finished, enabling IR.");
+            WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_IR);
+            wiiuse_set_ir(wm, 1);
+        }
 
-				wm->event = WIIUSE_CONNECT;
-				wiiuse_status(wm);
+        wm->event = WIIUSE_CONNECT;
+        wiiuse_status(wm);
 
-				break;
-			}
+        break;
+    }
 
-		default: {
-				break;
-			}
-	}
+    default:
+    {
+        break;
+    }
+    }
 }
 
-static void wiiuse_disable_motion_plus1(struct wiimote_t *wm, byte *data, unsigned short len) {
-	byte val = 0x55;
-	wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus2);
+static void wiiuse_disable_motion_plus1(struct wiimote_t *wm, byte *data, unsigned short len)
+{
+    byte val = 0x55;
+    wiiuse_write_data_cb(wm, WM_EXP_MEM_ENABLE1, &val, 1, wiiuse_disable_motion_plus2);
 }
 
-static void wiiuse_disable_motion_plus2(struct wiimote_t *wm, byte *data, unsigned short len) {
-	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
-	WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
-	wiiuse_set_ir_mode(wm);
+static void wiiuse_disable_motion_plus2(struct wiimote_t *wm, byte *data, unsigned short len)
+{
+    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_FAILED);
+    WIIMOTE_DISABLE_STATE(wm, WIIMOTE_STATE_EXP_HANDSHAKE);
+    wiiuse_set_ir_mode(wm);
 
-	wm->handshake_state++;
-	wiiuse_handshake(wm, NULL, 0);
+    wm->handshake_state++;
+    wiiuse_handshake(wm, NULL, 0);
 }
 
 #endif

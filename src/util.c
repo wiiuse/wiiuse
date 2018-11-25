@@ -27,23 +27,18 @@
  *	@brief Provides platform-specific utility functions.
  */
 
-
 #include "wiiuse_internal.h"
 
 #ifdef WIIUSE_WIN32
 
 #include <windows.h>
 
-void wiiuse_millisleep(int durationMilliseconds) {
-	Sleep(durationMilliseconds);
-}
+void wiiuse_millisleep(int durationMilliseconds) { Sleep(durationMilliseconds); }
 
 #else /* not win32 - assuming posix */
 
-#include <unistd.h>                     /* for usleep */
+#include <unistd.h> /* for usleep */
 
-void wiiuse_millisleep(int durationMilliseconds) {
-	usleep(durationMilliseconds * 1000);
-}
+void wiiuse_millisleep(int durationMilliseconds) { usleep(durationMilliseconds * 1000); }
 
 #endif /* ifdef WIIUSE_WIN32 */
