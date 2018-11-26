@@ -107,6 +107,10 @@
 #include <bluetooth/bluetooth.h>
 #endif
 
+#ifdef WIIUSE_COMPILE_LIB
+#define WCONST
+#endif
+
 #ifndef WCONST
 #define WCONST const
 #endif
