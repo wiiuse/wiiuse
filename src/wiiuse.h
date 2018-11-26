@@ -648,7 +648,7 @@ typedef struct expansion_t
         struct classic_ctrl_t classic;
         struct guitar_hero_3_t gh3;
         struct wii_board_t wb;
-    };
+    } items;
 } expansion_t;
 
 /**

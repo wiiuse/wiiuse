@@ -362,7 +362,7 @@ int wiiuse_set_report_type(struct wiimote_t *wm)
         buf[1] = WM_RPT_BTN_ACC_IR;
     } else if (exp && balance_board)
     {
-        if (wm->exp.wb.use_alternate_report)
+        if (wm->exp.items.wb.use_alternate_report)
             buf[1] = WM_RPT_BTN_EXP_8;
         else
             buf[1] = WM_RPT_BTN_EXP;
@@ -830,7 +830,7 @@ float wiiuse_set_smooth_alpha(struct wiimote_t *wm, float alpha)
     /* if there is a nunchuk set that too */
     if (wm->exp.type == EXP_NUNCHUK)
     {
-        wm->exp.nunchuk.accel_calib.st_alpha = alpha;
+        wm->exp.items.nunchuk.accel_calib.st_alpha = alpha;
     }
 
     return old;
@@ -906,7 +906,7 @@ void wiiuse_wiiboard_use_alternate_report(struct wiimote_t *wm, int enabled)
 {
     if (wm->exp.type == EXP_WII_BOARD)
     {
-        wm->exp.wb.use_alternate_report = enabled;
+        wm->exp.items.wb.use_alternate_report = enabled;
         wiiuse_set_report_type(wm);
     } else
         printf("Alternate report can be set only on a Balance Board!\n");
