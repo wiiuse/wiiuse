@@ -111,7 +111,7 @@
 #define WCONST const
 #endif
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_VER < 1700
 /* MS compilers of pre-VC2010 versions don't have stdint.h
  * and I can't get VC2010's stdint.h to compile nicely in
  * WiiUse
