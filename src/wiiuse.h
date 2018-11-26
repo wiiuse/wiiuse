@@ -58,7 +58,7 @@
  *  intended to be the new "upstream" of the project. The new homepage is
  *  on GitHub, where the source is maintained:
  *
- *    - http://github.com/rpavlik/wiiuse
+ *    - http://github.com/wiiuse/wiiuse
  *
  *  Contributions (under the GPL 3+) are welcome and encouraged!
  *
