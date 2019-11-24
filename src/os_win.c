@@ -342,8 +342,9 @@ int wiiuse_os_write(struct wiimote_t *wm, byte report_type, byte *buf, int len)
         return 0;
     }
 
+	/* Windows should always use WriteFile instead of HidD_SetOutputReport to communicate -> data pipe instead of control pipe*/
     case WIIUSE_STACK_MS:
-        return HidD_SetOutputReport(wm->dev_handle, write_buffer, len + 1);
+        return WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap);
 
     case WIIUSE_STACK_BLUESOLEIL:
         return WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap);
