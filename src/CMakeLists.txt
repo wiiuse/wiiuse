@@ -61,7 +61,7 @@ add_library(wiiuse ${SOURCES} ${API})
 if(WIN32)
 	target_link_libraries(wiiuse ws2_32 setupapi ${WINHID_LIBRARIES})
 elseif(LINUX)
-	target_link_libraries(wiiuse m rt ${BLUEZ_LIBRARIES})
+	target_link_libraries(wiiuse m rt ${CMAKE_DL_LIBS})
 elseif(APPLE)
 	# link libraries
 	find_library(IOBLUETOOTH_FRAMEWORK

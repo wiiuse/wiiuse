@@ -51,6 +51,55 @@
 #include <sys/time.h>   /* for struct timeval */
 #include <time.h>       /* for clock_gettime */
 #include <unistd.h>     /* for close, write */
+#include <dlfcn.h>      /* for dlopen, dlclose, dlsym */
+
+static _Atomic int wiiuse_lib_loaded = 0;
+static struct {
+  int (*hci_get_route)(bdaddr_t *);
+
+  int (*hci_open_dev)(int);
+  int (*hci_close_dev)(int);
+  int (*hci_inquiry)(int, int, int , const uint8_t *, inquiry_info **, long);
+
+  int (*ba2str)(const bdaddr_t *, char *);
+  int (*str2ba)(const char *, bdaddr_t *);
+
+  bool loaded;
+} hci = {};
+
+static void load_bluez_symbols(void)
+{
+  void* bluetooth = dlopen("libbluetooth.so", RTLD_LAZY | RTLD_LOCAL | RTLD_NODELETE);
+  if(!bluetooth)
+    return;
+
+  hci.loaded = false;
+  hci.hci_get_route = dlsym(bluetooth, "hci_get_route");
+  if(!hci.hci_get_route)
+    return;
+
+  hci.hci_open_dev = dlsym(bluetooth, "hci_open_dev");
+  if(!hci.hci_open_dev)
+    return;
+
+  hci.hci_close_dev = dlsym(bluetooth, "hci_close_dev");
+  if(!hci.hci_close_dev)
+    return;
+
+  hci.hci_inquiry = dlsym(bluetooth, "hci_inquiry");
+  if(!hci.hci_inquiry)
+    return;
+
+  hci.ba2str = dlsym(bluetooth, "ba2str");
+  if(!hci.ba2str)
+    return;
+
+  hci.str2ba = dlsym(bluetooth, "str2ba");
+  if(!hci.str2ba)
+    return;
+
+  hci.loaded = true;
+}
 
 static int wiiuse_os_connect_single(struct wiimote_t *wm, char *address);
 
@@ -64,6 +113,9 @@ int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
     int found_wiimotes;
     int i = 0;
 
+    if(!hci.loaded)
+      return 0;
+
     /* reset all wiimote bluetooth device addresses */
     for (found_wiimotes = 0; found_wiimotes < max_wiimotes; ++found_wiimotes)
     {
@@ -73,7 +125,7 @@ int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
     found_wiimotes = 0;
 
     /* get the id of the first bluetooth device. */
-    device_id = hci_get_route(NULL);
+    device_id = hci.hci_get_route(NULL);
     if (device_id < 0)
     {
         if (errno == ENODEV)
@@ -87,7 +139,7 @@ int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
     }
 
     /* create a socket to the device */
-    device_sock = hci_open_dev(device_id);
+    device_sock = hci.hci_open_dev(device_id);
     if (device_sock < 0)
     {
         perror("hci_open_dev");
@@ -97,7 +149,7 @@ int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
     memset(&scan_info_arr, 0, sizeof(scan_info_arr));
 
     /* scan for bluetooth devices for 'timeout' seconds */
-    found_devices = hci_inquiry(device_id, timeout, 128, NULL, &scan_info, IREQ_CACHE_FLUSH);
+    found_devices = hci.hci_inquiry(device_id, timeout, 128, NULL, &scan_info, IREQ_CACHE_FLUSH);
     if (found_devices < 0)
     {
         perror("hci_inquiry");
@@ -120,7 +172,7 @@ int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
         if (is_wiimote_regular || is_wiimote_plus)
         {
             /* found a device */
-            ba2str(&scan_info[i].bdaddr, wm[found_wiimotes]->bdaddr_str);
+            hci.ba2str(&scan_info[i].bdaddr, wm[found_wiimotes]->bdaddr_str);
 
             const char *str_type;
             if (is_wiimote_regular)
@@ -155,6 +207,9 @@ int wiiuse_os_connect(struct wiimote_t **wm, int wiimotes)
     int connected = 0;
     int i         = 0;
 
+    if(!hci.loaded)
+      return 0;
+
     for (; i < wiimotes; ++i)
     {
         if (!WIIMOTE_IS_SET(wm[i], WIIMOTE_STATE_DEV_FOUND))
@@ -183,6 +238,9 @@ int wiiuse_os_connect(struct wiimote_t **wm, int wiimotes)
  */
 static int wiiuse_os_connect_single(struct wiimote_t *wm, char *address)
 {
+    if(!hci.loaded)
+      return 0;
+
     struct sockaddr_l2 addr;
     memset(&addr, 0, sizeof(addr));
 
@@ -196,7 +254,7 @@ static int wiiuse_os_connect_single(struct wiimote_t *wm, char *address)
     if (address)
     /* use provided address */
     {
-        str2ba(address, &addr.l2_bdaddr);
+        hci.str2ba(address, &addr.l2_bdaddr);
     } else
     {
         /** @todo this line doesn't make sense
@@ -258,6 +316,9 @@ static int wiiuse_os_connect_single(struct wiimote_t *wm, char *address)
 
 void wiiuse_os_disconnect(struct wiimote_t *wm)
 {
+    if(!hci.loaded)
+      return;
+
     if (!wm || WIIMOTE_IS_CONNECTED(wm))
     {
         return;
@@ -285,6 +346,10 @@ int wiiuse_os_poll(struct wiimote_t **wm, int wiimotes)
     int highest_fd = -1;
 
     evnt = 0;
+
+    if(!hci.loaded)
+      return 0;
+
     if (!wm)
     {
         return 0;
@@ -439,6 +504,9 @@ int wiiuse_os_write(struct wiimote_t *wm, byte report_type, byte *buf, int len)
 
 void wiiuse_init_platform_fields(struct wiimote_t *wm)
 {
+    if (!wiiuse_lib_loaded)
+      load_bluez_symbols();
+
     memset(&(wm->bdaddr), 0, sizeof(bdaddr_t)); /* = *BDADDR_ANY;*/
     wm->out_sock = -1;
     wm->in_sock  = -1;
