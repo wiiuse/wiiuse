@@ -43,9 +43,14 @@
 #include <hidsdi.h>
 #include <setupapi.h>
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && !defined(__MINGW64__)
 /* this prototype is missing from the mingw headers so we must add it
         or suffer linker errors. */
+
+#if !defined(WINHIDSDI)
+#define WINHIDSDI DECLSPEC_IMPORT
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -55,7 +60,9 @@ WINHIDSDI BOOL WINAPI HidD_SetOutputReport(HANDLE, PVOID, ULONG);
 #endif
 #endif
 
+#if !defined(__MINGW64__)
 static int clock_gettime(int X, struct timeval *tv);
+#endif
 
 int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
 {
@@ -342,7 +349,7 @@ int wiiuse_os_write(struct wiimote_t *wm, byte report_type, byte *buf, int len)
         return 0;
     }
 
-	/* Windows should always use WriteFile instead of HidD_SetOutputReport to communicate -> data pipe instead of control pipe*/
+  /* Windows should always use WriteFile instead of HidD_SetOutputReport to communicate -> data pipe instead of control pipe*/
     case WIIUSE_STACK_MS:
         return WriteFile(wm->dev_handle, write_buffer, 22, &bytes, &wm->hid_overlap);
 
@@ -374,6 +381,7 @@ unsigned long wiiuse_os_ticks()
     return ms;
 }
 
+#if !defined(__MINGW64__)
 /* code taken from http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows/5404467#5404467
  */
 static LARGE_INTEGER getFILETIMEoffset()
@@ -438,4 +446,5 @@ static int clock_gettime(int X, struct timeval *tv)
     tv->tv_usec  = t.QuadPart % 1000000;
     return (0);
 }
+#endif
 #endif /* ifdef WIIUSE_WIN32 */
