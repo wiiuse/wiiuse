@@ -60,9 +60,22 @@ WINHIDSDI BOOL WINAPI HidD_SetOutputReport(HANDLE, PVOID, ULONG);
 #endif
 #endif
 
-#if !defined(__MINGW64__)
-static int clock_gettime(int X, struct timeval *tv);
+unsigned long wiiuse_os_ticks()
+{
+    FILETIME ft;
+    ULARGE_INTEGER hnsTime;
+
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN10
+    GetSystemTimePreciseAsFileTime(&ft);
+#else
+    GetSystemTimeAsFileTime(&ft);
 #endif
+
+    hnsTime.LowPart = ft.dwLowDateTime;
+    hnsTime.HighPart = ft.dwHighDateTime;
+
+    return hnsTime.QuadPart / 10000ULL;
+}
 
 int wiiuse_os_find(struct wiimote_t **wm, int max_wiimotes, int timeout)
 {
@@ -371,80 +384,4 @@ void wiiuse_init_platform_fields(struct wiimote_t *wm)
 
 void wiiuse_cleanup_platform_fields(struct wiimote_t *wm) { wm->dev_handle = 0; }
 
-unsigned long wiiuse_os_ticks()
-{
-    unsigned long ms;
-    struct timeval tp;
-
-    clock_gettime(0, &tp);
-    ms = (unsigned long)(1000 * tp.tv_sec + tp.tv_usec / 1e3);
-    return ms;
-}
-
-#if !defined(__MINGW64__)
-/* code taken from http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows/5404467#5404467
- */
-static LARGE_INTEGER getFILETIMEoffset()
-{
-    SYSTEMTIME s;
-    FILETIME f;
-    LARGE_INTEGER t;
-
-    s.wYear         = 1970;
-    s.wMonth        = 1;
-    s.wDay          = 1;
-    s.wHour         = 0;
-    s.wMinute       = 0;
-    s.wSecond       = 0;
-    s.wMilliseconds = 0;
-    SystemTimeToFileTime(&s, &f);
-    t.QuadPart = f.dwHighDateTime;
-    t.QuadPart <<= 32;
-    t.QuadPart |= f.dwLowDateTime;
-    return (t);
-}
-
-static int clock_gettime(int X, struct timeval *tv)
-{
-    LARGE_INTEGER t;
-    FILETIME f;
-    double microseconds;
-    static LARGE_INTEGER offset;
-    static double frequencyToMicroseconds;
-    static int initialized            = 0;
-    static BOOL usePerformanceCounter = 0;
-
-    if (!initialized)
-    {
-        LARGE_INTEGER performanceFrequency;
-        initialized           = 1;
-        usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
-        if (usePerformanceCounter)
-        {
-            QueryPerformanceCounter(&offset);
-            frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
-        } else
-        {
-            offset                  = getFILETIMEoffset();
-            frequencyToMicroseconds = 10.;
-        }
-    }
-    if (usePerformanceCounter)
-        QueryPerformanceCounter(&t);
-    else
-    {
-        GetSystemTimeAsFileTime(&f);
-        t.QuadPart = f.dwHighDateTime;
-        t.QuadPart <<= 32;
-        t.QuadPart |= f.dwLowDateTime;
-    }
-
-    t.QuadPart -= offset.QuadPart;
-    microseconds = (double)t.QuadPart / frequencyToMicroseconds;
-    t.QuadPart   = (LONGLONG)microseconds;
-    tv->tv_sec   = (long)t.QuadPart / 1000000;
-    tv->tv_usec  = t.QuadPart % 1000000;
-    return (0);
-}
-#endif
 #endif /* ifdef WIIUSE_WIN32 */
