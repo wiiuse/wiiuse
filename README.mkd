@@ -50,7 +50,7 @@ Original Author: Michael Laforest < para > < thepara (--AT--) g m a i l [--DOT--
 
 Additional Contributors:
 
-- Jan Ciger - Reviatech SAS <https://github.com/janoc> <jan.ciger@reviatech.com> (effective co-maintainer)
+- Jan Ciger <https://github.com/janoc> <jan.ciger@gmail.com> (effective co-maintainer)
 - dhewg
 - Christopher Sawczuk @ TU-Delft (initial Balance Board support)
 - Paul Burton <https://github.com/paulburton/wiiuse>
