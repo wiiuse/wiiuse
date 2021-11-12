@@ -2,7 +2,7 @@
 # http://academic.cleardefinition.com/
 # Iowa State University HCI Graduate Program/VRAC
 
-cmake_minimum_required(VERSION 2.8.0)
+cmake_minimum_required(VERSION 3.0.0)
 
 # Set package properties
 project(WiiUse)
@@ -31,7 +31,7 @@ option(CPACK_MONOLITHIC_INSTALL "Only produce a single component installer, rath
 
 # Locally-developed modules dist'ed with this app - always have this first.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(UseBackportedModules)
+#include(UseBackportedModules)
 include(DoxygenTargets)
 
 if(BUILD_WIIUSE_SHARED_LIB)
