@@ -211,7 +211,7 @@ function(add_doxygen _doxyfile)
 	endif()
 
 	if(NOT PROJECT_NUMBER)
-		set(PROJECT_NUMBER "${CPACK_PACKAGE_VERSION}")
+		set(PROJECT_NUMBER "${PROJECT_VERSION}")
 	endif()
 
 	if(DOXYGEN_FOUND)

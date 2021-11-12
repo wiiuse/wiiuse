@@ -1,0 +1,64 @@
+name: CI
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+  release:
+    types:
+      - created
+
+jobs:
+  build-linux:
+    strategy:
+      matrix:
+        os: [ubuntu-latest ] # More distributions can be added in the future
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'debian-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install cmake libbluetooth-dev libsdl-dev freeglut3-dev
+      - name: Build (shared lib)
+        run: | 
+          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
+          cmake --build build-shared
+      - name: Build (static lib)
+        run: |
+          cmake -B build-static
+          cmake --build build-static
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install cmake freeglut sdl
+      - name: Build (shared lib)
+        run: | 
+          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
+          cmake --build build-shared
+      - name: Build (static lib)
+        run: |
+          cmake -B build-static
+          cmake --build build-static
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Build (shared lib)
+        run: |
+          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
+          cmake --build build-shared
+      - name: Build (static lib)
+        run: |
+          cmake -B build-static
+          cmake --build build-static
