@@ -2,7 +2,7 @@
 # http://academic.cleardefinition.com/
 # Iowa State University HCI Graduate Program/VRAC
 
-cmake_minimum_required(VERSION 2.8.0)
+cmake_minimum_required(VERSION 3.0.0)
 
 # Set package properties
 project(WiiUse)

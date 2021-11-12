@@ -1,3 +1,4 @@
+set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(SDL)
 find_package(OpenGL)
 find_package(GLUT)
