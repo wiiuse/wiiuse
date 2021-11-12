@@ -10,7 +10,7 @@ Mailing list: <wiiuse@librelist.com> - just email to subscribe. See
 
 Changelog: <https://github.com/wiiuse/wiiuse/blob/master/CHANGELOG.mkd>
 
-[![Build Status](https://travis-ci.com/wiiuse/wiiuse.svg?branch=master)](https://travis-ci.com/wiiuse/wiiuse/master)
+[![CI](https://github.com/wiiuse/wiiuse/actions/workflows/CI.yml/badge.svg)](https://github.com/wiiuse/wiiuse/actions/workflows/CI.yml)
 
 **NOTE**: This library sees little change not because it is dead,
 but because it is effectively "complete".
@@ -68,6 +68,7 @@ Additional Contributors:
 - Chadwick Boulay <https://github.com/cboulay>
 - Florian Baumgartl <https://github.com/Baumgartl>
 - Philipp Hartl <https://github.com/phHartl>
+- Bryan Quigley <https://github.com/BryanQuigley>
 
 ## License
 
