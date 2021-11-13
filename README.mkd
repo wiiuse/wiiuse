@@ -10,7 +10,7 @@ Mailing list: <wiiuse@librelist.com> - just email to subscribe. See
 
 Changelog: <https://github.com/wiiuse/wiiuse/blob/master/CHANGELOG.mkd>
 
-![Build Status Linux + MacOS](https://github.com/github/docs/actions/workflows/linux.yml/badge.svg)
+[![Build CI](https://github.com/github/docs/actions/workflows/CI/badge.svg)](https://github.com/github/docs/actions/workflows/linux.yml)
 
 **NOTE**: This library sees little change not because it is dead,
 but because it is effectively "complete".
