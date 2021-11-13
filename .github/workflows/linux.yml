@@ -1,4 +1,4 @@
-name: Linux MacOS CI
+name: CI
 on: [push, pull_request]
 jobs:
   build:
