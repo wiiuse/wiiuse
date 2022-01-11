@@ -12,7 +12,11 @@ if(SDL_FOUND AND OPENGL_FOUND AND GLUT_FOUND)
 		add_executable(wiiuseexample-sdl sdl.c)
 	endif()
 
-	target_link_libraries(wiiuseexample-sdl wiiuse ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+	target_link_libraries(wiiuseexample-sdl
+		wiiuse
+		SDL::SDL
+		OpenGL::GLU
+		GLUT::GLUT)
 
 	if(INSTALL_EXAMPLES)
 		install(TARGETS wiiuseexample-sdl
