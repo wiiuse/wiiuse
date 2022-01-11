@@ -211,6 +211,8 @@ else()
 			lib
 			lib/w32api)
 	endif()
+
+    # D:/a/_temp/msys64/usr/x86_64-w64-mingw32/include/hidsdi.h
 	find_path(WINHID_INCLUDE_DIR
 		NAMES
 		hidsdi.h
@@ -219,6 +221,7 @@ else()
 		${MINGWSEARCH_INCLUDE_DIRS}
 		/mingw
 		PATH_SUFFIXES
+		x86_64-w64-mingw32/include
 		include/w32api/ddk
 		include/ddk
 		ddk)

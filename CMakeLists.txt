@@ -53,6 +53,8 @@ if(WIN32)
 	if(MSVC)
 		# Minimum requirement is WinXP
 		add_definitions(-D_WIN32_WINNT=0x0501)
+	else()
+		add_definitions(-D_WIN32)
 	endif()
 endif()
 
