@@ -49,3 +49,16 @@ jobs:
           cmake -B build
           cmake --build build
 
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Build (shared lib)
+        run: |
+          cmake -B build -DBUILD_SHARED_LIBS=TRUE
+          cmake --build build
+      - name: Build (static lib)
+        run: |
+          cmake -B build
+          cmake --build build
