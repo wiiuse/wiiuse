@@ -91,6 +91,12 @@ if(NOT SUBPROJECT)
 		set(DOC_DIR .)
 	else()
 		set(DOC_DIR share/doc/wiiuse)
+
+		configure_file(wiiuse.pc.in
+			${CMAKE_CURRENT_BINARY_DIR}/wiiuse.pc
+			@ONLY)
+		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wiiuse.pc
+			DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 	endif()
 
 	# Documentation
