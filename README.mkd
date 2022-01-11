@@ -69,6 +69,7 @@ Additional Contributors:
 - Florian Baumgartl <https://github.com/Baumgartl>
 - Philipp Hartl <https://github.com/phHartl>
 - Bryan Quigley <https://github.com/BryanQuigley>
+- Bart Ribbers <https://github.com/PureTryOut>
 
 ## License
 
