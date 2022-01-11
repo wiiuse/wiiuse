@@ -5,7 +5,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 # Set package properties
-project(WiiUse)
+project(WiiUse
+	VERSION 0.15.5
+	DESCRIPTION "Feature-complete cross-platform Wii Remote access library")
 
 ###
 # Set up options
@@ -14,9 +16,6 @@ project(WiiUse)
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 	set(SUBPROJECT YES)
 endif()
-
-include("./ParseVersion.cmake")
-message(STATUS "Configuring WiiUse version ${CPACK_PACKAGE_VERSION}")
 
 option(BUILD_EXAMPLE "Should we build the example app?" YES)
 option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
@@ -123,7 +122,7 @@ if(NOT SUBPROJECT)
 	include(GetCompilerInfoString)
 	get_compiler_info_string(_compiler)
 
-	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${_compiler}")
+	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${_compiler}")
 
 	# Include the packaging system now that we have it all set up
 	include(CPack)
