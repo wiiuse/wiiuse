@@ -20,11 +20,11 @@ jobs:
         run: |
           brew update
           brew ls --versions cmake && brew upgrade cmake || brew install cmake
-      - name: Build
+      - name: Build (shared lib)
         run: | 
-          mkdir -p build
-          cd build
-          cmake ..
-          make
-          sudo make install
-      
+          cmake -B build -DBUILD_SHARED_LIBS=TRUE
+          make -C build
+      - name: Build (static lib)
+        run: |
+          cmake -B build
+          make -C build
