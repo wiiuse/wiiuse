@@ -440,7 +440,7 @@ int WINAPI WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 
-		if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+		while(wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
 			/*
 			 *	This happens if something happened on any wiimote.
 			 *	So go through each one and check if anything happened.
