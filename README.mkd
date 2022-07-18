@@ -70,6 +70,7 @@ Additional Contributors:
 - Philipp Hartl <https://github.com/phHartl>
 - Bryan Quigley <https://github.com/BryanQuigley>
 - Bart Ribbers <https://github.com/PureTryOut>
+- Samuel Hackbeil <https://github.com/shackbei>
 
 ## License
 
