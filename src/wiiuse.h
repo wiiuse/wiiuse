@@ -953,7 +953,6 @@ WIIUSE_EXPORT extern void wiiuse_set_nunchuk_orient_threshold(struct wiimote_t *
 WIIUSE_EXPORT extern void wiiuse_set_nunchuk_accel_threshold(struct wiimote_t *wm, int threshold);
 
 /* wiiboard.c */
-/* this function not currently implemented... */
 WIIUSE_EXPORT extern void wiiuse_set_wii_board_calib(struct wiimote_t *wm);
 
 WIIUSE_EXPORT extern void wiiuse_set_motion_plus(struct wiimote_t *wm, int status);
