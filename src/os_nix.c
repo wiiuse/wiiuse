@@ -69,7 +69,7 @@ static struct {
 
 static void load_bluez_symbols(void)
 {
-  void* bluetooth = dlopen("libbluetooth.so", RTLD_LAZY | RTLD_LOCAL | RTLD_NODELETE);
+  void* bluetooth = dlopen("libbluetooth.so.3", RTLD_LAZY | RTLD_LOCAL | RTLD_NODELETE);
   if(!bluetooth)
     return;
 
