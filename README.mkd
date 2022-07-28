@@ -71,6 +71,7 @@ Additional Contributors:
 - Bryan Quigley <https://github.com/BryanQuigley>
 - Bart Ribbers <https://github.com/PureTryOut>
 - Samuel Hackbeil <https://github.com/shackbei>
+- Jean-Michaël Celerier <https://github.com/jcelerier>
 
 ## License
 
