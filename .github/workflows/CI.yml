@@ -49,23 +49,43 @@ jobs:
           cmake -B build-static
           cmake --build build-static
 
-  build-windows:
+  build-windows-msvc:
     runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Build (shared lib)
+        run: |
+          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
+          cmake --build build-shared
+      - name: Build (static lib)
+        run: |
+          cmake -B build-static
+          cmake --build build-static
+
+  build-windows-mingw:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64 }
+          - { sys: mingw32, env: i686 }
+          - { sys: ucrt64,  env: ucrt-x86_64 } 
+          - { sys: clang64, env: clang-x86_64 }
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Setup msys2 and mingw-w64
         uses: msys2/setup-msys2@v2
         with:
-          install: >-
-            base-devel
-            gcc
+          msystem: ${{matrix.sys}}
+          update: true
           pacboy: >-
-            cmake
-            ninja
-            headers
-            freeglut
-            SDL
+            cmake:p
+            ninja:p
+            freeglut:p
+            SDL2:p
+            toolchain:p
       - name: Build (shared lib)
         shell: msys2 {0}
         run: |
