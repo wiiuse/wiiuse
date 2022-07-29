@@ -43,23 +43,6 @@
 #include <hidsdi.h>
 #include <setupapi.h>
 
-#if defined(__MINGW32__) && !defined(__MINGW64__)
-/* this prototype is missing from the mingw headers so we must add it
-        or suffer linker errors. */
-
-#if !defined(WINHIDSDI)
-#define WINHIDSDI DECLSPEC_IMPORT
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-WINHIDSDI BOOL WINAPI HidD_SetOutputReport(HANDLE, PVOID, ULONG);
-#ifdef __cplusplus
-}
-#endif
-#endif
-
 unsigned long wiiuse_os_ticks()
 {
     FILETIME ft;
