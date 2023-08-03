@@ -18,14 +18,15 @@
 #  FindWindowsSDK
 #
 # Original Author:
-# 2009-2010 Ryan PFavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
+# 2009-2010 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
 # http://academic.cleardefinition.com
 # Iowa State University HCI Graduate Program/VRAC
 #
-# Copyright Iowa State University 2009-2010.
+# Copyright 2009-2010, Iowa State University
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
+# SPDX-License-Identifier: BSL-1.0
 
 if(NOT WIN32)
 	find_package_handle_standard_args(WinHID
@@ -211,7 +212,6 @@ else()
 			lib
 			lib/w32api)
 	endif()
-
 	find_path(WINHID_INCLUDE_DIR
 		NAMES
 		hidsdi.h
