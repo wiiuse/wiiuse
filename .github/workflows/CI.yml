@@ -1,5 +1,5 @@
 name: CI
-on: 
+on:
   push:
     branches:
       - master
@@ -12,18 +12,18 @@ jobs:
   build-linux:
     strategy:
       matrix:
-        os: [ubuntu-latest ] # More distributions can be added in the future
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: "actions/checkout@v3"
       - name: Install dependencies
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'debian-latest'
         run: |
           sudo apt-get update
-          sudo apt-get -y install cmake libbluetooth-dev libsdl-dev freeglut3-dev
+          sudo apt-get -y install cmake libbluetooth-dev libsdl1.2-dev freeglut3-dev
       - name: Build (shared lib)
-        run: | 
+        run: |
           cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
           cmake --build build-shared
       - name: Build (static lib)
@@ -35,13 +35,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: "actions/checkout@v3"
       - name: Install dependencies
         run: |
           brew update
           brew install cmake freeglut sdl
       - name: Build (shared lib)
-        run: | 
+        run: |
           cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
           cmake --build build-shared
       - name: Build (static lib)
@@ -53,7 +53,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: "actions/checkout@v3"
       - name: Build (shared lib)
         run: |
           cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
@@ -70,11 +70,11 @@ jobs:
         include:
           - { sys: mingw64, env: x86_64 }
           - { sys: mingw32, env: i686 }
-          - { sys: ucrt64,  env: ucrt-x86_64 } 
+          - { sys: ucrt64,  env: ucrt-x86_64 }
           - { sys: clang64, env: clang-x86_64 }
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: "actions/checkout@v3"
       - name: Setup msys2 and mingw-w64
         uses: msys2/setup-msys2@v2
         with:
