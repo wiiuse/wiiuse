@@ -257,12 +257,11 @@ greatly appreciated.
 
 ### Forks not yet fully integrated
 
-- [libogc/WPAD/DevKitPro](http://wiibrew.org/wiki/Libogc)
-  - Started before the disappearance of the original upstream
+- [libogc/wiiuse](https://github.com/devkitPro/libogc/tree/master/wiiuse)
+  - wii port created by Shagkur and contributed upstream
   - Focused on Wiimote use with Wii hardware
-  - Functions renamed, copyright statements removed
+  - code unfortunately diverged
   - Additional functionality unknown?
-  - git-svn mirror found here: <https://github.com/xloem/libogc-wiiuse>
 - [fwiine](http://sourceforge.net/projects/fwiine/files/wiiuse/0.13/)
   - Created an 0.13 version with some very preliminary MotionPlus support.
   - Integrated into branch `fwiine-motionplus`, not yet merged pending
