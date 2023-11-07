@@ -56,7 +56,7 @@ endif()
 
 add_definitions(-DWIIUSE_COMPILE_LIB)
 
-add_library(wiiuse ${SOURCES} ${API})
+add_library(wiiuse SHARED ${SOURCES} ${API})
 
 if(WIN32)
 	target_link_libraries(wiiuse ws2_32 setupapi ${WINHID_LIBRARIES})
