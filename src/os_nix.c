@@ -406,7 +406,7 @@ int wiiuse_os_read(struct wiimote_t *wm, byte *buf, int len)
         { /* hack for chatty Balance Boards that flood the logs with useless button reports */
             int i;
             printf("[DEBUG] (id %i) RECV: (%.2x) ", wm->unid, buf[0]);
-            for (i = 1; i < rc; i++)
+            for (i = 1; i < rc - 1; i++)
             {
                 printf("%.2x ", buf[i]);
             }
