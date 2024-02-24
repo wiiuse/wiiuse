@@ -44,13 +44,13 @@ button on the web interface should make this even simpler.
 
 ## Authors
 
-Mostly-absentee (but delegating!) Fork Maintainer: Ryan Pavlik <ryan.pavlik@gmail.com> or <abiryan@ryand.net>
+Mostly-absentee (but delegating!) Fork Maintainer: Rylie Pavlik <https://github.com/rpavlik> <rylie.pavlik@collabora.com>
 
 Original Author: Michael Laforest < para > < thepara (--AT--) g m a i l [--DOT--] com >
 
 Additional Contributors:
 
-- Jan Ciger <https://github.com/janoc> <jan.ciger@gmail.com> (effective co-maintainer)
+- Jan Ciger <https://github.com/janoc> <contact@jciger.com> (effective co-maintainer)
 - dhewg
 - Christopher Sawczuk @ TU-Delft (initial Balance Board support)
 - Paul Burton <https://github.com/paulburton/wiiuse>
@@ -72,6 +72,9 @@ Additional Contributors:
 - Bart Ribbers <https://github.com/PureTryOut>
 - Samuel Hackbeil <https://github.com/shackbei>
 - Jean-Michaël Celerier <https://github.com/jcelerier>
+- Dave Murphy <https://github.com/WinterMute>
+- Forrest Cahoon <https://github.com/forrcaho>
+
 
 ## License
 
