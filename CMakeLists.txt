@@ -84,7 +84,7 @@ if(NOT SUBPROJECT)
 # Set packaging options (for CPack)
 ###
 
-	if(WIN32)
+	if(MSVC)
 		set(DOC_DIR .)
 	else()
 		set(DOC_DIR share/doc/wiiuse)
