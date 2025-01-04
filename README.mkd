@@ -74,6 +74,7 @@ Additional Contributors:
 - Jean-Michaël Celerier <https://github.com/jcelerier>
 - Dave Murphy <https://github.com/WinterMute>
 - Forrest Cahoon <https://github.com/forrcaho>
+- Sergei Trofimovich <https://github.com/trofi>
 
 
 ## License
@@ -147,7 +148,7 @@ Wiiuse currently operates on Linux, Windows and Mac. You will need:
 
 ## Compiling
 
-You need SDL and OpenGL installed to compile the (optional) SDL example.
+You need SDL 1.2 and OpenGL installed to compile the (optional) SDL example.
 
 ### Linux & Mac
 

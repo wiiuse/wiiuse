@@ -123,12 +123,10 @@ endfunction()
 # version with a regex.
 #
 function(get_gcc_version _var)
-	exec_program(${CMAKE_CXX_COMPILER}
-		ARGS
-		${CMAKE_CXX_COMPILER_ARG1}
-		-dumpversion
-		OUTPUT_VARIABLE
-		_compilerinfo_COMPILER_VERSION)
+        execute_process(
+               COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} -dumpversion
+               OUTPUT_VARIABLE _compilerinfo_COMPILER_VERSION
+        )
 
 	string(REGEX
 		MATCH
