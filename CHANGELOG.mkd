@@ -14,6 +14,18 @@ Original project (0.12 and earlier):
     most recent archive from 2010 (looks identical on homepage to 2011 snapshot above)
     <https://web.archive.org/web/20100216015311/http://wiiuse.sourceforge.net/>
 
+
+
+v0.15.7 -- 27-Feb-2026
+--------------------
+
+Fixed:
+
+- Tatacon Support
+- Fix deprecation warnings
+
+
+
 v0.15.6 -- 18-Feb-2024
 --------------------
 
