@@ -45,6 +45,7 @@
 #include "motion_plus.h"   /* for motion_plus_disconnected, etc */
 #include "nunchuk.h"       /* for nunchuk_disconnected, etc */
 #include "wiiboard.h"      /* for wii_board_disconnected, etc */
+#include "tatacon.h"       /* for tatacon_disconnected, etc */
 
 #include "os.h" /* for wiiuse_os_poll */
 
@@ -674,6 +675,9 @@ static void handle_expansion(struct wiimote_t *wm, byte *msg)
     case EXP_MOTION_PLUS_NUNCHUK:
         motion_plus_event(&wm->exp.mp, wm->exp.type, msg);
         break;
+    case EXP_TATACON:
+        tatacon_event(&wm->exp.tatacon, msg);
+        break;
     default:
         break;
     }
@@ -809,6 +813,12 @@ void handshake_expansion(struct wiimote_t *wm, byte *data, uint16_t len)
             gotIt     = 1;
         }
         break;
+    
+    case EXP_ID_CODE_TATACON:
+        tatacon_handshake(wm, &wm->exp.tatacon, handshake_buf, EXP_HANDSHAKE_LEN);
+        wm->event = WIIUSE_TATACON_CTRL_INSERTED;
+        gotIt = 1;
+        break;
 
     default:
         WIIUSE_WARNING("Unknown expansion type. Code: 0x%x", id);
@@ -872,6 +882,10 @@ void disable_expansion(struct wiimote_t *wm)
     case EXP_MOTION_PLUS_NUNCHUK:
         motion_plus_disconnected(&wm->exp.mp);
         wm->event = WIIUSE_MOTION_PLUS_REMOVED;
+        break;
+    case EXP_TATACON:
+        tatacon_disconnected(&wm->exp.tatacon);
+        wm->event = WIIUSE_TATACON_CTRL_REMOVED;
         break;
     default:
         break;
@@ -961,6 +975,10 @@ static void save_state(struct wiimote_t *wm)
 
         break;
     }
+
+    case EXP_TATACON:
+        wm->lstate.exp_btns = wm->exp.tatacon.btns;
+        break;
 
     case EXP_NONE:
         break;
@@ -1110,6 +1128,10 @@ static int state_changed(struct wiimote_t *wm)
 
         break;
     }
+    case EXP_TATACON:
+        STATE_CHANGED(wm->lstate.exp_btns, wm->exp.tatacon.btns);
+        break;
+
     case EXP_NONE:
     {
         break;
