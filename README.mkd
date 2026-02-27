@@ -75,7 +75,7 @@ Additional Contributors:
 - Dave Murphy <https://github.com/WinterMute>
 - Forrest Cahoon <https://github.com/forrcaho>
 - Sergei Trofimovich <https://github.com/trofi>
-
+- Pixel <https://github.com/pixelomer>
 
 ## License
 
@@ -114,6 +114,7 @@ for the Nintendo Wii remote with their third party application.
   - Classic controller
   - Guitar controller
   - Motion Plus dongle (for the gen 1 Wiimote)
+  - Tatacon
 
 ### Clones and 3rdparty devices
 
