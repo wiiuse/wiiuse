@@ -220,6 +220,15 @@
 #define GUITAR_HERO_3_BUTTON_ALL        0xFEFF
 /** @} */
 
+/** @name Tatacon button codes */
+/** @{ */
+#define TATACON_BUTTON_CENTER_LEFT      0x40
+#define TATACON_BUTTON_CENTER_RIGHT     0x10
+#define TATACON_BUTTON_RIM_LEFT         0x20
+#define TATACON_BUTTON_RIM_RIGHT        0x08
+#define TATACON_BUTTON_ALL              0x78
+/** @} */
+
 /** @name Wiimote option flags */
 /** @{ */
 #define WIIUSE_SMOOTHING     0x01
@@ -240,6 +249,7 @@
 #define EXP_MOTION_PLUS 5
 #define EXP_MOTION_PLUS_NUNCHUK 6 /* Motion+ in nunchuk pass-through mode */
 #define EXP_MOTION_PLUS_CLASSIC 7 /* Motion+ in classic ctr. pass-through mode */
+#define EXP_TATACON 8
 /** @} */
 
 /** @brief IR correction types */
@@ -589,6 +599,14 @@ typedef struct motion_plus_t
 } motion_plus_t;
 
 /**
+ *	@brief Tatacon expansion device.
+ */
+typedef struct tatacon_t
+{
+    int8_t btns;          /**< what buttons have just been pressed	*/
+} tatacon_t;
+
+/**
  *	@brief Wii Balance Board "expansion" device.
  *
  *  A Balance Board presents itself as a Wiimote with a permanently-attached
@@ -644,6 +662,7 @@ typedef struct expansion_t
         struct classic_ctrl_t classic;
         struct guitar_hero_3_t gh3;
         struct wii_board_t wb;
+        struct tatacon_t tatacon;
     };
 } expansion_t;
 
@@ -711,7 +730,9 @@ typedef enum WIIUSE_EVENT_TYPE {
     WIIUSE_WII_BOARD_CTRL_INSERTED,
     WIIUSE_WII_BOARD_CTRL_REMOVED,
     WIIUSE_MOTION_PLUS_ACTIVATED,
-    WIIUSE_MOTION_PLUS_REMOVED
+    WIIUSE_MOTION_PLUS_REMOVED,
+    WIIUSE_TATACON_CTRL_INSERTED,
+    WIIUSE_TATACON_CTRL_REMOVED
 } WIIUSE_EVENT_TYPE;
 
 /**

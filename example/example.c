@@ -292,6 +292,21 @@ void handle_event(struct wiimote_t* wm) {
 		printf("Weight: %f kg @ (%f, %f)\n", total, x, y);
 		printf("Interpolated weight: TL:%f  TR:%f  BL:%f  BR:%f\n", wb->tl, wb->tr, wb->bl, wb->br);
 		printf("Raw: TL:%d  TR:%d  BL:%d  BR:%d\n", wb->rtl, wb->rtr, wb->rbl, wb->rbr); 
+	} else if (wm->exp.type == EXP_TATACON) {
+		/* tatacon */
+		struct tatacon_t* tatacon = (tatacon_t*)&wm->exp.tatacon;
+		if (IS_PRESSED(tatacon, TATACON_BUTTON_RIM_LEFT)) {
+			printf("Tatacon: Left Rim Hit\n");
+		}
+		if (IS_PRESSED(tatacon, TATACON_BUTTON_CENTER_LEFT)) {
+			printf("Tatacon: Left Center Hit\n");
+		}
+		if (IS_PRESSED(tatacon, TATACON_BUTTON_CENTER_RIGHT)) {
+			printf("Tatacon: Right Center Hit\n");
+		}
+		if (IS_PRESSED(tatacon, TATACON_BUTTON_RIM_RIGHT)) {
+			printf("Tatacon: Right Rim Hit\n");
+		}
 	}
 
 	if (wm->exp.type == EXP_MOTION_PLUS ||
@@ -557,11 +572,18 @@ int main(int argc, char** argv) {
 						printf("Guitar Hero 3 controller inserted.\n");
 						break;
 
+					case WIIUSE_TATACON_CTRL_INSERTED:
+						/* some expansion was inserted */
+						handle_ctrl_status(wiimotes[i]);
+						printf("Tatacon controller inserted.\n");
+						break;
+
 					case WIIUSE_MOTION_PLUS_ACTIVATED:
 						printf("Motion+ was activated\n");
 						break;
 
 					case WIIUSE_NUNCHUK_REMOVED:
+					case WIIUSE_TATACON_CTRL_REMOVED:
 					case WIIUSE_CLASSIC_CTRL_REMOVED:
 					case WIIUSE_GUITAR_HERO_3_CTRL_REMOVED:
 					case WIIUSE_WII_BOARD_CTRL_REMOVED:

@@ -24,6 +24,8 @@ set(SOURCES
 	ir.h
 	nunchuk.h
 	os.h
+	tatacon.c
+	tatacon.h
 	util.c
 	wiiuse_internal.h
 	wiiboard.h)
