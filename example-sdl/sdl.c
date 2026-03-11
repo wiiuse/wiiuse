@@ -68,7 +68,7 @@ int ycoord = 0;
 DWORD last_render;
 #else
 struct timeval last_render;
-int last_sec = 0;
+time_t last_sec = 0;
 int fps = 0;
 #endif
 
