@@ -48,6 +48,8 @@ elseif(APPLE)
 	# make sure we use the gcc for Objective-C files as well so that the
 	# sysroot and deployment target arguments are correctly passed to the compiler
 	set_source_files_properties(${MAC_OBJC_SOURCES} PROPERTIES LANGUAGE C)
+elseif(WITH_BT_EMBEDDED)
+	list(APPEND SOURCES os_bt_embedded.c)
 else()
 	list(APPEND SOURCES os_nix.c)
 endif()
@@ -62,6 +64,8 @@ add_library(wiiuse ${SOURCES} ${API})
 
 if(WIN32)
 	target_link_libraries(wiiuse ws2_32 setupapi ${WINHID_LIBRARIES})
+elseif(WITH_BT_EMBEDDED)
+	target_link_libraries(wiiuse m rt PkgConfig::BTE)
 elseif(LINUX)
 	target_link_libraries(wiiuse m rt ${BLUEZ_LIBRARIES})
 elseif(APPLE)

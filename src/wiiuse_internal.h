@@ -72,6 +72,9 @@
 #include <arpa/inet.h> /* htons() */
 #include <bluetooth/bluetooth.h>
 #endif
+#ifdef WIIUSE_BT_EMBEDDED
+#include <bt-embedded/l2cap.h>
+#endif
 #ifdef WIIUSE_MAC
 /* mac */
 #include <CoreFoundation/CoreFoundation.h>  /*CFRunLoops and CFNumberRef in Bluetooth classes*/
