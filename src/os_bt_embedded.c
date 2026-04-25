@@ -448,7 +448,7 @@ unsigned long wiiuse_os_ticks()
 {
     struct timespec tp;
     clock_gettime(CLOCK_REALTIME, &tp);
-    unsigned long ms = 1000 * tp.tv_sec + tp.tv_nsec / 1e6;
+    unsigned long ms = 1000 * tp.tv_sec + tp.tv_nsec / 1000000;
     return ms;
 }
 
