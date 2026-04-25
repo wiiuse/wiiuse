@@ -73,6 +73,7 @@
 #include <bluetooth/bluetooth.h>
 #endif
 #ifdef WIIUSE_BT_EMBEDDED
+#include <arpa/inet.h> /* htons() */
 #include <bt-embedded/l2cap.h>
 #endif
 #ifdef WIIUSE_MAC
