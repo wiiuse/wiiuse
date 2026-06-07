@@ -89,7 +89,7 @@ jobs:
             ninja:p
             SDL2:p
             toolchain:p
-            w32api:p
+            windows-default-manifest:p
       - name: Build (shared lib)
         shell: msys2 {0}
         run: |
