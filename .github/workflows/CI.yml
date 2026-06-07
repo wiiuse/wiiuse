@@ -56,6 +56,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: "actions/checkout@v3"
+      - name: Setup MSVC development environment
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Build (shared lib)
         run: |
           cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
@@ -85,16 +87,16 @@ jobs:
           pacboy: >-
             cmake:p
             ninja:p
-            freeglut:p
             SDL2:p
             toolchain:p
+            windows-default-manifest:p
       - name: Build (shared lib)
         shell: msys2 {0}
         run: |
-          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
+          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE -DBUILD_EXAMPLE=OFF -DBUILD_EXAMPLE_SDL=OFF
           cmake --build build-shared
       - name: Build (static lib)
         shell: msys2 {0}
         run: |
-          cmake -B build-static
+          cmake -B build-static -DBUILD_EXAMPLE=OFF -DBUILD_EXAMPLE_SDL=OFF
           cmake --build build-static
