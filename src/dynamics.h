@@ -47,8 +47,65 @@ extern "C" {
 /** @defgroup internal_dynamics Internal: Dynamics Functions */
 /** @{ */
 
-void calculate_orientation(struct accel_t *ac, struct vec3b_t *accel, struct orient_t *orient, int smooth);
-void calculate_gforce(struct accel_t *ac, struct vec3b_t *accel, struct gforce_t *gforce);
+/* Extra precision bits the Wii Remote's accelerometer has per axis (10-bit X / 9-bit Y / 9-bit Z);
+ * always defined, unlike the shifts below. */
+#define WIIMOTE_ACCEL_XBITS 2
+#define WIIMOTE_ACCEL_YBITS 1
+#define WIIMOTE_ACCEL_ZBITS 1
+
+/*
+ *	Per-axis shift calculate_orientation()/calculate_gforce() apply to the
+ *	8-bit calibration data (accel_t.cal_zero/cal_g) to bring it up to the
+ *	same scale as the raw accel value they're compared against. Differs
+ *	per device: the Wiimote is a 10-bit X / 9-bit Y / 9-bit Z split, the
+ *	Nunchuk is a full 10 bits on every axis - matching each decode site
+ *	(handle_wm_accel(), nunchuk_event()).
+ *
+ *	Under WIIUSE_ACCEL_10BIT the shift is the decode width above;
+ *	without it raw accel is a plain byte and the shift collapses to 0, so
+ *	callers (including the accel_threshold comparison in events.c) reduce
+ *	to byte-only arithmetic.
+ *
+ *	The Wii Remote's own calibration also gets its real EEPROM extra bits
+ *	ORed in by wiiuse_scale_calibration(); other sources are zero-padded.
+ */
+#ifdef WIIUSE_ACCEL_10BIT
+#define WIIMOTE_ACCEL_XSHIFT WIIMOTE_ACCEL_XBITS
+#define WIIMOTE_ACCEL_YSHIFT WIIMOTE_ACCEL_YBITS
+#define WIIMOTE_ACCEL_ZSHIFT WIIMOTE_ACCEL_ZBITS
+
+#define NUNCHUK_ACCEL_XSHIFT 2
+#define NUNCHUK_ACCEL_YSHIFT 2
+#define NUNCHUK_ACCEL_ZSHIFT 2
+#else
+#define WIIMOTE_ACCEL_XSHIFT 0
+#define WIIMOTE_ACCEL_YSHIFT 0
+#define WIIMOTE_ACCEL_ZSHIFT 0
+
+#define NUNCHUK_ACCEL_XSHIFT 0
+#define NUNCHUK_ACCEL_YSHIFT 0
+#define NUNCHUK_ACCEL_ZSHIFT 0
+#endif
+
+/* The Motion+ Nunchuk-passthrough path (motion_plus.c) never decodes
+ * extra precision bits, so it must never be shifted either, regardless
+ * of WIIUSE_ACCEL_10BIT. */
+#define NUNCHUK_PASSTHROUGH_ACCEL_XSHIFT 0
+#define NUNCHUK_PASSTHROUGH_ACCEL_YSHIFT 0
+#define NUNCHUK_PASSTHROUGH_ACCEL_ZSHIFT 0
+
+struct vec3i_t
+{
+    int x, y, z;
+};
+
+/* Test seam: un-static'd so tests can exercise the real scaling. */
+struct vec3i_t wiiuse_scale_calibration(const struct vec3b_t *cal, const struct vec3b_t *cal_lsb, int accel_xshift,
+                                 int accel_yshift, int accel_zshift);
+void calculate_orientation(struct accel_t *ac, struct vec3w_t *accel, struct orient_t *orient, int smooth,
+                           int accel_xshift, int accel_yshift, int accel_zshift);
+void calculate_gforce(struct accel_t *ac, struct vec3w_t *accel, struct gforce_t *gforce, int accel_xshift,
+                      int accel_yshift, int accel_zshift);
 void calc_joystick_state(struct joystick_t *js, float x, float y);
 void apply_smoothing(struct accel_t *ac, struct orient_t *orient, int type);
 /** @} */

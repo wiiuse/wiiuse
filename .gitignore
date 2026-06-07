@@ -1,2 +1,6 @@
 build
 .cquery_cached_index
+/docs/
+/.cache/
+/.scratch/
+/CLAUDE.md

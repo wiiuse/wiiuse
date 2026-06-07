@@ -44,13 +44,45 @@
 
 #define MAX_WIIMOTES				4
 
+/* Whether this binary was built with -DWITH_ACCEL_10BIT=ON
+   used below to label the raw accel values
+ * and to make it obvious which mode is running. */
+#ifdef WIIUSE_ACCEL_10BIT
+#define WIIUSE_ACCEL_10BIT_BUILD 1
+#else
+#define WIIUSE_ACCEL_10BIT_BUILD 0
+#endif
+
 
 /**
  *	@brief Callback that handles an event.
  *
  *	@param wm		Pointer to a wiimote_t structure.
  *
- *	This function is called automatically by the wiiuse library when an
+Like `WITH_BT_EMBEDDED`, this
+  macro is not propagated via `wiiuse.pc`'s `Cflags`; a consumer must
+  independently define `WIIUSE_ACCEL_10BIT` when it builds to interpret
+  the widened field as extended precision. See
+  `ACCELEROMETER_PRECISION.md` for background.
+- The historically mislabeled `WIIMOTE_BUTTON_ZACCEL_BIT4/5/6/7` macros
+  (only 2 of the 4 actually related to the Z axis) are renamed to
+  `WIIMOTE_BUTTON_XACCEL_LSB0/LSB1/YACCEL_LSB/ZACCEL_LSB`, which
+  accurately describe what each bit represents. **Breaking** for any
+  code referencing the old names directly; no deprecated aliases are
+  kept.
+- When `WITH_ACCEL_10BIT` is enabled, the Wii Remote's and Nunchuk's
+  calibrated `gforce`/`orient` output reflects the accelerometer's full
+  extended precision instead of being silently narrowed back down to
+  8-bit-equivalent before calibration runs (the MotionPlus-Nunchuk-
+  passthrough path, which never decodes extra precision bits, is
+  unaffected either way). With the flag off, output is unchanged.
+- `wiiuse_set_accel_threshold()`/`wiiuse_set_nunchuk_accel_threshold()`
+  keep roughly the same real-world sensitivity whether or not
+  `WITH_ACCEL_10BIT` is enabled: the internal accel-change comparison now
+  rescales the threshold per axis to match each device/path's own decode
+  shift, instead of silently becoming more sensitive under the flag as it
+  did before. The public threshold value/units are unchanged - still a
+  plain `int` at 8-bit-equivalent scale. *	This function is called automatically by the wiiuse library when an
  *	event occurs on the specified wiimote.
  */
 void handle_event(struct wiimote_t* wm) {
@@ -139,6 +171,15 @@ void handle_event(struct wiimote_t* wm) {
 
 	/* if the accelerometer is turned on then print angles */
 	if (WIIUSE_USING_ACC(wm)) {
+		/*
+		 *	calculate_orientation()/calculate_gforce() deliberately produce
+		 *	the same roll/pitch/yaw/gforce regardless of WIIUSE_ACCEL_10BIT,
+		 *	so those won't show any difference between an 8-bit and 10-bit
+		 *	build. The raw accel field is the one that does: 0-255 per axis
+		 *	in an 8-bit build, up to 1023 (X) / 511 (Y, Z) in a 10-bit one.
+		 */
+		printf("wiimote accel = %u, %u, %u%s\n", wm->accel.x, wm->accel.y, wm->accel.z,
+		       WIIUSE_ACCEL_10BIT_BUILD ? " (10/9/9-bit)" : " (8-bit)");
 		printf("wiimote roll  = %f [%f]\n", wm->orient.roll, wm->orient.a_roll);
 		printf("wiimote pitch = %f [%f]\n", wm->orient.pitch, wm->orient.a_pitch);
 		printf("wiimote yaw   = %f\n", wm->orient.yaw);
@@ -177,6 +218,12 @@ void handle_event(struct wiimote_t* wm) {
 			printf("Nunchuk: Z pressed\n");
 		}
 
+		/* Via Motion+ passthrough (EXP_MOTION_PLUS_NUNCHUK) this is always
+		 * the plain 8-bit-equivalent value, even in a 10-bit build - only
+		 * a directly-connected Nunchuk (EXP_NUNCHUK) gets the extra
+		 * precision. See NUNCHUK_PASSTHROUGH_ACCEL_XSHIFT in dynamics.h. */
+		printf("nunchuk accel = %u, %u, %u%s\n", nc->accel.x, nc->accel.y, nc->accel.z,
+		       (wm->exp.type == EXP_NUNCHUK && WIIUSE_ACCEL_10BIT_BUILD) ? " (10-bit)" : " (8-bit)");
 		printf("nunchuk roll  = %f\n", nc->orient.roll);
 		printf("nunchuk pitch = %f\n", nc->orient.pitch);
 		printf("nunchuk yaw   = %f\n", nc->orient.yaw);
@@ -291,7 +338,7 @@ void handle_event(struct wiimote_t* wm) {
 		float y = ((wb->tl + wb->tr) / total) * 2 - 1;
 		printf("Weight: %f kg @ (%f, %f)\n", total, x, y);
 		printf("Interpolated weight: TL:%f  TR:%f  BL:%f  BR:%f\n", wb->tl, wb->tr, wb->bl, wb->br);
-		printf("Raw: TL:%d  TR:%d  BL:%d  BR:%d\n", wb->rtl, wb->rtr, wb->rbl, wb->rbr); 
+		printf("Raw: TL:%d  TR:%d  BL:%d  BR:%d\n", wb->rtl, wb->rtr, wb->rbl, wb->rbr);
 	} else if (wm->exp.type == EXP_TATACON) {
 		/* tatacon */
 		struct tatacon_t* tatacon = (tatacon_t*)&wm->exp.tatacon;
@@ -483,6 +530,8 @@ int main(int argc, char** argv) {
 	wiiuse_rumble(wiimotes[0], 0);
 	wiiuse_rumble(wiimotes[1], 0);
 
+	printf("\nAccelerometer precision: %s\n",
+	       WIIUSE_ACCEL_10BIT_BUILD ? "10/9/9-bit extended (WITH_ACCEL_10BIT=ON)" : "8-bit (default)");
 	printf("\nControls:\n");
 	printf("\tB toggles rumble.\n");
 	printf("\t+ to start Wiimote accelerometer reporting, - to stop\n");

@@ -20,8 +20,17 @@ endif()
 option(BUILD_EXAMPLE "Should we build the example app?" YES)
 option(BUILD_EXAMPLE_SDL "Should we build the SDL-based example app?" YES)
 option(INSTALL_EXAMPLES "Should we install the example apps?" YES)
+option(BUILD_TESTING "Should we build and run the test suite?" YES)
 
 option(CPACK_MONOLITHIC_INSTALL "Only produce a single component installer, rather than multi-component." NO)
+
+# Opt-in extended (10/9/9-bit) accelerometer precision; see ACCELEROMETER_PRECISION.md
+# and the WIIUSE_ACCEL_10BIT doc comments in wiiuse.h. Like WITH_BT_EMBEDDED, not
+# propagated to wiiuse.pc - an application must define the macro independently.
+option(WITH_ACCEL_10BIT "Decode the Wii Remote/Nunchuk accelerometer's extra precision bits" OFF)
+if(WITH_ACCEL_10BIT)
+	add_definitions(-DWIIUSE_ACCEL_10BIT)
+endif()
 
 ###
 # Perform build configuration of dependencies
@@ -75,6 +84,11 @@ if(NOT SUBPROJECT)
 
 	if(BUILD_EXAMPLE_SDL)
 		add_subdirectory(example-sdl)
+	endif()
+
+	if(BUILD_TESTING)
+		enable_testing()
+		add_subdirectory(tests)
 	endif()
 endif()
 

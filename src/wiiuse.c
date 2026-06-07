@@ -134,12 +134,12 @@ struct wiimote_t **wiiuse_init(int wiimotes)
     logtarget[2] = stderr;
     logtarget[3] = stderr;
 
-    if (!wiimotes)
+    if (!wiimotes || wiimotes < 0)
     {
         return NULL;
     }
 
-    wm = (struct wiimote_t **)malloc(sizeof(struct wiimote_t *) * wiimotes);
+    wm = (struct wiimote_t **)calloc((size_t)wiimotes, sizeof(struct wiimote_t *));
 
     for (i = 0; i < wiimotes; ++i)
     {
@@ -602,6 +602,11 @@ int wiiuse_write_data(struct wiimote_t *wm, unsigned int addr, const byte *data,
         WIIUSE_ERROR("Attempt to write, but no data or length == 0");
         return 0;
     }
+    if (len > 16)
+    {
+        WIIUSE_ERROR("Attempt to write more than 16 bytes at once (len=%d)", len);
+        return 0;
+    }
 
     WIIUSE_DEBUG("Writing %i bytes to memory location 0x%x...", len, addr);
 
@@ -662,7 +667,7 @@ int wiiuse_write_data_cb(struct wiimote_t *wm, unsigned int addr, byte *data, by
 
     req      = (struct data_req_t *)malloc(sizeof(struct data_req_t));
     req->cb  = write_cb;
-    req->len = len;
+    req->len = (len > 16) ? 16 : len;
     memcpy(req->data, data, req->len);
     req->state = REQ_READY;
     req->addr  = addr; /* BIG_ENDIAN_LONG(addr); */

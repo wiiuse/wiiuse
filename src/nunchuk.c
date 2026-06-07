@@ -91,6 +91,9 @@ int nunchuk_handshake(struct wiimote_t *wm, struct nunchuk_t *nc, byte *data, un
     nc->accel_calib.cal_g.x    = data[4];
     nc->accel_calib.cal_g.y    = data[5];
     nc->accel_calib.cal_g.z    = data[6];
+    /* exp is a union: don't inherit another expansion's stale bytes as extra-precision bits */
+    memset(&nc->accel_calib.cal_zero_lsb, 0, sizeof(nc->accel_calib.cal_zero_lsb));
+    memset(&nc->accel_calib.cal_g_lsb, 0, sizeof(nc->accel_calib.cal_g_lsb));
     nc->js.max.x               = data[8];
     nc->js.min.x               = data[9];
     nc->js.center.x            = data[10];
@@ -148,13 +151,23 @@ void nunchuk_event(struct nunchuk_t *nc, byte *msg)
     calc_joystick_state(&nc->js, msg[0], msg[1]);
 
     /* calculate orientation */
+#ifdef WIIUSE_ACCEL_10BIT
+    /* Nunchuk buttons byte (msg[5]) packs 2 extra low bits per axis:
+     * bits 2-3 X, 4-5 Y, 6-7 Z. See vec3w_t in wiiuse.h for provenance. */
+    nc->accel.x = ((uint16_t)msg[2] << 2) | ((msg[5] >> 2) & 0x3);
+    nc->accel.y = ((uint16_t)msg[3] << 2) | ((msg[5] >> 4) & 0x3);
+    nc->accel.z = ((uint16_t)msg[4] << 2) | ((msg[5] >> 6) & 0x3);
+#else
     nc->accel.x = msg[2];
     nc->accel.y = msg[3];
     nc->accel.z = msg[4];
+#endif
 
     calculate_orientation(&nc->accel_calib, &nc->accel, &nc->orient,
-                          NUNCHUK_IS_FLAG_SET(nc, WIIUSE_SMOOTHING));
-    calculate_gforce(&nc->accel_calib, &nc->accel, &nc->gforce);
+                          NUNCHUK_IS_FLAG_SET(nc, WIIUSE_SMOOTHING), NUNCHUK_ACCEL_XSHIFT,
+                          NUNCHUK_ACCEL_YSHIFT, NUNCHUK_ACCEL_ZSHIFT);
+    calculate_gforce(&nc->accel_calib, &nc->accel, &nc->gforce, NUNCHUK_ACCEL_XSHIFT, NUNCHUK_ACCEL_YSHIFT,
+                     NUNCHUK_ACCEL_ZSHIFT);
 }
 
 /**

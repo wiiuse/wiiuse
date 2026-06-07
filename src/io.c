@@ -32,7 +32,8 @@
  */
 
 #include "io.h"
-#include "events.h" /* for propagate_event */
+#include "dynamics.h" /* for WIIMOTE_ACCEL_*BITS */
+#include "events.h"   /* for propagate_event */
 #include "ir.h"     /* for wiiuse_set_ir_mode */
 #include "wiiuse_internal.h"
 
@@ -231,6 +232,75 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
     }
 }
 
+/* Unpack a calibration LSB byte: bits 4-5 are X's, 2-3 Y's, 0-1 Z's; only Y/Z's upper bit is used. */
+static void unpack_cal_lsb(byte b, struct vec3b_t *lsb)
+{
+    lsb->x = (b >> 4) & 0x3;
+    lsb->y = (b >> 3) & 0x1;
+    lsb->z = (b >> 1) & 0x1;
+}
+
+/* Recompute one axis of the one-g delta at full precision, so the zero point's extra bits borrow correctly. */
+static void set_cal_g_axis(byte *g, byte *g_lsb, byte zero, byte zero_lsb, byte one_g, byte one_g_lsb, int bits)
+{
+    int delta = (((int)one_g << bits) | one_g_lsb) - (((int)zero << bits) | zero_lsb);
+
+    *g     = (byte)(delta >> bits);
+    *g_lsb = (byte)(delta & ((1 << bits) - 1));
+}
+
+/**
+ *	@brief Decode the extra low-order accelerometer calibration bits
+ *	packed into the EEPROM calibration block.
+ *
+ *	@param accel	Calibration struct to fill in (cal_zero, cal_g and their _lsb).
+ *	@param buf		The 8 calibration bytes read from WM_MEM_OFFSET_CALIBRATION.
+ *
+ *	buf[3]/buf[7] pack the zero-point/one-g point's extra bits (layout per
+ *	Dolphin's WiimoteCommon::AccelCalibrationData), matching what
+ *	handle_wm_accel() decodes for live readings.
+ *
+ *	cal_g/cal_g_lsb together hold the full-precision delta between the
+ *	one-g and zero points, so the zero point's extra bits borrow correctly.
+ *
+ *	Always compiled so it can be unit tested; wiiuse_handshake() only
+ *	calls it under WIIUSE_ACCEL_10BIT.
+ */
+void wiiuse_decode_accel_calibration_lsb(struct accel_t *accel, byte *buf)
+{
+    struct vec3b_t one_g_lsb;
+
+    accel->cal_zero.x = buf[0];
+    accel->cal_zero.y = buf[1];
+    accel->cal_zero.z = buf[2];
+
+    unpack_cal_lsb(buf[3], &accel->cal_zero_lsb);
+    unpack_cal_lsb(buf[7], &one_g_lsb);
+
+    set_cal_g_axis(&accel->cal_g.x, &accel->cal_g_lsb.x, buf[0], accel->cal_zero_lsb.x, buf[4], one_g_lsb.x,
+                   WIIMOTE_ACCEL_XBITS);
+    set_cal_g_axis(&accel->cal_g.y, &accel->cal_g_lsb.y, buf[1], accel->cal_zero_lsb.y, buf[5], one_g_lsb.y,
+                   WIIMOTE_ACCEL_YBITS);
+    set_cal_g_axis(&accel->cal_g.z, &accel->cal_g_lsb.z, buf[2], accel->cal_zero_lsb.z, buf[6], one_g_lsb.z,
+                   WIIMOTE_ACCEL_ZBITS);
+}
+
+/** Fill in the accelerometer calibration from the 8 bytes read at WM_MEM_OFFSET_CALIBRATION. */
+static void set_accel_calibration(struct accel_t *accel, byte *buf)
+{
+#ifdef WIIUSE_ACCEL_10BIT
+    wiiuse_decode_accel_calibration_lsb(accel, buf);
+#else
+    accel->cal_zero.x = buf[0];
+    accel->cal_zero.y = buf[1];
+    accel->cal_zero.z = buf[2];
+
+    accel->cal_g.x = buf[4] - accel->cal_zero.x;
+    accel->cal_g.y = buf[5] - accel->cal_zero.y;
+    accel->cal_g.z = buf[6] - accel->cal_zero.z;
+#endif
+}
+
 /**
  *	@brief Get initialization data from the wiimote.
  *
@@ -244,6 +314,12 @@ void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, uns
  *	The handshake will be concluded when the wiimote responds
  *	with this data.
  */
+
+#ifdef WIIUSE_ACCEL_10BIT
+#define ACCEL_CALIBRATION_LEN 8
+#else
+#define ACCEL_CALIBRATION_LEN 7
+#endif
 
 #ifdef WIIUSE_SYNC_HANDSHAKE
 
@@ -292,13 +368,7 @@ void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len)
         wiiuse_read_data_sync(wm, 1, WM_MEM_OFFSET_CALIBRATION, 8, buf);
 
         /* received read data */
-        accel->cal_zero.x = buf[0];
-        accel->cal_zero.y = buf[1];
-        accel->cal_zero.z = buf[2];
-
-        accel->cal_g.x = buf[4] - accel->cal_zero.x;
-        accel->cal_g.y = buf[5] - accel->cal_zero.y;
-        accel->cal_g.z = buf[6] - accel->cal_zero.z;
+        set_accel_calibration(accel, buf);
 
         WIIUSE_DEBUG("Calibrated wiimote acc\n");
     }
@@ -368,7 +438,8 @@ void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len)
 
         /* send request to wiimote for accelerometer calibration */
         buf = (byte *)malloc(sizeof(byte) * 8);
-        wiiuse_read_data_cb(wm, wiiuse_handshake, buf, WM_MEM_OFFSET_CALIBRATION, 7);
+        /* under WIIUSE_ACCEL_10BIT the 8th byte holds the one-g point's extra bits */
+        wiiuse_read_data_cb(wm, wiiuse_handshake, buf, WM_MEM_OFFSET_CALIBRATION, ACCEL_CALIBRATION_LEN);
         wm->handshake_state++;
 
         wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
@@ -383,13 +454,7 @@ void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len)
         byte val;
 
         /* received read data */
-        accel->cal_zero.x = req->buf[0];
-        accel->cal_zero.y = req->buf[1];
-        accel->cal_zero.z = req->buf[2];
-
-        accel->cal_g.x = req->buf[4] - accel->cal_zero.x;
-        accel->cal_g.y = req->buf[5] - accel->cal_zero.y;
-        accel->cal_g.z = req->buf[6] - accel->cal_zero.z;
+        set_accel_calibration(accel, req->buf);
 
         /* done with the buffer */
         free(req->buf);

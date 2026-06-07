@@ -47,6 +47,9 @@ void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len);
 int wiiuse_wait_report(struct wiimote_t *wm, int report, byte *buffer, int bufferLength,
                        unsigned long timeout_ms);
 void wiiuse_read_data_sync(struct wiimote_t *wm, byte memory, unsigned addr, unsigned short size, byte *data);
+
+/* Test seam: always compiled; only called under WIIUSE_ACCEL_10BIT. */
+void wiiuse_decode_accel_calibration_lsb(struct accel_t *accel, byte *buf);
 /** @} */
 
 #ifdef __cplusplus
