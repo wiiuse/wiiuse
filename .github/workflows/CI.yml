@@ -90,6 +90,7 @@ jobs:
             freeglut:p
             SDL2:p
             toolchain:p
+            w32api:p
       - name: Build (shared lib)
         shell: msys2 {0}
         run: |
