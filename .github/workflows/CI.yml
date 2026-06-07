@@ -87,7 +87,6 @@ jobs:
           pacboy: >-
             cmake:p
             ninja:p
-            freeglut:p
             SDL2:p
             toolchain:p
             w32api:p
