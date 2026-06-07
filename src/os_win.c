@@ -40,6 +40,8 @@
 #ifdef WIIUSE_WIN32
 #include <stdlib.h>
 
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_WINNT 0x0A00
 #include <hidsdi.h>
 #include <setupapi.h>
 

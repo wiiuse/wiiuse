@@ -31,6 +31,8 @@
 
 #ifdef WIIUSE_WIN32
 
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_WINNT 0x0A00
 #include <windows.h>
 
 void wiiuse_millisleep(int durationMilliseconds) { Sleep(durationMilliseconds); }
