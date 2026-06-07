@@ -93,10 +93,10 @@ jobs:
       - name: Build (shared lib)
         shell: msys2 {0}
         run: |
-          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE
+          cmake -B build-shared -DBUILD_SHARED_LIBS=TRUE -DBUILD_EXAMPLE=OFF -DBUILD_EXAMPLE_SDL=OFF
           cmake --build build-shared
       - name: Build (static lib)
         shell: msys2 {0}
         run: |
-          cmake -B build-static
+          cmake -B build-static -DBUILD_EXAMPLE=OFF -DBUILD_EXAMPLE_SDL=OFF
           cmake --build build-static
