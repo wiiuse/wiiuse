@@ -16,6 +16,31 @@ Original project (0.12 and earlier):
 
 
 
+Unreleased
+--------------------
+
+Added:
+
+- New opt-in CMake option `WITH_ACCEL_10BIT` (off by default), which
+  defines the compile-time macro `WIIUSE_ACCEL_10BIT` for the library
+  build. When enabled, the Wii Remote's and Nunchuk's accelerometer
+  decode paths additionally extract the extra precision bits packed into
+  otherwise-unused report bytes, exposing the hardware's full 10-bit X /
+  9-bit Y / 9-bit Z (Wiimote) and 10-bit-per-axis (Nunchuk) accelerometer
+  readings via the widened `accel` field.
+- Under `WIIUSE_ACCEL_10BIT`, the Wii Remote's own accelerometer
+  calibration (zero point and one-g point) is now also read at full
+  precision from the EEPROM calibration block, instead of being padded
+  with zero low-order bits up to the raw reading's scale. The extra
+  bits packed alongside the whole-byte calibration values are decoded
+  into the new `accel_t.cal_zero_lsb`/`cal_g_lsb` fields and folded into
+  the existing roll/pitch/gforce calculation.
+  Note: `accel_t` gained these two fields in every build, regardless of
+  the flag, so its size and the layout of the structs embedding it
+  (`wiimote_t`, `nunchuk_t`, ...) changed. Rebuild applications against
+  the new headers.
+
+
 v0.15.7 -- 27-Feb-2026
 --------------------
 

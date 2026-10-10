@@ -285,15 +285,21 @@ void motion_plus_event(struct motion_plus_t *mp, int exp_type, byte *msg)
             /* calculate joystick state */
             calc_joystick_state(&(mp->nc->js), msg[0], msg[1]);
 
-            /* calculate orientation */
+            /* This path never decodes WIIUSE_ACCEL_10BIT's extra bits, so
+             * it passes NUNCHUK_PASSTHROUGH_ACCEL_*SHIFT (0), not
+             * NUNCHUK_ACCEL_*SHIFT, below. */
             mp->nc->accel.x = msg[2];
             mp->nc->accel.y = msg[3];
             mp->nc->accel.z = (msg[4] & 0xFE) | ((msg[5] >> 5) & 0x04);
 
             calculate_orientation(&(mp->nc->accel_calib), &(mp->nc->accel), &(mp->nc->orient),
-                                  NUNCHUK_IS_FLAG_SET(mp->nc, WIIUSE_SMOOTHING));
+                                  NUNCHUK_IS_FLAG_SET(mp->nc, WIIUSE_SMOOTHING),
+                                  NUNCHUK_PASSTHROUGH_ACCEL_XSHIFT, NUNCHUK_PASSTHROUGH_ACCEL_YSHIFT,
+                                  NUNCHUK_PASSTHROUGH_ACCEL_ZSHIFT);
 
-            calculate_gforce(&(mp->nc->accel_calib), &(mp->nc->accel), &(mp->nc->gforce));
+            calculate_gforce(&(mp->nc->accel_calib), &(mp->nc->accel), &(mp->nc->gforce),
+                             NUNCHUK_PASSTHROUGH_ACCEL_XSHIFT, NUNCHUK_PASSTHROUGH_ACCEL_YSHIFT,
+                             NUNCHUK_PASSTHROUGH_ACCEL_ZSHIFT);
 
         }
 

@@ -59,7 +59,6 @@ static void event_status(struct wiimote_t *wm, byte *msg);
 static void handle_expansion(struct wiimote_t *wm, byte *msg);
 
 static void save_state(struct wiimote_t *wm);
-static int state_changed(struct wiimote_t *wm);
 
 /**
  *	@brief Poll the wiimotes for any events.
@@ -165,18 +164,26 @@ void clear_dirty_reads(struct wiimote_t *wm)
  *	@param wm		Pointer to a wiimote_t structure.
  *	@param msg		The message specified in the event packet.
  */
-static void handle_wm_accel(struct wiimote_t *wm, byte *msg)
+void handle_wm_accel(struct wiimote_t *wm, byte *msg)
 {
+#ifdef WIIUSE_ACCEL_10BIT
+    wm->accel.x = ((uint16_t)msg[2] << 2) | ((msg[0] >> 5) & 0x1) | (((msg[0] >> 6) & 0x1) << 1);
+    wm->accel.y = ((uint16_t)msg[3] << 1) | ((msg[1] >> 5) & 0x1);
+    wm->accel.z = ((uint16_t)msg[4] << 1) | ((msg[1] >> 6) & 0x1);
+#else
     wm->accel.x = msg[2];
     wm->accel.y = msg[3];
     wm->accel.z = msg[4];
+#endif
 
     /* calculate the remote orientation */
     calculate_orientation(&wm->accel_calib, &wm->accel, &wm->orient,
-                          WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING));
+                          WIIMOTE_IS_FLAG_SET(wm, WIIUSE_SMOOTHING), WIIMOTE_ACCEL_XSHIFT,
+                          WIIMOTE_ACCEL_YSHIFT, WIIMOTE_ACCEL_ZSHIFT);
 
     /* calculate the gforces on each axis */
-    calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce);
+    calculate_gforce(&wm->accel_calib, &wm->accel, &wm->gforce, WIIMOTE_ACCEL_XSHIFT, WIIMOTE_ACCEL_YSHIFT,
+                     WIIMOTE_ACCEL_ZSHIFT);
 }
 
 /**
@@ -990,7 +997,7 @@ static void save_state(struct wiimote_t *wm)
  *	@param wm	A pointer to a wiimote_t structure.
  *	@return	1 if a significant change occurred, 0 if not.
  */
-static int state_changed(struct wiimote_t *wm)
+int state_changed(struct wiimote_t *wm)
 {
 #define STATE_CHANGED(a, b) \
     if (a != b)             \
@@ -1018,26 +1025,40 @@ static int state_changed(struct wiimote_t *wm)
         }                                                                                            \
     } while (0)
 
-#define CROSS_THRESH_XYZ(last, now, thresh)                                            \
-    do                                                                                 \
-    {                                                                                  \
-        if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH))                             \
-        {                                                                              \
-            if ((diff_f(last.x, now.x) >= thresh) || (diff_f(last.y, now.y) >= thresh) \
-                || (diff_f(last.z, now.z) >= thresh))                                  \
-            {                                                                          \
-                last = now;                                                            \
-                return 1;                                                              \
-            }                                                                          \
-        } else                                                                         \
-        {                                                                              \
-            if (last.x != now.x)                                                       \
-                return 1;                                                              \
-            if (last.y != now.y)                                                       \
-                return 1;                                                              \
-            if (last.z != now.z)                                                       \
-                return 1;                                                              \
-        }                                                                              \
+/*
+ * accel_threshold is a plain, unvalidated int (wiiuse_set_accel_threshold()/
+ * wiiuse_set_nunchuk_accel_threshold() accept any value), so shifting it
+ * directly would be undefined behavior in C for a negative input. Shifting
+ * through unsigned is well-defined for any int.
+ */
+#define SCALE_ACCEL_THRESHOLD(threshold, shift) ((int)((unsigned int)(threshold) << (shift)))
+
+/*
+ * threshx/y/z let callers pass a per-axis-scaled threshold (see the
+ * WIIUSE_ACCEL_10BIT-aware *_ACCEL_*SHIFT constants in dynamics.h) rather
+ * than one value applied uniformly - the raw accel range isn't the same
+ * width on every axis once extended precision is decoded.
+ */
+#define CROSS_THRESH_XYZ(last, now, threshx, threshy, threshz)                             \
+    do                                                                                     \
+    {                                                                                      \
+        if (WIIMOTE_IS_FLAG_SET(wm, WIIUSE_ORIENT_THRESH))                                 \
+        {                                                                                  \
+            if ((diff_f(last.x, now.x) >= threshx) || (diff_f(last.y, now.y) >= threshy)   \
+                || (diff_f(last.z, now.z) >= threshz))                                     \
+            {                                                                              \
+                last = now;                                                                \
+                return 1;                                                                  \
+            }                                                                              \
+        } else                                                                             \
+        {                                                                                  \
+            if (last.x != now.x)                                                           \
+                return 1;                                                                  \
+            if (last.y != now.y)                                                           \
+                return 1;                                                                  \
+            if (last.z != now.z)                                                           \
+                return 1;                                                                  \
+        }                                                                                  \
     } while (0)
 
     /* ir */
@@ -1052,7 +1073,9 @@ static int state_changed(struct wiimote_t *wm)
     if (WIIUSE_USING_ACC(wm))
     {
         /* raw accelerometer */
-        CROSS_THRESH_XYZ(wm->lstate.accel, wm->accel, wm->accel_threshold);
+        CROSS_THRESH_XYZ(wm->lstate.accel, wm->accel, SCALE_ACCEL_THRESHOLD(wm->accel_threshold, WIIMOTE_ACCEL_XSHIFT),
+                         SCALE_ACCEL_THRESHOLD(wm->accel_threshold, WIIMOTE_ACCEL_YSHIFT),
+                         SCALE_ACCEL_THRESHOLD(wm->accel_threshold, WIIMOTE_ACCEL_ZSHIFT));
 
         /* orientation */
         CROSS_THRESH(wm->lstate.orient, wm->orient, wm->orient_threshold);
@@ -1068,7 +1091,10 @@ static int state_changed(struct wiimote_t *wm)
         STATE_CHANGED(wm->lstate.exp_btns, wm->exp.nunchuk.btns);
 
         CROSS_THRESH(wm->lstate.exp_orient, wm->exp.nunchuk.orient, wm->exp.nunchuk.orient_threshold);
-        CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel, wm->exp.nunchuk.accel_threshold);
+        CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel,
+                         SCALE_ACCEL_THRESHOLD(wm->exp.nunchuk.accel_threshold, NUNCHUK_ACCEL_XSHIFT),
+                         SCALE_ACCEL_THRESHOLD(wm->exp.nunchuk.accel_threshold, NUNCHUK_ACCEL_YSHIFT),
+                         SCALE_ACCEL_THRESHOLD(wm->exp.nunchuk.accel_threshold, NUNCHUK_ACCEL_ZSHIFT));
         break;
     }
     case EXP_CLASSIC:
@@ -1123,7 +1149,12 @@ static int state_changed(struct wiimote_t *wm)
             STATE_CHANGED(wm->lstate.exp_btns, wm->exp.nunchuk.btns);
 
             CROSS_THRESH(wm->lstate.exp_orient, wm->exp.nunchuk.orient, wm->exp.nunchuk.orient_threshold);
-            CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel, wm->exp.nunchuk.accel_threshold);
+            /* Passthrough never decodes extra bits (NUNCHUK_PASSTHROUGH_ACCEL_*SHIFT
+             * is always 0), so this threshold is never rescaled here. */
+            CROSS_THRESH_XYZ(wm->lstate.exp_accel, wm->exp.nunchuk.accel,
+                             SCALE_ACCEL_THRESHOLD(wm->exp.nunchuk.accel_threshold, NUNCHUK_PASSTHROUGH_ACCEL_XSHIFT),
+                             SCALE_ACCEL_THRESHOLD(wm->exp.nunchuk.accel_threshold, NUNCHUK_PASSTHROUGH_ACCEL_YSHIFT),
+                             SCALE_ACCEL_THRESHOLD(wm->exp.nunchuk.accel_threshold, NUNCHUK_PASSTHROUGH_ACCEL_ZSHIFT));
         }
 
         break;

@@ -43,6 +43,10 @@
 /** @{ */
 void wiiuse_pressed_buttons(struct wiimote_t *wm, byte *msg);
 
+void handle_wm_accel(struct wiimote_t *wm, byte *msg);
+
+int state_changed(struct wiimote_t *wm);
+
 void handshake_expansion(struct wiimote_t *wm, byte *data, uint16_t len);
 void disable_expansion(struct wiimote_t *wm);
 

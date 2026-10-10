@@ -7,6 +7,39 @@
 #include "wiiuse.h"
 
 /*
+ * Security invariant: wiiuse_write_data must reject writes longer than the
+ * 16 bytes a write report can carry, instead of copying them into its
+ * fixed-size report buffer.
+ *
+ * The wiimote is flagged connected so the call gets past the connection
+ * check and actually reaches the length check; oversized requests are
+ * rejected before anything is sent, so no I/O happens.
+ */
+
+#define WIIUSE_MAX_WRITE_LEN 16
+
+START_TEST(test_write_data_length_bounds)
+{
+    struct wiimote_t **wm = wiiuse_init(1);
+    byte data[255];
+    byte test_lens[] = {WIIUSE_MAX_WRITE_LEN + 1, 32, 255};
+    size_t i;
+
+    ck_assert_ptr_nonnull(wm);
+    memset(data, 0xAA, sizeof(data));
+    WIIMOTE_ENABLE_STATE(wm[0], WIIMOTE_STATE_CONNECTED);
+
+    for (i = 0; i < sizeof(test_lens) / sizeof(test_lens[0]); i++)
+    {
+        ck_assert_msg(wiiuse_write_data(wm[0], 0x0000, data, test_lens[i]) == 0,
+                      "write_data accepted oversized len=%u without bounds check", test_lens[i]);
+    }
+
+    wiiuse_cleanup(wm, 1);
+}
+END_TEST
+
+/*
  * Security invariant: wiiuse_read_data must reject read requests where
  * the requested length exceeds the maximum buffer capacity (MAX_PAYLOAD - 1
  * or similar internal limit). A malicious device should not be able to
@@ -32,7 +65,7 @@ START_TEST(test_read_data_length_bounds)
     for (int i = 0; i < num_tests; i++) {
         unsigned short len = test_lens[i];
         /* wiiuse_read_data returns 0 on failure/invalid params, 1 on success */
-        int ret = wiiuse_read_data(wm[0], NULL, 0, 0x0000, len);
+        int ret = wiiuse_read_data(wm[0], NULL, 0x0000, len);
         if (len > WIIUSE_MAX_PAYLOAD) {
             /* Oversized requests must not succeed without bounds checking */
             ck_assert_msg(ret == 0,
@@ -52,6 +85,7 @@ Suite *security_suite(void)
     s = suite_create("Security");
     tc_core = tcase_create("Core");
 
+    tcase_add_test(tc_core, test_write_data_length_bounds);
     tcase_add_test(tc_core, test_read_data_length_bounds);
     suite_add_tcase(s, tc_core);
 
