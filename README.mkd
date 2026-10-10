@@ -76,6 +76,8 @@ Additional Contributors:
 - Forrest Cahoon <https://github.com/forrcaho>
 - Sergei Trofimovich <https://github.com/trofi>
 - Pixel <https://github.com/pixelomer>
+- Alberto Mardegan <https://github.com/mardy>
+- Bernhard M. Wiedemann <https://github.com/bmwiedemann>
 
 ## License
 

@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.10.0)
 
 # Set package properties
 project(WiiUse
-	VERSION 0.15.5
+	VERSION 0.16.0
 	DESCRIPTION "Feature-complete cross-platform Wii Remote access library")
 
 ###

@@ -16,11 +16,13 @@ Original project (0.12 and earlier):
 
 
 
-Unreleased
+v0.16.0 -- 10-Oct-2026
 --------------------
 
 Added:
 
+- Wii port (#164).
+- bt-embedded platform backend (#163).
 - New opt-in CMake option `WITH_ACCEL_10BIT` (off by default), which
   defines the compile-time macro `WIIUSE_ACCEL_10BIT` for the library
   build. When enabled, the Wii Remote's and Nunchuk's accelerometer
@@ -39,6 +41,12 @@ Added:
   the flag, so its size and the layout of the structs embedding it
   (`wiimote_t`, `nunchuk_t`, ...) changed. Rebuild applications against
   the new headers.
+
+Fixed:
+
+- Added a bounds check before `memcpy` in `wiiuse_write_data` (#168).
+- Fixed CI on Windows (#167).
+- example-sdl: fixed a year-2038 problem (#162).
 
 
 v0.15.7 -- 27-Feb-2026
