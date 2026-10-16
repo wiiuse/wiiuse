@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v7"
       - name: Install dependencies
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'debian-latest'
         run: |
@@ -45,7 +45,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out repository code
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v7"
       - name: Install dependencies
         run: |
           brew update
@@ -66,7 +66,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repository code
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v7"
       - name: Setup MSVC development environment
         uses: ilammy/msvc-dev-cmd@v1
       - name: Build (shared lib)
@@ -89,7 +89,7 @@ jobs:
           - { sys: clang64, env: clang-x86_64 }
     steps:
       - name: Check out repository code
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v7"
       - name: Setup msys2 and mingw-w64
         uses: msys2/setup-msys2@v2
         with:
