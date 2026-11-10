@@ -46,6 +46,11 @@
 - (void)handleInputReport:(const uint8_t *)report length:(CFIndex)length;
 @end
 
+@interface WiiuseReceivedData (WiiuseQueuePolicy)
+- (uint8_t)reportID;
+- (BOOL)isStreamingReport;
+@end
+
 static void WiiuseHIDDeviceMatched(void *context,
                                    IOReturn result,
                                    void *sender,
@@ -276,6 +281,33 @@ static CFDictionaryRef WiiuseCreateHIDMatch(int productID) {
     if (!message) return;
 
     [receivedDataLock lock];
+
+    /*
+     * Wiiuse's poll path consumes one queued input report per wiiuse_poll()
+     * call. A Wii Remote can produce streaming reports faster than an app
+     * polls, so keeping every motion sample creates a FIFO backlog: the app
+     * then processes old positions and appears to have substantial input lag.
+     *
+     * Keep only the newest pending copy of each continuous report ID. Do not
+     * coalesce status/read/ack reports (0x20-0x22), because those are protocol
+     * responses consumed by wiiuse's handshake and memory-read machinery.
+     * Removing the previous sample and appending the new one preserves the
+     * ordering of those protocol responses relative to later motion samples.
+     */
+    if ([message isStreamingReport]) {
+        const uint8_t reportID = [message reportID];
+        for (NSInteger i = (NSInteger)[receivedData count] - 1; i >= 0; --i) {
+            id queued = [receivedData objectAtIndex:(NSUInteger)i];
+            if ([queued isKindOfClass:[WiiuseReceivedData class]]) {
+                WiiuseReceivedData *queuedReport = (WiiuseReceivedData *)queued;
+                if ([queuedReport isStreamingReport] &&
+                    [queuedReport reportID] == reportID) {
+                    [receivedData removeObjectAtIndex:(NSUInteger)i];
+                }
+            }
+        }
+    }
+
     [receivedData addObject:message];
     [receivedDataLock unlock];
     [message release];
@@ -534,6 +566,18 @@ static CFDictionaryRef WiiuseCreateHIDMatch(int productID) {
     id result = [self initWithData:data_];
     [data_ release];
     return result;
+}
+
+- (uint8_t)reportID {
+    if (!data || [data length] == 0) return 0;
+    return ((const uint8_t *)[data bytes])[0];
+}
+
+- (BOOL)isStreamingReport {
+    const uint8_t reportID = [self reportID];
+    /* Continuous Wii Remote input reports, excluding control responses. */
+    return (reportID >= 0x30 && reportID <= 0x37) ||
+           reportID == 0x3d || reportID == 0x3e || reportID == 0x3f;
 }
 
 - (void)dealloc {
