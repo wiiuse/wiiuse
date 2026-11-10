@@ -224,17 +224,35 @@
 #pragma mark -
 #pragma mark public interface
 
+
 int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
-	int result;
+    int result;
 
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
-	WiiuseDeviceInquiry* inquiry = [[WiiuseDeviceInquiry alloc] initWithMemory:wm maxDevices:max_wiimotes timeout:timeout];
-	result = [inquiry run];
-	[inquiry release];
+    WiiuseDeviceInquiry* inquiry =
+        [[WiiuseDeviceInquiry alloc]
+            initWithMemory:wm
+            maxDevices:max_wiimotes
+            timeout:timeout];
 
-	[pool drain];
-	return result;
+    result = [inquiry run];
+
+    /*
+     * Drain the autorelease pool first.
+     *
+     * This releases the autoreleased IOBluetoothDeviceInquiry
+     * while its WiiuseDeviceInquiry delegate is still alive.
+     */
+    [pool drain];
+
+    /*
+     * Now it is safe to release the delegate.
+     */
+    [inquiry release];
+
+    return result;
 }
+
 
 #endif // __APPLE__
