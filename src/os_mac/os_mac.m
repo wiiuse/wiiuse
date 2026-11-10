@@ -52,13 +52,13 @@
 	self = [super init];
 	if(self) {
 		wm = wm_;
-		
+
 		device = [device_ retain];
 		controlChannel = nil;
 		interruptChannel = nil;
-		
+
 		disconnectNotification = nil;
-		
+
 		receivedData = [[NSMutableArray alloc] initWithCapacity: 2];
 		receivedDataLock = [[NSLock alloc] init];
 	}
@@ -67,30 +67,40 @@
 
 - (void) dealloc {
 	wm = NULL;
-	
+
 	[interruptChannel release];
 	[controlChannel release];
 	[device release];
-	
+
 	[disconnectNotification unregister];
 	[disconnectNotification release];
-	
+
 	[receivedData release];
-	
+
 	[super dealloc];
 }
 
 #pragma mark connect, disconnect
 
 - (BOOL) connectChannel: (IOBluetoothL2CAPChannel**) pChannel PSM: (BluetoothL2CAPPSM) psm {
-	if ([device openL2CAPChannelSync:pChannel withPSM:psm delegate:self] != kIOReturnSuccess) {
-		WIIUSE_ERROR("Unable to open L2CAP channel [id %i].", wm->unid);
-		*pChannel = nil;
-		return NO;
-	} else {
-		[*pChannel retain];
-		return YES;
-	}
+    IOReturn status = [device openL2CAPChannelSync:pChannel
+                                          withPSM:psm
+                                         delegate:self];
+
+    if (status != kIOReturnSuccess) {
+        WIIUSE_ERROR(
+            "Unable to open L2CAP channel [id %i], PSM=0x%04x, IOReturn=0x%08x.",
+            wm->unid,
+            (unsigned int)psm,
+            (unsigned int)status
+        );
+
+        *pChannel = nil;
+        return NO;
+    } else {
+        [*pChannel retain];
+        return YES;
+    }
 }
 
 - (IOReturn) connect {
@@ -98,7 +108,7 @@
 		WIIUSE_ERROR("Missing device.");
 		return kIOReturnBadArgument;
 	}
-	
+
 	// open channels
 	if(![self connectChannel:&controlChannel PSM:kBluetoothL2CAPPSMHIDControl]) {
 		[self disconnect];
@@ -107,7 +117,7 @@
 		[self disconnect];
 		return kIOReturnNotOpen;
 	}
-	
+
 	// register for device disconnection
 	disconnectNotification = [device registerForDisconnectNotification:self selector:@selector(disconnected:fromDevice:)];
 	if(!disconnectNotification) {
@@ -115,13 +125,13 @@
 		[self disconnect];
 		return kIOReturnNotOpen;
 	}
-	
+
 	return kIOReturnSuccess;
 }
 
 - (void) disconnectChannel: (IOBluetoothL2CAPChannel**) pChannel {
 	if(!pChannel) return;
-	
+
 	if([*pChannel closeChannel] != kIOReturnSuccess)
 		WIIUSE_ERROR("Unable to close channel [id %i].", wm ? wm->unid : -1);
 	[*pChannel release];
@@ -132,7 +142,7 @@
 	// channels
 	[self disconnectChannel:&interruptChannel];
 	[self disconnectChannel:&controlChannel];
-	
+
 	// device
 	if([device closeConnection] != kIOReturnSuccess)
 		WIIUSE_ERROR("Unable to close the device connection [id %i].", wm ? wm->unid : -1);
@@ -141,7 +151,7 @@
 }
 
 - (void) disconnected:(IOBluetoothUserNotification*) notification fromDevice:(IOBluetoothDevice*) device {
-	
+
 	WiiuseDisconnectionMessage* message = [[WiiuseDisconnectionMessage alloc] init];
 	[receivedDataLock lock];
 	[receivedData addObject:message];
@@ -154,7 +164,7 @@
 // <0: nothing received, else: length of data received (can be 0 in case of disconnection message)
 - (int) checkForAvailableDataForBuffer: (byte*) buffer length: (NSUInteger) bufferLength {
 	int result = -1;
-	
+
 	[receivedDataLock lock];
 	if([receivedData count]) {
 		// look at first item in queue
@@ -164,7 +174,7 @@
 			[receivedData removeObjectAtIndex:0];
 	}
 	[receivedDataLock unlock];
-	
+
 	return result;
 }
 
@@ -178,7 +188,7 @@
 			break;
 		}
 		[pool drain];
-		
+
 		[receivedDataLock lock];
 		NSUInteger count = [receivedData count];
 		[receivedDataLock unlock];
@@ -186,7 +196,7 @@
 			// received some data, stop waiting
 			break;
 		}
-		
+
 		if([timeoutDate isLessThanOrEqualTo:[NSDate date]]) {
 			// timeout
 			break;
@@ -201,11 +211,11 @@
 	if(result < 0) {
 		// wait a short amount of time, until data becomes available or a timeout is reached
 		[self waitForIncomingData:1];
-		
+
 		// check again
 		result = [self checkForAvailableDataForBuffer: buffer length: bufferLength];
 	}
-	
+
 	return result >= 0 ? result : 0;
 }
 
@@ -214,7 +224,7 @@
 		WIIUSE_ERROR("Attempted to write to nil interrupt channel [id %i].", wm->unid);
 		return 0;
 	}
-	
+
 	byte write_buffer[MAX_PAYLOAD];
 	write_buffer[0] = WM_SET_DATA | WM_BT_OUTPUT;
 	write_buffer[1] = report_type;
@@ -223,7 +233,7 @@
 	IOReturn error = [interruptChannel writeSync:write_buffer length:length+2];
 	if (error != kIOReturnSuccess) {
 		WIIUSE_ERROR("Error writing to interrupt channel [id %i].", wm->unid);
-		
+
 		WIIUSE_DEBUG("Attempting to reopen the interrupt channel [id %i].", wm->unid);
 		[self disconnectChannel:&interruptChannel];
 		[self connectChannel:&interruptChannel PSM:kBluetoothL2CAPPSMHIDInterrupt];
@@ -237,16 +247,16 @@
 				WIIUSE_ERROR("Unable to write again to the interrupt channel [id %i].", wm->unid);
 		}
 	}
-	
+
 	return (error == kIOReturnSuccess) ? length : 0;
 }
 
 #pragma mark IOBluetoothL2CAPChannelDelegate
 
 - (void) l2capChannelData:(IOBluetoothL2CAPChannel*)channel data:(void*)data_ length:(NSUInteger)length {
-	
+
 	byte* data = (byte*) data_;
-	
+
 	// This is done in case the control channel woke up this handler
 #if WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE
 	BluetoothL2CAPPSM psm = channel.PSM;
@@ -256,7 +266,7 @@
 	if(!data || (psm == kBluetoothL2CAPPSMHIDControl)) {
 		return;
 	}
-	
+
 	// copy the data into the buffer
 	// on Mac, we ignore the first byte
 	WiiuseReceivedData* newData = [[WiiuseReceivedData alloc] initWithBytes: data+1 length: length-1];
@@ -318,7 +328,7 @@
 		WIIUSE_WARNING("Received data was longer than event buffer. Dropping excess bytes.");
 		length = bufferLength;
 	}
-	
+
 	// log the received data
 #ifdef WITH_WIIUSE_DEBUG
 	{
@@ -329,10 +339,10 @@
 		printf("\n");
 	}
 #endif
-	
+
 	// copy to struct
 	memcpy(buffer, bytes, length);
-	
+
 	return length;
 }
 
