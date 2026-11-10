@@ -59,7 +59,7 @@
 	wiimote** wiimotes;
 	NSUInteger maxDevices;
 	int timeout;
-	
+
 	BOOL _running;
 	NSUInteger _foundDevices;
 	BOOL _inquiryComplete;
@@ -102,14 +102,14 @@
 
 // creates and starts inquiry. the returned object is in the current autorelease pool.
 - (IOBluetoothDeviceInquiry*) start {
-	
+
 	// reset state variables
 	_foundDevices = 0;
 	_inquiryComplete = NO;
-	
+
 	// create inquiry
 	IOBluetoothDeviceInquiry* inquiry = [IOBluetoothDeviceInquiry inquiryWithDelegate: self];
-	
+
 	// refine search & set timeout
 	[inquiry setSearchCriteria:kBluetoothServiceClassMajorAny
 			  majorDeviceClass:WM_DEV_MAJOR_CLASS
@@ -117,7 +117,7 @@
 	[inquiry setUpdateNewDeviceNames: NO];
 	if(timeout > 0)
 		[inquiry setInquiryLength:timeout];
-	
+
 	// start inquiry
 	IOReturn status = [inquiry start];
 	if (status != kIOReturnSuccess) {
@@ -129,7 +129,7 @@
 		}
 		return nil;
 	}
-	
+
 	return inquiry;
 }
 
@@ -146,34 +146,34 @@
 	// stop the inquiry
 	if(![inquiry stop])
 		WIIUSE_ERROR("Unable to stop bluetooth device inquiry.");
-	
+
 	// read found device information
 	NSArray* devices = [inquiry foundDevices];
 	NSUInteger i;
 	for(i = 0; i < [devices count]; i++) {
 		IOBluetoothDevice* device = [devices objectAtIndex:i];
-		
+
 		// save the device in the wiimote structure
 		wiimotes[i]->objc_wm = (void*) [[WiiuseWiimote alloc] initWithPtr:wiimotes[i] device: device];
-		
+
 		// mark as found
 		WIIMOTE_ENABLE_STATE(wiimotes[i], WIIMOTE_STATE_DEV_FOUND);
 		NSString* address = IOBluetoothNSStringFromDeviceAddress([device getAddress]);
 		const char* address_str = [address cStringUsingEncoding:NSMacOSRomanStringEncoding];
 		WIIUSE_INFO("Found Wiimote (%s) [id %i]", address_str, wiimotes[i]->unid);
 	}
-	
+
 	return [devices count];
 }
 
 - (int) run {
 	int result = -1;
-	
+
 	if(maxDevices == 0) {
 		result = 0;
 	} else if(!_running) {
 		_running = YES;
-		
+
 		if (![IOBluetoothHostController defaultController]) {
 			WIIUSE_ERROR("Unable to find any bluetooth receiver on your host.");
 		} else {
@@ -184,21 +184,21 @@
 				WIIUSE_INFO("Found %i Wiimote device(s).", result);
 			}
 		}
-		
+
 		_running = NO;
 	} else { // if(_running)
 		WIIUSE_ERROR("Device inquiry already running - won't start it again.");
 	}
-	
+
 	return result;
 }
 
 #pragma mark IOBluetoothDeviceInquiryDelegate
 
 - (void) deviceInquiryDeviceFound:(IOBluetoothDeviceInquiry *) inquiry device:(IOBluetoothDevice *) device {
-	
+
 	WIIUSE_DEBUG("Found a wiimote");
-	
+
 	_foundDevices++;
 	if(_foundDevices >= maxDevices) {
 		// reached maximum number of devices
@@ -209,10 +209,10 @@
 - (void) deviceInquiryComplete:(IOBluetoothDeviceInquiry*) inquiry error:(IOReturn) error aborted:(BOOL) aborted
 {
 	WIIUSE_DEBUG("Inquiry complete, error=%i, aborted=%s", error, aborted ? "YES" : "NO");
-	
+
 	// mark completion
 	_inquiryComplete = YES;
-	
+
 	// print error message if we stop due to an error
 	if ((error != kIOReturnSuccess) && !aborted) {
 		WIIUSE_ERROR("Bluetooth device inquiry not completed due to unexpected errors. Try increasing the timeout.");
@@ -224,17 +224,35 @@
 #pragma mark -
 #pragma mark public interface
 
+
 int wiiuse_os_find(struct wiimote_t** wm, int max_wiimotes, int timeout) {
-	int result;
-	
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	
-	WiiuseDeviceInquiry* inquiry = [[WiiuseDeviceInquiry alloc] initWithMemory:wm maxDevices:max_wiimotes timeout:timeout];
-	result = [inquiry run];
-	[inquiry release];
-	
-	[pool drain];
-	return result;
+    int result;
+
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+    WiiuseDeviceInquiry* inquiry =
+        [[WiiuseDeviceInquiry alloc]
+            initWithMemory:wm
+            maxDevices:max_wiimotes
+            timeout:timeout];
+
+    result = [inquiry run];
+
+    /*
+     * Drain the autorelease pool first.
+     *
+     * This releases the autoreleased IOBluetoothDeviceInquiry
+     * while its WiiuseDeviceInquiry delegate is still alive.
+     */
+    [pool drain];
+
+    /*
+     * Now it is safe to release the delegate.
+     */
+    [inquiry release];
+
+    return result;
 }
+
 
 #endif // __APPLE__

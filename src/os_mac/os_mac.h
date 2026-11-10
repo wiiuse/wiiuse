@@ -1,46 +1,20 @@
 /*
- *  wiiuse
+ * macOS transport for wiiuse, using macOS-managed Bluetooth HID.
  *
- *  Written By:
- *    Michael Laforest  < para >
- *    Email: < thepara (--AT--) g m a i l [--DOT--] com >
- *
- *  Copyright 2006-2007
- *
- *  This file is part of wiiuse.
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  $Header$
- *
+ * This replaces the direct IOBluetoothL2CAPChannel transport. Discovery remains
+ * in os_mac_find.m; pairing and HID reports are handled by IOBluetoothDevicePair
+ * and IOHIDManager respectively.
  */
-
-/**
- *  @file
- *  @brief Handles device I/O for Mac OS X.
- */
-
 #ifdef __APPLE__
 
-
+/* Preserve the SDK compatibility setup used by wiiuse's original macOS files. */
 #define BLUETOOTH_VERSION_USE_CURRENT
 
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
-#import <IOBluetooth/objc/IOBluetoothL2CAPChannel.h>
+#import <IOBluetooth/objc/IOBluetoothDevicePair.h>
+#import <IOKit/hid/IOHIDLib.h>
 
 #import "../wiiuse_internal.h"
-
 
 #if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7
 #define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 1
@@ -48,45 +22,53 @@
 #define WIIUSE_MAC_OS_X_VERSION_10_7_OR_ABOVE 0
 #endif
 
+@interface WiiuseWiimote : NSObject<IOBluetoothDevicePairDelegate> {
+    wiimote *wm;
 
-@interface WiiuseWiimote : NSObject<IOBluetoothL2CAPChannelDelegate> {
-	wiimote* wm; // reference to the C wiimote struct
-	
-	IOBluetoothDevice* device;
-	IOBluetoothL2CAPChannel* controlChannel;
-	IOBluetoothL2CAPChannel* interruptChannel;
-	
-	IOBluetoothUserNotification* disconnectNotification;
-	
-	NSMutableArray* receivedData; // a queue of NSObject<WiiuseReceivedMessage>*
-	NSLock* receivedDataLock;
+    IOBluetoothDevice *device;
+    IOBluetoothDevicePair *pairingAgent;
+
+    /* Retained to initialise the system pairing coordinator's XPC path. */
+    id coreBluetoothManager;
+
+    IOHIDManagerRef hidManager;
+    IOHIDDeviceRef hidDevice;
+    uint8_t *inputReportBuffer;
+    CFIndex inputReportBufferSize;
+
+    BOOL pairingFinished;
+    IOReturn pairingError;
+    BOOL hidReady;
+
+    NSMutableArray *receivedData; /* WiiuseReceivedMessage objects */
+    NSLock *receivedDataLock;
 }
 
-- (id) initWithPtr: (wiimote*) wm device: (IOBluetoothDevice*) device;
+- (id)initWithPtr:(wiimote *)wm device:(IOBluetoothDevice *)device;
+- (IOReturn)connect;
+- (void)disconnect;
 
-- (IOReturn) connect;
-- (void) disconnect;
+- (int)readBuffer:(byte *)buffer length:(NSUInteger)bufferLength;
+- (int)writeReport:(byte)report_type buffer:(byte *)buffer length:(NSUInteger)length;
 
-- (int) readBuffer: (byte*) buffer length: (NSUInteger) bufferLength;
-- (int) writeReport: (byte) report_type buffer: (byte*) buffer length: (NSUInteger) length;
-
+/* Called by the IOHID C callbacks. */
+- (void)didMatchHIDDevice:(IOHIDDeviceRef)hid;
+- (void)didRemoveHIDDevice:(IOHIDDeviceRef)hid;
+- (void)didReceiveInputReport:(const uint8_t *)report length:(CFIndex)length;
 @end
 
-
 @protocol WiiuseReceivedMessage <NSObject>
-- (int) applyToStruct: (wiimote*) wm buffer: (byte*) buffer length: (NSUInteger) bufferLength; // <0: not copied, 0: copied empty, >0: copied
+- (int)applyToStruct:(wiimote *)wm buffer:(byte *)buffer length:(NSUInteger)bufferLength;
 @end
 
 @interface WiiuseReceivedData : NSObject<WiiuseReceivedMessage> {
-	NSData* data;
+    NSData *data;
 }
-- (id) initWithBytes: (void*) bytes length: (NSUInteger) length;
-- (id) initWithData: (NSData*) data;
+- (id)initWithBytes:(void *)bytes length:(NSUInteger)length;
+- (id)initWithData:(NSData *)data;
 @end
 
-@interface WiiuseDisconnectionMessage : NSObject<WiiuseReceivedMessage> {
-}
+@interface WiiuseDisconnectionMessage : NSObject<WiiuseReceivedMessage>
 @end
 
-
-#endif // __APPLE__
+#endif /* __APPLE__ */
